@@ -1,7 +1,7 @@
 package com.fluxtah.ask.assistants.coder
 
-import com.fluxtah.ask.api.assistants.ToolFunction
-import com.fluxtah.ask.api.assistants.ToolFunctionParam
+import com.fluxtah.ask.api.assistants.Fun
+import com.fluxtah.ask.api.assistants.FunParam
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.tooling.GradleConnector
@@ -24,9 +24,9 @@ class CoderFunctions(private val baseDir: String) {
         return normalizedPath
     }
 
-    @ToolFunction("Creates a directory for a software project")
+    @Fun("Creates a directory for a software project")
     fun createDirectory(
-        @ToolFunctionParam("The desired relative path and name of the project if it does not exist already")
+        @FunParam("The desired relative path and name of the project if it does not exist already")
         directoryName: String
     ): String {
         return try {
@@ -56,9 +56,9 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    @ToolFunction("Creates a file for a software project")
+    @Fun("Creates a file for a software project")
     fun createFile(
-        @ToolFunctionParam("The desired relative path of the file")
+        @FunParam("The desired relative path of the file")
         fileName: String
     ): String {
         return try {
@@ -89,11 +89,11 @@ class CoderFunctions(private val baseDir: String) {
     }
 
 
-    @ToolFunction("Creates or writes to a file for a software project")
+    @Fun("Creates or writes to a file for a software project")
     fun writeFile(
-        @ToolFunctionParam("The relative project path of the file")
+        @FunParam("The relative project path of the file")
         fileName: String,
-        @ToolFunctionParam("The contents to write to the file")
+        @FunParam("The contents to write to the file")
         fileContents: String
     ): String {
         return try {
@@ -115,9 +115,9 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    @ToolFunction("Reads a file for a software project")
+    @Fun("Reads a file for a software project")
     fun readFile(
-        @ToolFunctionParam("The relative project path of the file")
+        @FunParam("The relative project path of the file")
         fileName: String
     ): String {
         return try {
@@ -133,13 +133,13 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    @ToolFunction("Reads a block of lines from a file for a software project")
+    @Fun("Reads a block of lines from a file for a software project")
     fun readFileBlock(
-        @ToolFunctionParam("The relative project path of the file")
+        @FunParam("The relative project path of the file")
         fileName: String,
-        @ToolFunctionParam("The line number to start reading from")
+        @FunParam("The line number to start reading from")
         startLine: Int,
-        @ToolFunctionParam("The number of lines to read")
+        @FunParam("The number of lines to read")
         lineCount: Int
     ): String {
         return try {
@@ -158,9 +158,9 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    @ToolFunction("Counts the number of lines in a file for a software project")
+    @Fun("Counts the number of lines in a file for a software project")
     fun countLinesInFile(
-        @ToolFunctionParam("The relative project path of the file")
+        @FunParam("The relative project path of the file")
         fileName: String
     ): String {
         return try {
@@ -180,9 +180,9 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    @ToolFunction("Lists files in a directory for a software project")
+    @Fun("Lists files in a directory for a software project")
     fun listFilesInDirectory(
-        @ToolFunctionParam("The relative project path of the directory")
+        @FunParam("The relative project path of the directory")
         directoryName: String
     ): String {
         return try {
@@ -220,13 +220,13 @@ class CoderFunctions(private val baseDir: String) {
         return fileList
     }
 
-    @ToolFunction("Replaces specific text in a file for a software project")
+    @Fun("Replaces specific text in a file for a software project")
     fun replaceTextInFile(
-        @ToolFunctionParam("The relative project path of the file")
+        @FunParam("The relative project path of the file")
         fileName: String,
-        @ToolFunctionParam("The text to replace")
+        @FunParam("The text to replace")
         textToReplace: String,
-        @ToolFunctionParam("The replacement text")
+        @FunParam("The replacement text")
         replacementText: String
     ): String {
         return try {
@@ -260,15 +260,15 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    @ToolFunction("Replaces text in a file by index for a software project")
+    @Fun("Replaces text in a file by index for a software project")
     fun replaceTextInFileByIndex(
-        @ToolFunctionParam("The relative project path of the file")
+        @FunParam("The relative project path of the file")
         fileName: String,
-        @ToolFunctionParam("The start index of the text to replace")
+        @FunParam("The start index of the text to replace")
         startIndex: Int,
-        @ToolFunctionParam("The end index of the text to replace")
+        @FunParam("The end index of the text to replace")
         endIndex: Int,
-        @ToolFunctionParam("The replacement text")
+        @FunParam("The replacement text")
         replacementText: String
     ): String {
         return try {
@@ -304,13 +304,13 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    @ToolFunction("Builds a software project with Gradle")
+    @Fun("Builds a software project with Gradle")
     fun execGradle(
-        @ToolFunctionParam("The relative project path of the project")
+        @FunParam("The relative project path of the project")
         projectDir: String,
-        @ToolFunctionParam("The Gradle tasks to execute")
+        @FunParam("The Gradle tasks to execute")
         gradleTasks: String = "",
-        @ToolFunctionParam("Additional arguments to pass to Gradle")
+        @FunParam("Additional arguments to pass to Gradle")
         gradleArgs: String
     ): String {
         val errorOut = ByteArrayOutputStream()

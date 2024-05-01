@@ -13,6 +13,7 @@ import com.fluxtah.ask.api.clients.openai.assistants.model.SubmitToolOutputsRequ
 import com.fluxtah.ask.api.clients.openai.assistants.model.ToolOutput
 import com.fluxtah.ask.api.pollRunStatus
 import com.fluxtah.ask.api.store.PropertyStore
+import com.fluxtah.ask.app.commands.Command
 import com.fluxtah.ask.app.commands.CommandFactory
 import com.fluxtah.ask.assistants.coder.CoderAssistant
 import kotlinx.coroutines.runBlocking
@@ -31,15 +32,17 @@ class App(
     init {
         userProperties.load()
         assistantRegistry.register(CoderAssistant())
-
-        FunctionToolGenerator()
-            .generateToolsForInstance(assistantRegistry.getAssistantById("coder")!!.functions).let {
-                val json = Json { prettyPrint = true }.encodeToString(it)
-                println(json)
-            }
+//
+//        FunctionToolGenerator()
+//            .generateToolsForInstance(assistantRegistry.getAssistantById("coder")!!.functions).let {
+//                val json = Json { prettyPrint = true }.encodeToString(it)
+//                println(json)
+//            }
     }
 
     fun run() {
+        printWelcomeMessage()
+
         while (true) {
             print("$ ")
 
@@ -183,6 +186,27 @@ class App(
         )
     } else {
         run
+    }
+
+    private fun printWelcomeMessage() {
+        println("""
+         ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+        ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
+        ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
+        ░▒▓████████▓▒░░▒▓██████▓▒░░▒▓███████▓▒░  
+        ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+        ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+        ░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░             
+        """.trimIndent())
+        println("░▒▓█▓▒  Assistant Kommander v0.1  ▒▓█▓▒░")
+        println()
+        println("Assistants available:")
+        runBlocking {
+            commandFactory.create("/assistant-list").execute()
+        }
+        println()
+        println("Type /help for a list of commands")
+        println()
     }
 }
 

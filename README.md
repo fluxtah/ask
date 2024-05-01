@@ -1,6 +1,36 @@
 ## Assistant Kommander
 **Assistant Kommander** is a Kotlin-based console application that utilizes the OpenAI Assistants API for terminal-based interactions. Developers can execute commands and install assistant plugins via a command line interface.
 
+```bash
+ ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓████████▓▒░░▒▓██████▓▒░░▒▓███████▓▒░  
+░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░             
+░▒▓█▓▒  Assistant Kommander v0.1  ▒▓█▓▒░
+
+Assistants available:
+@coder - Coder Assistant 1.0, installed: true
+
+Type /help for a list of commands
+
+$ @coder how do I make a basic kotlin hello world function?
+
+[Exec Fun] createDirectory: {"directoryName":"KotlinHelloWorld"}...
+Creating directory: /ask/KotlinHelloWorld
+[Fun Result] {"created":"true"}
+[Exec Fun] createFile: {"fileName":"KotlinHelloWorld/Main.kt"}...
+Creating file: /ask/KotlinHelloWorld/Main.kt
+[Fun Result] {"created":"true"}
+[Exec Fun] writeFile: {"fileName":"KotlinHelloWorld/Main.kt","fileContents":"fun main() {\n    println(\"Hello, World!\")\n}"}...
+Writing to file: /ask/KotlinHelloWorld/Main.kt
+[Fun Result] {"written":"true"}
+The Kotlin "Hello World" function has been created in the file `Main.kt` within the `KotlinHelloWorld` project.
+$ 
+```
+
 ### Features
 - **Command Line Interface**: Input commands directly through a terminal prompt.
 - **Assistant Plugin System**: Allows for the installation and management of AI assistants as plugins.

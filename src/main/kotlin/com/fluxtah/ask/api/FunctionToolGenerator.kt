@@ -1,7 +1,7 @@
 package com.fluxtah.ask.api
 
-import com.fluxtah.ask.api.assistants.ToolFunction
-import com.fluxtah.ask.api.assistants.ToolFunctionParam
+import com.fluxtah.ask.api.assistants.Fun
+import com.fluxtah.ask.api.assistants.FunParam
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantTool
 import kotlin.reflect.KFunction
 import kotlin.reflect.KVisibility
@@ -11,9 +11,9 @@ import kotlin.reflect.full.memberFunctions
 class FunctionToolGenerator {
     fun <T : Any> generateToolsForInstance(targetInstance: T): List<AssistantTool> {
         return targetInstance::class.memberFunctions.filter {
-            it.visibility == KVisibility.PUBLIC && it.findAnnotation<ToolFunction>() != null
+            it.visibility == KVisibility.PUBLIC && it.findAnnotation<Fun>() != null
         }.map { function ->
-            val description = function.findAnnotation<ToolFunction>()?.description ?: "No description available"
+            val description = function.findAnnotation<Fun>()?.description ?: "No description available"
             AssistantTool.FunctionTool(
                 function = AssistantTool.FunctionTool.FunctionSpec(
                     name = function.name,
@@ -26,7 +26,7 @@ class FunctionToolGenerator {
 
     private fun createParametersSpec(function: KFunction<*>): AssistantTool.FunctionTool.ParametersSpec {
         val properties = function.parameters.drop(1).associate { parameter ->
-            val paramDescription = parameter.findAnnotation<ToolFunctionParam>()?.description ?: "No specific description"
+            val paramDescription = parameter.findAnnotation<FunParam>()?.description ?: "No specific description"
             (parameter.name ?: throw IllegalArgumentException("Unnamed parameter in function: ${function.name}")) to
                     AssistantTool.FunctionTool.PropertySpec(
                         type = parameter.type.let { type ->
