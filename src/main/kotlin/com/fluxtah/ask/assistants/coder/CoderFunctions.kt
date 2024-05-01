@@ -1,5 +1,7 @@
 package com.fluxtah.ask.assistants.coder
 
+import com.fluxtah.ask.api.assistants.ToolFunction
+import com.fluxtah.ask.api.assistants.ToolFunctionParam
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.tooling.GradleConnector
@@ -22,7 +24,11 @@ class CoderFunctions(private val baseDir: String) {
         return normalizedPath
     }
 
-    fun createDirectory(directoryName: String): String {
+    @ToolFunction("Creates a directory for a software project")
+    fun createDirectory(
+        @ToolFunctionParam("The desired relative path and name of the project if it does not exist already")
+        directoryName: String
+    ): String {
         return try {
             val directory = getSafeFile(directoryName)
             if (directory.mkdirs()) {
@@ -50,7 +56,11 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    fun createFile(fileName: String): String {
+    @ToolFunction("Creates a file for a software project")
+    fun createFile(
+        @ToolFunctionParam("The desired relative path of the file")
+        fileName: String
+    ): String {
         return try {
             val file = getSafeFile(fileName)
             if (file.createNewFile()) {
@@ -78,7 +88,14 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    fun writeFile(fileName: String, fileContents: String): String {
+
+    @ToolFunction("Creates or writes to a file for a software project")
+    fun writeFile(
+        @ToolFunctionParam("The relative project path of the file")
+        fileName: String,
+        @ToolFunctionParam("The contents to write to the file")
+        fileContents: String
+    ): String {
         return try {
             val file = getSafeFile(fileName)
             file.writeText(fileContents)
@@ -98,7 +115,11 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    fun readFile(fileName: String): String {
+    @ToolFunction("Reads a file for a software project")
+    fun readFile(
+        @ToolFunctionParam("The relative project path of the file")
+        fileName: String
+    ): String {
         return try {
             val file = getSafeFile(fileName)
             file.readText()
@@ -112,7 +133,15 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    fun readFileBlock(fileName: String, startLine: Int, lineCount: Int): String {
+    @ToolFunction("Reads a block of lines from a file for a software project")
+    fun readFileBlock(
+        @ToolFunctionParam("The relative project path of the file")
+        fileName: String,
+        @ToolFunctionParam("The line number to start reading from")
+        startLine: Int,
+        @ToolFunctionParam("The number of lines to read")
+        lineCount: Int
+    ): String {
         return try {
             val file = getSafeFile(fileName)
             val lines = file.useLines { it.drop(startLine - 1).take(lineCount).toList() }
@@ -129,7 +158,11 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    fun countLinesInFile(fileName: String): String {
+    @ToolFunction("Counts the number of lines in a file for a software project")
+    fun countLinesInFile(
+        @ToolFunctionParam("The relative project path of the file")
+        fileName: String
+    ): String {
         return try {
             val file = getSafeFile(fileName)
             val lineCount = file.useLines { lines -> lines.count() }
@@ -147,7 +180,11 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    fun listFilesInDirectory(directoryName: String): String {
+    @ToolFunction("Lists files in a directory for a software project")
+    fun listFilesInDirectory(
+        @ToolFunctionParam("The relative project path of the directory")
+        directoryName: String
+    ): String {
         return try {
             val directory = getSafeFile(directoryName)
             val fileList = listFilesInImmediateSubdirectories(directory)
@@ -183,7 +220,15 @@ class CoderFunctions(private val baseDir: String) {
         return fileList
     }
 
-    fun replaceTextInFile(fileName: String, textToReplace: String, replacementText: String): String {
+    @ToolFunction("Replaces specific text in a file for a software project")
+    fun replaceTextInFile(
+        @ToolFunctionParam("The relative project path of the file")
+        fileName: String,
+        @ToolFunctionParam("The text to replace")
+        textToReplace: String,
+        @ToolFunctionParam("The replacement text")
+        replacementText: String
+    ): String {
         return try {
             val file = getSafeFile(fileName)
             val fileText = file.readText()
@@ -215,7 +260,17 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    fun replaceTextInFileByIndex(fileName: String, startIndex: Int, endIndex: Int, replacementText: String): String {
+    @ToolFunction("Replaces text in a file by index for a software project")
+    fun replaceTextInFileByIndex(
+        @ToolFunctionParam("The relative project path of the file")
+        fileName: String,
+        @ToolFunctionParam("The start index of the text to replace")
+        startIndex: Int,
+        @ToolFunctionParam("The end index of the text to replace")
+        endIndex: Int,
+        @ToolFunctionParam("The replacement text")
+        replacementText: String
+    ): String {
         return try {
             val file = getSafeFile(fileName)
             val fileText = file.readText()
@@ -249,8 +304,16 @@ class CoderFunctions(private val baseDir: String) {
         }
     }
 
-    fun execGradle(projectDir: String, gradleTasks: String = "", gradleArgs: String): String {
-            val errorOut = ByteArrayOutputStream()
+    @ToolFunction("Builds a software project with Gradle")
+    fun execGradle(
+        @ToolFunctionParam("The relative project path of the project")
+        projectDir: String,
+        @ToolFunctionParam("The Gradle tasks to execute")
+        gradleTasks: String = "",
+        @ToolFunctionParam("Additional arguments to pass to Gradle")
+        gradleArgs: String
+    ): String {
+        val errorOut = ByteArrayOutputStream()
         return try {
             val projectDirectory = getSafeFile(projectDir)
             val connector = GradleConnector.newConnector().forProjectDirectory(projectDirectory)

@@ -23,6 +23,7 @@ sealed class Command {
         override suspend fun execute() {
             println("Help: List of available commands...")
             println("/exit - Exits the application")
+            println("/assistant-list - Displays all available assistants")
             println("/assistant-info <assistant-id> - Displays the assistant")
             println("/thread - Creates a new assistant thread")
             println("/thread-which - Displays the current assistant thread")

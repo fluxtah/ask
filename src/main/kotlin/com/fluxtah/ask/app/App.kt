@@ -1,6 +1,7 @@
 package com.fluxtah.ask.app
 
 import com.fluxtah.ask.api.FunctionInvoker
+import com.fluxtah.ask.api.FunctionToolGenerator
 import com.fluxtah.ask.api.assistants.AssistantDefinition
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
@@ -15,6 +16,8 @@ import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.ask.app.commands.CommandFactory
 import com.fluxtah.ask.assistants.coder.CoderAssistant
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class App(
     private val userProperties: UserProperties = UserProperties(PropertyStore("user.properties")),
@@ -28,6 +31,12 @@ class App(
     init {
         userProperties.load()
         assistantRegistry.register(CoderAssistant())
+
+        FunctionToolGenerator()
+            .generateToolsForInstance(assistantRegistry.getAssistantById("coder")!!.functions).let {
+                val json = Json { prettyPrint = true }.encodeToString(it)
+                println(json)
+            }
     }
 
     fun run() {
