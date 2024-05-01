@@ -38,6 +38,7 @@ $
 
 ### Basic Commands
 - `/exit` - Exits the application.
+- `/assistant-install <assistant-id>` - Installs an assistant plugin.
 - `/assistant-list` - Lists all available assistants.
 - `/assistant-info <assistant-id>` - Displays details for a specified assistant.
 - `/thread-new` - Creates a new assistant thread.
@@ -48,6 +49,14 @@ $
 - `/run-step-list` - Lists steps of all runs within the current thread.
 - `/http-log` - Displays the last 10 HTTP requests.
 - `/set-key <api-key>` - Sets the OpenAI API key.
+
+### Installing Assistant Plugins
+Assistant plugins can be installed using the `/assistant-install <assistant-id>` command. For example, to install the coder assistant, use `/assistant-install coder`.
+
+### Assistant Threads
+Assistant threads are used to manage interactions with assistants. Users can create new threads, list existing threads, and switch between them using the `/thread-new`, `/thread-list`, and `/thread-which` commands, respectively.
+
+Generally if you want to start a new conversation with an assistant, you should create a new thread (using `/thread-new`). This allows you to keep track of multiple conversations at once.
 
 ### `@` Assistant Commands
 With assistant plugins installed, users can interact with them using the `@` symbol.
