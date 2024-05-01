@@ -3,15 +3,15 @@ package com.fluxtah.ask.assistants.coder
 import com.fluxtah.ask.api.assistants.AssistantDefinition
 
 class CoderAssistant : AssistantDefinition(
-    name = "Coder Assistant",
     id = "coder",
+    name = "Coder Assistant",
+    description = "A coder assistant to help write and maintain code",
+    model = "gpt-4-turbo",
+    temperature = 0.9f,
     version = "1.0",
     instructions = INSTRUCTIONS,
     functions = CoderFunctions("/Users/ian.warwick/Documents/codemate")
-) {
-    override val installId: String
-        get() = "asst_RTs5JMyLSSYQ5KtoNf9UyEUd"
-}
+)
 
 private val INSTRUCTIONS = """
     Your role is to assist the engineer to write and code and maintain code

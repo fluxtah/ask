@@ -3,6 +3,7 @@ package com.fluxtah.ask.app
 import com.fluxtah.ask.api.FunctionInvoker
 import com.fluxtah.ask.api.FunctionToolGenerator
 import com.fluxtah.ask.api.assistants.AssistantDefinition
+import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRun
@@ -26,18 +27,13 @@ class App(
         apiKeyProvider = { userProperties.getOpenaiApiKey() }
     ),
     private val assistantRegistry: AssistantRegistry = AssistantRegistry(),
-    private val commandFactory: CommandFactory = CommandFactory(assistantsApi, assistantRegistry, userProperties),
+    private val assistantInstallRepository: AssistantInstallRepository = AssistantInstallRepository(assistantsApi),
+    private val commandFactory: CommandFactory = CommandFactory(assistantsApi, assistantRegistry, assistantInstallRepository, userProperties),
     private val functionInvoker: FunctionInvoker = FunctionInvoker(),
 ) {
     init {
         userProperties.load()
         assistantRegistry.register(CoderAssistant())
-//
-//        FunctionToolGenerator()
-//            .generateToolsForInstance(assistantRegistry.getAssistantById("coder")!!.functions).let {
-//                val json = Json { prettyPrint = true }.encodeToString(it)
-//                println(json)
-//            }
     }
 
     fun run() {
@@ -91,12 +87,19 @@ class App(
         val assistantDef = assistantRegistry.getAssistantById(assistantId)
 
         if (assistantDef == null) {
-            println("Assistant not found: $assistantId")
+            println("Assistant definition not found: $assistantId")
+            return
+        }
+
+        val assistantInstallRecord = assistantInstallRepository.getAssistantInstallRecord(assistantDef.id)
+
+        if(assistantInstallRecord == null) {
+            println("Assistant not installed: $assistantId, to install use /assistant-install $assistantId")
             return
         }
 
         val userMessage = assistantsApi.messages.createUserMessage(currentThreadId, prompt)
-        val createRun = assistantsApi.runs.createRun(currentThreadId, RunRequest(assistantId = assistantDef.installId))
+        val createRun = assistantsApi.runs.createRun(currentThreadId, RunRequest(assistantId = assistantInstallRecord.installId))
         userProperties.setRunId(createRun.id)
         userProperties.save()
 

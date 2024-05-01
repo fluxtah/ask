@@ -1,6 +1,7 @@
 package com.fluxtah.ask.app.commands
 
 import com.fluxtah.ask.api.assistants.AssistantDefinition
+import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.HTTP_LOG
@@ -24,6 +25,7 @@ sealed class Command {
             println("Help: List of available commands...")
             println("/exit - Exits the application")
             println("/assistant-list - Displays all available assistants")
+            println("/assistant-install <assistant-id> - Installs an assistant")
             println("/assistant-info <assistant-id> - Displays the assistant")
             println("/thread - Creates a new assistant thread")
             println("/thread-which - Displays the current assistant thread")
@@ -135,12 +137,29 @@ sealed class Command {
         }
     }
 
-    class ListAssistants(private val assistantRegistry: AssistantRegistry) : Command() {
+    class ListAssistants(private val assistantRegistry: AssistantRegistry, private val assistantInstallRepository: AssistantInstallRepository) : Command() {
         override suspend fun execute() {
+            val installedAssistants = assistantInstallRepository.getAssistantInstallRecords()
             assistantRegistry.getAssistants().forEach {
-                println("@${it.id} - ${it.name} ${it.version}, installed: ${it.isInstalled()}")
+                println("@${it.id} - ${it.name} ${it.version}, installed: ${installedAssistants.find { record -> record.id == it.id } != null}")
             }
         }
+    }
+
+    class InstallAssistant(private val assistantRegistry: AssistantRegistry, private val assistantInstallRepository: AssistantInstallRepository, val assistantId: String) : Command() {
+        override suspend fun execute() {
+            val def = assistantRegistry.getAssistantById(assistantId)
+
+            if (def == null) {
+                println("Assistant not found: $assistantId")
+                return
+            }
+
+            val assistantInstallRecord = assistantInstallRepository.install(def)
+
+            println("Installed assistant: @${def.id} ${def.version} as ${assistantInstallRecord.installId}")
+        }
+
     }
 
     data object ShowHttpLog : Command() {

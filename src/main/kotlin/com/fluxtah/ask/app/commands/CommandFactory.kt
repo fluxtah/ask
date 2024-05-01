@@ -1,5 +1,6 @@
 package com.fluxtah.ask.app.commands
 
+import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.app.UserProperties
@@ -7,6 +8,7 @@ import com.fluxtah.ask.app.UserProperties
 class CommandFactory(
     private val assistantsApi: AssistantsApi,
     private val assistantRegistry: AssistantRegistry,
+    private val assistantInstallRepository: AssistantInstallRepository,
     private val userProperties: UserProperties
 ) {
     private val commands = mapOf<String, (List<String>) -> Command>(
@@ -26,8 +28,15 @@ class CommandFactory(
         "/run-list" to { Command.ListRuns(assistantsApi, userProperties) },
         "/run-step-list" to { Command.ListRunSteps(assistantsApi, userProperties) },
         "/http-log" to { Command.ShowHttpLog },
+        "/assistant-install" to {
+            if (it.size != 1) {
+                Command.UnknownCommand("Invalid number of arguments for /assistant-install, expected an assistant ID following the command")
+            } else {
+                Command.InstallAssistant(assistantRegistry, assistantInstallRepository, it.first())
+            }
+        },
         "/assistant-list" to {
-            Command.ListAssistants(assistantRegistry)
+            Command.ListAssistants(assistantRegistry, assistantInstallRepository)
         },
         "/assistant-info" to {
             if (it.size != 1) {

@@ -16,20 +16,3 @@ data class Assistant(
     @SerialName("tool_resources") val toolResource: ToolResources? = null,
     @SerialName("metadata") val metadata: Map<String, String> = emptyMap()
 )
-
-@Serializable
-data class ToolResources(
-    @SerialName("code_interpreter") val codeInterpreter: ToolResourcesCodeInterpreter? = null,
-    @SerialName("file_search") val fileSearch: ToolResourcesFileSearch? = null,
-)
-
-@Serializable
-data class ToolResourcesCodeInterpreter(
-    @SerialName("file_ids") val fileIds: List<String> = emptyList(),
-)
-
-@Serializable
-data class ToolResourcesFileSearch(
-    @SerialName("vector_store_ids") val vectorStoreIds: List<String> = emptyList(),
-)
-

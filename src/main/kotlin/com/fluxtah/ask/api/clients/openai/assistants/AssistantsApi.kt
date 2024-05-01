@@ -52,6 +52,24 @@ class AssistantsApiClient(
         val response = client.post("$baseUri/$version/assistants") {
             contentType(ContentType.Application.Json)
             header("Authorization", "Bearer ${apiKeyProvider.invoke()}")
+            openAiAssistantsBetaHeader()
+            setBody(request)
+        }
+
+        when (response.status) {
+            HttpStatusCode.OK -> {
+                return response.body<Assistant>()
+            }
+
+            else -> throw IllegalStateException(response.bodyAsText())
+        }
+    }
+
+    suspend fun modifyAssistant(assistantId: String, request: ModifyAssistantRequest): Assistant {
+        val response = client.post("$baseUri/$version/assistants/$assistantId") {
+            contentType(ContentType.Application.Json)
+            header("Authorization", "Bearer ${apiKeyProvider.invoke()}")
+            openAiAssistantsBetaHeader()
             setBody(request)
         }
 

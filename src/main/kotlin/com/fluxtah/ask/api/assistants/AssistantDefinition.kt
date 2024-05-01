@@ -1,26 +1,24 @@
 package com.fluxtah.ask.api.assistants
 
-abstract class AssistantDefinition(
-    val name: String,
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class AssistantInstallRecord(
     val id: String,
+    val version: String,
+    val installId: String
+)
+
+abstract class AssistantDefinition(
+    val id: String,
+    val name: String,
+    val model: String,
+    val temperature: Float,
+    val description: String,
     val version: String,
     val instructions: String,
     val functions: Any
-) {
-    fun install() {
-        println("Installing assistant $name")
-    }
-
-    fun isInstalled(): Boolean {
-        if (installId.isEmpty()) {
-            return false
-        }
-
-        return true
-    }
-
-    abstract val installId: String
-}
+)
 
 class AssistantRegistry {
     private val assistants = mutableListOf<AssistantDefinition>()
