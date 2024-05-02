@@ -53,6 +53,33 @@ $
 ### Installing Assistant Plugins
 Assistant plugins can be installed using the `/assistant-install <assistant-id>` command. For example, to install the coder assistant, use `/assistant-install coder`.
 
+### Writing Assistant Plugins
+Assistant plugins make it easy to define functions that can be executed by an assistant.
+
+Each assistant should implement the `AssistantDefinition` abstract class and assign a class to `functions` property. The `functions` property.
+
+The class you assign to the functions property can define member functions in kotlin, any function you wish to expose should be annotated them with the `@AskFunction` annotation. The annotation should include a description of the function.
+
+Function parameters can be annotated with the `@AskParam` annotation to provide a description of the parameter.
+
+This function will be used to generate the JSON template when creating the assistant with the openai API.
+
+example:- 
+
+```kotlin
+class HelloWorldAssistant : AssistantDefinition() {
+    override val functions: List<KFunction<*>> = listOf(::createHelloWorldFunction)
+
+    @AskFunction("Create a basic Kotlin Hello World function")
+    fun createHelloWorldFunction(): String {
+        println("Hello World")
+        return "function executed"
+    }
+}
+```
+
+Check the OpenAI assistant documentation for more information on functions.
+
 ### Assistant Threads
 Assistant threads are used to manage interactions with assistants. Users can create new threads, list existing threads, and switch between them using the `/thread-new`, `/thread-list`, and `/thread-which` commands, respectively.
 
