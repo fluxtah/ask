@@ -1,6 +1,7 @@
 package com.fluxtah.ask.assistants.coder
 
 import com.fluxtah.ask.api.assistants.AssistantDefinition
+import com.fluxtah.ask.api.assistants.Fun
 
 class CoderAssistant : AssistantDefinition(
     id = "coder",
@@ -24,3 +25,20 @@ private val INSTRUCTIONS = """
     
     no prose
 """.trimIndent()
+
+
+class HelloAssistant : AssistantDefinition(
+    id = "hello",
+    name = "Hello Assistant",
+    description = "A simple assistant to say hello",
+    model = "gpt-4-turbo",
+    temperature = 0.9f,
+    version = "1.0",
+    instructions = "Just say hello",
+    functions = HelloFunctions()
+)
+
+class HelloFunctions {
+    @Fun("Greets the user with a hello")
+    fun hello() = "Hello!"
+}

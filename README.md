@@ -1,4 +1,4 @@
-## Assistant Kommander
+## Assistant Kommander (ALPHA)
 **Assistant Kommander** is a Kotlin-based console application that utilizes the OpenAI Assistants API for terminal-based interactions. Developers can execute commands and install assistant plugins via a command line interface.
 
 ```bash
@@ -67,15 +67,27 @@ This function will be used to generate the JSON template when creating the assis
 example:- 
 
 ```kotlin
-class HelloWorldAssistant : AssistantDefinition() {
-    override val functions: List<KFunction<*>> = listOf(::createHelloWorldFunction)
+class HelloAssistant : AssistantDefinition(
+  id = "hello",
+  name = "Hello Assistant",
+  description = "A simple assistant to say hello",
+  model = "gpt-4-turbo",
+  temperature = 0.9f,
+  version = "1.0",
+  instructions = "Just say hello",
+  functions = HelloFunctions()
+)
 
-    @AskFunction("Create a basic Kotlin Hello World function")
-    fun createHelloWorldFunction(): String {
-        println("Hello World")
-        return "function executed"
-    }
+class HelloFunctions {
+  @Fun("Greets the user with a hello")
+  fun hello() = "Hello!"
 }
+```
+
+For now until we have an external modular way of loading plugins you can register your assistant in the `App` class `init` block.
+
+```kotlin
+assistantRegistry.register(HelloAssistant())
 ```
 
 Check the OpenAI assistant documentation for more information on functions.
