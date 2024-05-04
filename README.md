@@ -41,6 +41,30 @@ $
 - **Interactive Mode**: Run the application in interactive mode to interact with assistants. `ask --interactive` until you exit with `/exit`.
 - **Ask Commands**: One shot commands to interact with assistants using `ask @coder to generate a ktor project`.
 
+
+### Installation With Homebrew
+
+To install `ask` using Homebrew, follow these simple steps:
+
+1. **Add the Tap**:
+   First, add the custom tap to your Homebrew repository list. This informs Homebrew where to find the `ask` formula.
+   ```bash
+   brew tap fluxtah/ask
+   ```
+
+2. **Install the Tool**:
+   After adding the tap, install `ask` like any other Homebrew package:
+   ```bash
+   brew install ask
+   ```
+
+#### Uninstallation With Homebrew
+
+If you need to uninstall `ask`, use the following command:
+```bash
+brew uninstall ask
+```
+
 ### Basic Commands
 - `/exit` - Exits the application.
 - `/assistant-install <assistant-id>` - Installs an assistant plugin.
