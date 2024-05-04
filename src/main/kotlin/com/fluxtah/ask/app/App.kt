@@ -19,7 +19,7 @@ import com.fluxtah.ask.api.clients.openai.assistants.model.SubmitToolOutputsRequ
 import com.fluxtah.ask.api.clients.openai.assistants.model.ToolOutput
 import com.fluxtah.ask.api.pollRunStatus
 import com.fluxtah.ask.api.store.PropertyStore
-import com.fluxtah.ask.app.commands.CommandFactory
+import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.ask.assistants.coder.CoderAssistant
 import kotlinx.coroutines.runBlocking
 import kotlin.system.exitProcess
