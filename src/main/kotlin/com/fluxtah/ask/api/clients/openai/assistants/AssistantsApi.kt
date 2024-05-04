@@ -103,6 +103,22 @@ class AssistantsApiClient(
             else -> throw IllegalStateException(response.bodyAsText())
         }
     }
+
+    suspend fun deleteAssistant(assistantId: String): AssistantDeletionStatus {
+        val response = client.delete("$baseUri/$version/assistants/$assistantId") {
+            contentType(ContentType.Application.Json)
+            header("Authorization", "Bearer ${apiKeyProvider.invoke()}")
+            openAiAssistantsBetaHeader()
+        }
+
+        when (response.status) {
+            HttpStatusCode.OK -> {
+                return response.body<AssistantDeletionStatus>()
+            }
+
+            else -> throw IllegalStateException(response.bodyAsText())
+        }
+    }
 }
 
 class RunsApiClient(

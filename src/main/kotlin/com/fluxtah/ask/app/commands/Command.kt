@@ -92,7 +92,11 @@ sealed class Command {
         }
     }
 
-    class GetThread(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties, private val threadId: String? = null) : Command() {
+    class GetThread(
+        private val assistantsApi: AssistantsApi,
+        private val userProperties: UserProperties,
+        private val threadId: String? = null
+    ) : Command() {
         override val requiresApiKey: Boolean = true
         override suspend fun execute() {
             val actualThread = threadId ?: userProperties.getThreadId().ifEmpty { null }
@@ -159,7 +163,10 @@ sealed class Command {
         }
     }
 
-    class ListAssistants(private val assistantRegistry: AssistantRegistry, private val assistantInstallRepository: AssistantInstallRepository) : Command() {
+    class ListAssistants(
+        private val assistantRegistry: AssistantRegistry,
+        private val assistantInstallRepository: AssistantInstallRepository
+    ) : Command() {
         override val requiresApiKey: Boolean = true
         override suspend fun execute() {
             val installedAssistants = assistantInstallRepository.getAssistantInstallRecords()
@@ -169,7 +176,11 @@ sealed class Command {
         }
     }
 
-    class InstallAssistant(private val assistantRegistry: AssistantRegistry, private val assistantInstallRepository: AssistantInstallRepository, val assistantId: String) : Command() {
+    class InstallAssistant(
+        private val assistantRegistry: AssistantRegistry,
+        private val assistantInstallRepository: AssistantInstallRepository,
+        val assistantId: String
+    ) : Command() {
         override val requiresApiKey: Boolean = true
         override suspend fun execute() {
             val def = assistantRegistry.getAssistantById(assistantId)
@@ -185,6 +196,37 @@ sealed class Command {
         }
 
     }
+
+    class UnInstallAssistant(
+        private val assistantRegistry: AssistantRegistry,
+        private val assistantInstallRepository: AssistantInstallRepository,
+        val assistantId: String
+    ) : Command() {
+        override val requiresApiKey: Boolean = true
+        override suspend fun execute() {
+            val def = assistantRegistry.getAssistantById(assistantId)
+
+            if (def == null) {
+                println("Assistant not found: @$assistantId")
+                return
+            }
+
+            val assistantInstallRecord = assistantInstallRepository.getAssistantInstallRecord(assistantId)
+
+            if (assistantInstallRecord == null) {
+                println("Assistant @${def.id} ${def.version} not installed.")
+                return
+            }
+
+            if (assistantInstallRepository.uninstall(assistantInstallRecord)) {
+                println("Uninstalled assistant: @${def.id} ${def.version} as ${assistantInstallRecord.installId}")
+            } else {
+                println("Failed to uninstall assistant: @${def.id} ${def.version} as ${assistantInstallRecord.installId}")
+            }
+        }
+
+    }
+
 
     data object ShowHttpLog : Command() {
         override val requiresApiKey: Boolean = false

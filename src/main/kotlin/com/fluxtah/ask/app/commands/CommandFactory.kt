@@ -41,6 +41,13 @@ class CommandFactory(
                 Command.InstallAssistant(assistantRegistry, assistantInstallRepository, it.first())
             }
         },
+        "/assistant-uninstall" to {
+            if (it.size != 1) {
+                Command.UnknownCommand("Invalid number of arguments for /assistant-uninstall, expected an assistant ID following the command")
+            } else {
+                Command.UnInstallAssistant(assistantRegistry, assistantInstallRepository, it.first())
+            }
+        },
         "/assistant-list" to {
             Command.ListAssistants(assistantRegistry, assistantInstallRepository)
         },

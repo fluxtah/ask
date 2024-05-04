@@ -30,6 +30,18 @@ class AssistantInstallRepository(private val assistantsApi: AssistantsApi) {
         return newRecord
     }
 
+    suspend fun uninstall(assistantRecord: AssistantInstallRecord): Boolean {
+        val status = assistantsApi.assistants.deleteAssistant(assistantRecord.installId)
+
+        if (status.deleted) {
+            removeAssistantInstallRecord(assistantRecord)
+            return true
+        }
+
+        return false
+    }
+
+
     private suspend fun modifyAssistantFromDef(
         assistantDef: AssistantDefinition,
         assistantInstallRecord: AssistantInstallRecord
@@ -80,10 +92,6 @@ class AssistantInstallRepository(private val assistantsApi: AssistantsApi) {
         )
     }
 
-    fun uninstall(assistantId: String) {
-        TODO()
-    }
-
     fun getAssistantInstallRecord(assistantId: String): AssistantInstallRecord? {
         return getAssistantInstallRecords().find { it.id == assistantId }
     }
@@ -110,6 +118,17 @@ class AssistantInstallRepository(private val assistantsApi: AssistantsApi) {
             records.remove(existingRecord)
         }
         records.add(record)
+
+        val file = File(getUserConfigDirectory(), "assistants.jsonl")
+        file.writeText(records.joinToString("\n") { Json.encodeToString(it) })
+    }
+
+    private fun removeAssistantInstallRecord(record: AssistantInstallRecord) {
+        val records = getAssistantInstallRecords().toMutableList()
+        val existingRecord = records.find { it.id == record.id }
+        if (existingRecord != null) {
+            records.remove(existingRecord)
+        }
 
         val file = File(getUserConfigDirectory(), "assistants.jsonl")
         file.writeText(records.joinToString("\n") { Json.encodeToString(it) })
