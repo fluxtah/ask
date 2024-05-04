@@ -72,7 +72,7 @@ tasks.register("packageDistribution") {
         }
 
         // Define the path for the tarball within the dist directory
-        val tarPath = "$distDir/ask-0.1.tar.gz"
+        val tarPath = "$distDir/ask-0.11.tar.gz"
 
         // Create tarball containing all contents of the dist directory
         exec {
