@@ -13,6 +13,8 @@ data object Help : Command() {
         println("/exit - Exits the application")
         println("/assistant-list - Displays all available assistants")
         println("/assistant-install <assistant-id> - Installs an assistant")
+        println("/assistant-uninstall <assistant-id> - Uninstalls an assistant")
+        println("/assistant-which - Displays the current assistant")
         println("/assistant-info <assistant-id> - Displays the assistant")
         println("/thread - Creates a new assistant thread")
         println("/thread-which - Displays the current assistant thread")

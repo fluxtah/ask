@@ -68,6 +68,7 @@ brew uninstall ask
 ### Basic Commands
 - `/exit` - Exits the application.
 - `/assistant-install <assistant-id>` - Installs an assistant plugin.
+- `/assistant-uninstall <assistant-id>` - Uninstalls an assistant plugin.
 - `/assistant-list` - Lists all available assistants.
 - `/assistant-info <assistant-id>` - Displays details for a specified assistant.
 - `/thread-new` - Creates a new assistant thread.

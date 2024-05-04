@@ -13,9 +13,9 @@ class CoderAssistant : AssistantDefinition(
     id = "coder",
     name = "Coder Assistant",
     description = "A coder assistant to help write and maintain code",
-    model = "gpt-4-turbo",
+    model = "gpt-3.5-turbo-16k",
     temperature = 0.9f,
-    version = "1.0",
+    version = "0.1",
     instructions = INSTRUCTIONS,
     functions = CoderFunctions(getCurrentWorkingDirectory())
 )

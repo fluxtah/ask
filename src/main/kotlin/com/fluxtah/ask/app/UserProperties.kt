@@ -13,6 +13,8 @@ class UserProperties(private val store: PropertyStore) {
         const val THREAD_ID = "threadId"
         const val RUN_ID = "runId"
         const val OPENAI_API_KEY = "openaiApiKey"
+        const val MODEL = "model"
+        const val ASSISTANT_ID = "assistantId"
     }
 
     fun getThreadId(): String {
@@ -37,6 +39,22 @@ class UserProperties(private val store: PropertyStore) {
 
     fun setOpenAiApiKey(openaiApiKey: String) {
         store.setProperty(OPENAI_API_KEY, openaiApiKey)
+    }
+
+    fun getModel(): String {
+        return store.getProperty(MODEL)
+    }
+
+    fun setModel(model: String) {
+        store.setProperty(MODEL, model)
+    }
+
+    fun getAssistantId(): String {
+        return store.getProperty(ASSISTANT_ID)
+    }
+
+    fun setAssistantId(assistantId: String) {
+        store.setProperty(ASSISTANT_ID, assistantId)
     }
 
     fun load() {

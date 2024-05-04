@@ -91,12 +91,20 @@ class App(
             return
         }
 
-        if (!prompt.startsWith("@")) {
+        if (!prompt.startsWith("@") && userProperties.getAssistantId().isEmpty()) {
             println("You need to address an assistant with @assistant-id <prompt>, to see available assistants use /assistant-list")
             return
         }
 
-        val assistantId = prompt.substringBefore(" ").drop(1)
+        val assistantId = if(prompt.startsWith("@")) {
+            val parts = prompt.split(" ")
+            val assistantId = parts[0].substring(1)
+            parts.drop(1).joinToString(" ")
+            assistantId
+        } else {
+            userProperties.getAssistantId()
+        }
+
         val assistantDef = assistantRegistry.getAssistantById(assistantId)
 
         if (assistantDef == null) {
@@ -114,6 +122,7 @@ class App(
         val userMessage = assistantsApi.messages.createUserMessage(currentThreadId, prompt)
         val createRun = assistantsApi.runs.createRun(currentThreadId, RunRequest(assistantId = assistantInstallRecord.installId))
         userProperties.setRunId(createRun.id)
+        userProperties.setAssistantId(assistantId)
         userProperties.save()
 
         processRun(assistantDef, createRun, currentThreadId)

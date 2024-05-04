@@ -26,6 +26,7 @@ import com.fluxtah.ask.app.commanding.commands.SetOpenAiApiKey
 import com.fluxtah.ask.app.commanding.commands.ShowHttpLog
 import com.fluxtah.ask.app.commanding.commands.UnInstallAssistant
 import com.fluxtah.ask.app.commanding.commands.UnknownCommand
+import com.fluxtah.ask.app.commanding.commands.WhichAssistant
 import com.fluxtah.ask.app.commanding.commands.WhichThread
 
 class CommandFactory(
@@ -37,20 +38,6 @@ class CommandFactory(
     private val commands = mapOf<String, (List<String>) -> Command>(
         "/help" to { Help },
         "/exit" to { Exit },
-        "/thread-new" to { CreateAssistantThread(assistantsApi, userProperties) },
-        "/thread-which" to { WhichThread(userProperties) },
-        "/thread-info" to {
-            if (it.isEmpty()) {
-                GetThread(assistantsApi, userProperties, null)
-            } else {
-                GetThread(assistantsApi, userProperties, it.first())
-            }
-        },
-        "/thread-list" to { ListThreads(assistantsApi) },
-        "/message-list" to { ListMessages(assistantsApi, userProperties) },
-        "/run-list" to { ListRuns(assistantsApi, userProperties) },
-        "/run-step-list" to { ListRunSteps(assistantsApi, userProperties) },
-        "/http-log" to { ShowHttpLog },
         "/assistant-install" to {
             if (it.size != 1) {
                 UnknownCommand("Invalid number of arguments for /assistant-install, expected an assistant ID following the command")
@@ -68,6 +55,9 @@ class CommandFactory(
         "/assistant-list" to {
             ListAssistants(assistantRegistry, assistantInstallRepository)
         },
+        "/assistant-which" to {
+            WhichAssistant(userProperties, assistantRegistry, assistantInstallRepository)
+        },
         "/assistant-info" to {
             if (it.size != 1) {
                 UnknownCommand("Invalid number of arguments for /assistant-info, expected a assistant ID following the command")
@@ -75,6 +65,20 @@ class CommandFactory(
                 GetAssistant(assistantsApi, it.first())
             }
         },
+        "/thread-new" to { CreateAssistantThread(assistantsApi, userProperties) },
+        "/thread-which" to { WhichThread(userProperties) },
+        "/thread-info" to {
+            if (it.isEmpty()) {
+                GetThread(assistantsApi, userProperties, null)
+            } else {
+                GetThread(assistantsApi, userProperties, it.first())
+            }
+        },
+        "/thread-list" to { ListThreads(assistantsApi) },
+        "/message-list" to { ListMessages(assistantsApi, userProperties) },
+        "/run-list" to { ListRuns(assistantsApi, userProperties) },
+        "/run-step-list" to { ListRunSteps(assistantsApi, userProperties) },
+        "/http-log" to { ShowHttpLog },
         "/set-key" to {
             if (it.size != 1) {
                 UnknownCommand("Invalid number of arguments for /set-key, expected an API key following the command")
