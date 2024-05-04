@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Ian Warwick
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ */
+
 package com.fluxtah.ask.app.commands
 
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository

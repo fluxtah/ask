@@ -159,3 +159,8 @@ be distributed with homebrew, etc.
 
 Homebrew tap is available at [Homebrew Ask](https://github.com/fluxtah/homebrew-ask)
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+

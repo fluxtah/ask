@@ -1,11 +1,19 @@
+/*
+ * Copyright (c) 2024 Ian Warwick
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ */
+
 package com.fluxtah.ask.app.commands
 
-import com.fluxtah.ask.api.assistants.AssistantDefinition
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.HTTP_LOG
-import com.fluxtah.ask.api.clients.openai.assistants.model.*
+import com.fluxtah.ask.api.clients.openai.assistants.model.Assistant
+import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantMessageList
+import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRunStepList
+import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantThread
 import com.fluxtah.ask.app.UserProperties
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
