@@ -1,7 +1,7 @@
 import com.fluxtah.ask.app.App
 
 fun main(args: Array<String>) {
-    var interactive = true
+    var interactive = false
     if (args.size > 1) {
         when {
             args[1] == "--version" -> {
