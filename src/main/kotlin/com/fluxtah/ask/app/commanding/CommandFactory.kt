@@ -65,7 +65,7 @@ class CommandFactory(
             if (it.size != 1) {
                 UnknownCommand("Invalid number of arguments for /assistant-info, expected a assistant ID following the command")
             } else {
-                GetAssistant(assistantsApi, it.first())
+                GetAssistant(assistantRegistry, assistantInstallRepository, assistantsApi, it.first())
             }
         },
         "/model" to {
