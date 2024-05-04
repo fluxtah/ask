@@ -5,7 +5,7 @@ fun main(args: Array<String>) {
     if (args.size > 1) {
         when {
             args[1] == "--version" -> {
-                println("0.1")
+                println("0.11")
                 return
             }
             args[1] == "--help" -> {

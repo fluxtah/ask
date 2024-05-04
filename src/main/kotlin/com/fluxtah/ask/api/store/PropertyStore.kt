@@ -34,6 +34,6 @@ class PropertyStore(private val filename: String) {
     fun save() {
         val file = File(getUserConfigDirectory(), filename)
         if(!file.exists()) file.createNewFile()
-        FileOutputStream(filename).use { properties.store(it, null) }
+        FileOutputStream(file).use { properties.store(it, null) }
     }
 }
