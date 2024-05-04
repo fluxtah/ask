@@ -1,6 +1,7 @@
 package com.fluxtah.ask.assistants.coder
 
 import com.fluxtah.ask.api.assistants.AssistantDefinition
+import com.fluxtah.ask.api.io.getCurrentWorkingDirectory
 
 class CoderAssistant : AssistantDefinition(
     id = "coder",
@@ -10,7 +11,7 @@ class CoderAssistant : AssistantDefinition(
     temperature = 0.9f,
     version = "1.0",
     instructions = INSTRUCTIONS,
-    functions = CoderFunctions("/Users/ian.warwick/Documents/codemate")
+    functions = CoderFunctions(getCurrentWorkingDirectory())
 )
 
 private val INSTRUCTIONS = """
