@@ -8,6 +8,17 @@ import java.util.*
 class PropertyStore(private val filename: String) {
     private val properties = Properties()
 
+    fun getUserConfigDirectory(): File {
+        val userHome = System.getProperty("user.home")
+        val configDir = File(userHome, ".ask")
+
+        if (!configDir.exists()) {
+            configDir.mkdir()
+        }
+
+        return configDir
+    }
+
     init {
         load()
     }
@@ -24,7 +35,7 @@ class PropertyStore(private val filename: String) {
     }
 
     fun load() {
-        val file = File(filename)
+        val file = File(getUserConfigDirectory(), filename)
         if (file.exists()) {
             FileInputStream(file).use { properties.load(it) }
         }

@@ -1,3 +1,3 @@
 
-rootProject.name = "assistant-kommander"
+rootProject.name = "ask"
 

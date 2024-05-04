@@ -10,17 +10,21 @@ import com.fluxtah.ask.app.UserProperties
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.*
+import kotlin.system.exitProcess
 
 sealed class Command {
     abstract suspend fun execute()
+    abstract val requiresApiKey: Boolean
 
     class UnknownCommand(private val message: String) : Command() {
+        override val requiresApiKey: Boolean = false
         override suspend fun execute() {
             println(message)
         }
     }
 
     data object Help : Command() {
+        override val requiresApiKey: Boolean = false
         override suspend fun execute() {
             println("Help: List of available commands...")
             println("/exit - Exits the application")
@@ -39,13 +43,15 @@ sealed class Command {
     }
 
     data object Exit : Command() {
+        override val requiresApiKey: Boolean = false
         override suspend fun execute() {
             println("Exiting the application...")
-            System.exit(0)
+            exitProcess(0)
         }
     }
 
     class SetOpenAiApiKey(private val userProperties: UserProperties, private val apiKey: String) : Command() {
+        override val requiresApiKey: Boolean = false
         override suspend fun execute() {
             userProperties.setOpenAiApiKey(apiKey)
             userProperties.save()
@@ -54,6 +60,7 @@ sealed class Command {
 
     class CreateAssistantThread(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties) :
         Command() {
+        override val requiresApiKey: Boolean = true
         override suspend fun execute() {
             val thread = assistantsApi.threads.createThread()
             println("Created thread: ${thread.id} at ${Date(thread.createdAt)}")
@@ -63,12 +70,14 @@ sealed class Command {
     }
 
     class WhichThread(private val userProperties: UserProperties) : Command() {
+        override val requiresApiKey: Boolean = false
         override suspend fun execute() {
             println("Current thread: ${userProperties.getThreadId().ifEmpty { "None" }}")
         }
     }
 
     class ListThreads(private val assistantsApi: AssistantsApi) : Command() {
+        override val requiresApiKey: Boolean = true
         override suspend fun execute() {
             // TODO currently its not possible to list threads though the API should be up soon
             println(assistantsApi.threads.listThreads())
@@ -76,6 +85,7 @@ sealed class Command {
     }
 
     class GetThread(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties, private val threadId: String? = null) : Command() {
+        override val requiresApiKey: Boolean = true
         override suspend fun execute() {
             val actualThread = threadId ?: userProperties.getThreadId().ifEmpty { null }
 
@@ -89,6 +99,7 @@ sealed class Command {
 
     class ListMessages(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties) :
         Command() {
+        override val requiresApiKey: Boolean = true
         override suspend fun execute() {
             val threadId = userProperties.getThreadId()
             if (threadId.isEmpty()) {
@@ -100,6 +111,7 @@ sealed class Command {
     }
 
     class ListRuns(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties) : Command() {
+        override val requiresApiKey: Boolean = true
         override suspend fun execute() {
             val threadId = userProperties.getThreadId()
             if (threadId.isEmpty()) {
@@ -114,6 +126,7 @@ sealed class Command {
 
     class ListRunSteps(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties) :
         Command() {
+        override val requiresApiKey: Boolean = true
         override suspend fun execute() {
             val threadId = userProperties.getThreadId()
             if (threadId.isEmpty()) {
@@ -132,12 +145,14 @@ sealed class Command {
 
     class GetAssistant(private val assistantsApi: AssistantsApi, private val assistantId: String) :
         Command() {
+        override val requiresApiKey: Boolean = true
         override suspend fun execute() {
             println(JSON.encodeToString<Assistant>(assistantsApi.assistants.getAssistant(assistantId)))
         }
     }
 
     class ListAssistants(private val assistantRegistry: AssistantRegistry, private val assistantInstallRepository: AssistantInstallRepository) : Command() {
+        override val requiresApiKey: Boolean = true
         override suspend fun execute() {
             val installedAssistants = assistantInstallRepository.getAssistantInstallRecords()
             assistantRegistry.getAssistants().forEach {
@@ -147,6 +162,7 @@ sealed class Command {
     }
 
     class InstallAssistant(private val assistantRegistry: AssistantRegistry, private val assistantInstallRepository: AssistantInstallRepository, val assistantId: String) : Command() {
+        override val requiresApiKey: Boolean = true
         override suspend fun execute() {
             val def = assistantRegistry.getAssistantById(assistantId)
 
@@ -163,6 +179,7 @@ sealed class Command {
     }
 
     data object ShowHttpLog : Command() {
+        override val requiresApiKey: Boolean = false
         override suspend fun execute() {
             HTTP_LOG.forEach {
                 println(it)

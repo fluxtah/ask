@@ -58,9 +58,9 @@ Assistant plugins make it easy to define functions that can be executed by an as
 
 Each assistant should implement the `AssistantDefinition` abstract class and assign a class to `functions` property. The `functions` property.
 
-The class you assign to the functions property can define member functions in kotlin, any function you wish to expose should be annotated them with the `@AskFunction` annotation. The annotation should include a description of the function.
+The class you assign to the functions property can define member functions in kotlin, any function you wish to expose should be annotated them with the `@Fun` annotation. The annotation should include a description of the function.
 
-Function parameters can be annotated with the `@AskParam` annotation to provide a description of the parameter.
+Function parameters can be annotated with the `@FunParam` annotation to provide a description of the parameter.
 
 This function will be used to generate the JSON template when creating the assistant with the openai API.
 
@@ -84,6 +84,10 @@ class HelloFunctions {
 }
 ```
 
+When defining which functions are available to the assistant, you can use the `@Fun` annotation to provide a description of the function.
+
+```kotlin
+
 For now until we have an external modular way of loading plugins you can register your assistant in the `App` class `init` block.
 
 ```kotlin
@@ -104,7 +108,24 @@ With assistant plugins installed, users can interact with them using the `@` sym
     - `@coder generate me an android project`
     - `@designer create a logo`
 
+
 ### Usage Example
 - **Set API Key**: Start by setting your OpenAI API key with `/set-key <api-key>`.
 - **Command Execution**: With the application running, `@coder generate me a ktor project` to interact with the coder assistant for generating a Ktor project.
 - **Ask Commands**: You can also invoke assistants using the `ask` command. For example, `ask @designer to create a logo`.
+
+### Development
+Development is done in the intellij environment using the gradle build system.
+
+#### Building a distribution
+To build a distribution, run the following command:
+
+```bash
+./gradlew packageDistribution
+```
+
+Will create a tar file in the `build/dist` directory. ie:- ask-0.1.tar.gz, the tar file can then
+be distributed with homebrew, etc.
+
+Homebrew tap is available at [Homebrew Ask](https://github.com/fluxtah/homebrew-ask)
+

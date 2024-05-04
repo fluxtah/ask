@@ -1,7 +1,6 @@
 package com.fluxtah.ask.app
 
 import com.fluxtah.ask.api.FunctionInvoker
-import com.fluxtah.ask.api.FunctionToolGenerator
 import com.fluxtah.ask.api.assistants.AssistantDefinition
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
@@ -14,12 +13,10 @@ import com.fluxtah.ask.api.clients.openai.assistants.model.SubmitToolOutputsRequ
 import com.fluxtah.ask.api.clients.openai.assistants.model.ToolOutput
 import com.fluxtah.ask.api.pollRunStatus
 import com.fluxtah.ask.api.store.PropertyStore
-import com.fluxtah.ask.app.commands.Command
 import com.fluxtah.ask.app.commands.CommandFactory
 import com.fluxtah.ask.assistants.coder.CoderAssistant
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import kotlin.system.exitProcess
 
 class App(
     private val userProperties: UserProperties = UserProperties(PropertyStore("user.properties")),
@@ -36,37 +33,47 @@ class App(
         assistantRegistry.register(CoderAssistant())
     }
 
+    fun runOneShotCommand(command: String) {
+        handleInput(command)
+        exitProcess(0)
+    }
+
     fun run() {
         printWelcomeMessage()
 
         while (true) {
             print("$ ")
 
-            val prompt = readln()
+            val input = readln()
 
-            if (userProperties.getOpenaiApiKey().isEmpty()) {
-                println("You need to set an OpenAI API key first! with /set-key <api-key>")
-                continue
-            }
+            handleInput(input)
+        }
+    }
 
-            if (prompt.isEmpty()) {
-                continue
-            }
+    private fun handleInput(input: String) {
+        if (input.isEmpty()) {
+            return
+        }
 
-            try {
-                if (prompt.startsWith("/")) {
-                    val command = commandFactory.create(prompt)
-                    runBlocking {
-                        command.execute()
-                    }
-                } else {
-                    runBlocking {
-                        handlePrompt(prompt)
+        try {
+            if (input.startsWith("/")) {
+                val command = commandFactory.create(input)
+                if (command.requiresApiKey) {
+                    if (userProperties.getOpenaiApiKey().isEmpty()) {
+                        println("You need to set an OpenAI API key first! with /set-key <api-key>")
+                        return
                     }
                 }
-            } catch (e: Exception) {
-                println("Error: ${e.stackTraceToString()}")
+                runBlocking {
+                    command.execute()
+                }
+            } else {
+                runBlocking {
+                    handlePrompt(input)
+                }
             }
+        } catch (e: Exception) {
+            println("Error: ${e.stackTraceToString()}")
         }
     }
 
@@ -123,13 +130,15 @@ class App(
         currentThreadId: String
     ) {
         var currentRun = startRun
+        print(" ")
         while (pollRunStatus(assistantsApi, currentThreadId, startRun) { status ->
-                println("Run status: $status")
+                print(" > $status")
             }.status == RunStatus.REQUIRES_ACTION) {
             currentRun = executeRunSteps(assistantDef, currentThreadId, currentRun)
         }
 
-        println("Run status: ${currentRun.status}")
+        println(" > ${currentRun.status}")
+        println()
     }
 
     private suspend fun executeRunSteps(
