@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.fluxtah"
-version = "0.11"
+version = "0.12"
 
 repositories {
     mavenCentral()
@@ -72,7 +72,7 @@ tasks.register("packageDistribution") {
         }
 
         // Define the path for the tarball within the dist directory
-        val tarPath = "$distDir/ask-0.11.tar.gz"
+        val tarPath = "$distDir/ask-$version.tar.gz"
 
         // Create tarball containing all contents of the dist directory
         exec {
@@ -81,5 +81,10 @@ tasks.register("packageDistribution") {
 
         // Log the output path for verification
         println("Distribution package created at: $tarPath")
+
+        exec {
+            println("SHA256 checksum:")
+            commandLine("shasum", "-a", "256", tarPath)
+        }
     }
 }

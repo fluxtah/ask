@@ -14,7 +14,7 @@ fun main(args: Array<String>) {
 
     when {
         version -> {
-            println("0.11")
+            println("0.12")
             return
         }
 

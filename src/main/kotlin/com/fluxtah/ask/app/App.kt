@@ -214,7 +214,7 @@ class App(
         ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
         ░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░             
         """.trimIndent())
-        println("░▒▓█▓░ ASSISTANT  KOMMANDER v0.11 ░▓█▓▒░")
+        println("░▒▓█▓░ ASSISTANT  KOMMANDER v0.12 ░▓█▓▒░")
         println()
         println("Assistants available:")
         runBlocking {

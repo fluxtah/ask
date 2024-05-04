@@ -1,2 +1,2 @@
 #!/bin/bash
-java -jar $(dirname "$0")/ask-0.1.jar "$@"
+java -jar $(dirname "$0")/ask-0.12.jar "$@"
