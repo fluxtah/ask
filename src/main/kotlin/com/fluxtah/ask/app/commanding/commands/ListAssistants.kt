@@ -17,7 +17,7 @@ class ListAssistants(
     override suspend fun execute() {
         val installedAssistants = assistantInstallRepository.getAssistantInstallRecords()
         assistantRegistry.getAssistants().forEach {
-            println("@${it.id} - ${it.name} ${it.version}, installed: ${installedAssistants.find { record -> record.id == it.id } != null}")
+            println("@${it.id} - ${it.name} ${it.version}, ${it.model}, installed: ${installedAssistants.find { record -> record.id == it.id } != null}")
         }
     }
 }

@@ -10,6 +10,7 @@ import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.app.UserProperties
+import com.fluxtah.ask.app.commanding.commands.ClearModel
 import com.fluxtah.ask.app.commanding.commands.Command
 import com.fluxtah.ask.app.commanding.commands.CreateAssistantThread
 import com.fluxtah.ask.app.commanding.commands.Exit
@@ -22,11 +23,13 @@ import com.fluxtah.ask.app.commanding.commands.ListMessages
 import com.fluxtah.ask.app.commanding.commands.ListRunSteps
 import com.fluxtah.ask.app.commanding.commands.ListRuns
 import com.fluxtah.ask.app.commanding.commands.ListThreads
+import com.fluxtah.ask.app.commanding.commands.SetModel
 import com.fluxtah.ask.app.commanding.commands.SetOpenAiApiKey
 import com.fluxtah.ask.app.commanding.commands.ShowHttpLog
 import com.fluxtah.ask.app.commanding.commands.UnInstallAssistant
 import com.fluxtah.ask.app.commanding.commands.UnknownCommand
 import com.fluxtah.ask.app.commanding.commands.WhichAssistant
+import com.fluxtah.ask.app.commanding.commands.WhichModel
 import com.fluxtah.ask.app.commanding.commands.WhichThread
 
 class CommandFactory(
@@ -65,6 +68,15 @@ class CommandFactory(
                 GetAssistant(assistantsApi, it.first())
             }
         },
+        "/model" to {
+            if (it.size != 1) {
+                UnknownCommand("Invalid number of arguments for /model, expected a model ID following the command")
+            } else {
+                SetModel(userProperties, it.first())
+            }
+        },
+        "/model-clear" to { ClearModel(userProperties) },
+        "/model-which" to { WhichModel(userProperties) },
         "/thread-new" to { CreateAssistantThread(assistantsApi, userProperties) },
         "/thread-which" to { WhichThread(userProperties) },
         "/thread-info" to {

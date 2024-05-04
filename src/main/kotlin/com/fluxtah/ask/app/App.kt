@@ -31,7 +31,12 @@ class App(
     ),
     private val assistantRegistry: AssistantRegistry = AssistantRegistry(),
     private val assistantInstallRepository: AssistantInstallRepository = AssistantInstallRepository(assistantsApi),
-    private val commandFactory: CommandFactory = CommandFactory(assistantsApi, assistantRegistry, assistantInstallRepository, userProperties),
+    private val commandFactory: CommandFactory = CommandFactory(
+        assistantsApi,
+        assistantRegistry,
+        assistantInstallRepository,
+        userProperties
+    ),
     private val functionInvoker: FunctionInvoker = FunctionInvoker(),
 ) {
     init {
@@ -96,7 +101,7 @@ class App(
             return
         }
 
-        val assistantId = if(prompt.startsWith("@")) {
+        val assistantId = if (prompt.startsWith("@")) {
             val parts = prompt.split(" ")
             val assistantId = parts[0].substring(1)
             parts.drop(1).joinToString(" ")
@@ -114,13 +119,20 @@ class App(
 
         val assistantInstallRecord = assistantInstallRepository.getAssistantInstallRecord(assistantDef.id)
 
-        if(assistantInstallRecord == null) {
+        if (assistantInstallRecord == null) {
             println("Assistant not installed: $assistantId, to install use /assistant-install $assistantId")
             return
         }
 
         val userMessage = assistantsApi.messages.createUserMessage(currentThreadId, prompt)
-        val createRun = assistantsApi.runs.createRun(currentThreadId, RunRequest(assistantId = assistantInstallRecord.installId))
+        val createRun = assistantsApi.runs.createRun(
+            currentThreadId, RunRequest(
+                assistantId = assistantInstallRecord.installId,
+                model = userProperties.getModel().ifEmpty {
+                    null
+                },
+            )
+        )
         userProperties.setRunId(createRun.id)
         userProperties.setAssistantId(assistantId)
         userProperties.save()
@@ -216,13 +228,15 @@ class App(
     }
 
     private fun printWelcomeMessage() {
-        println("""
+        println(
+            """
          ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░ 
         ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
         ░▒▓████████▓▒░░▒▓██████▓▒░░▒▓██████▓▒░  
         ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
         ░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░             
-        """.trimIndent())
+        """.trimIndent()
+        )
         println("░▒▓█▓░ ASSISTANT  KOMMANDER v0.12 ░▓█▓▒░")
         println()
         println("Assistants available:")
