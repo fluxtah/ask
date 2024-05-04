@@ -1,5 +1,7 @@
 ## Assistant Kommander (ALPHA)
-**Assistant Kommander** is a Kotlin-based console application that utilizes the OpenAI Assistants API for terminal-based interactions. Developers can execute commands and install assistant plugins via a command line interface.
+**Assistant Kommander** (ASK) is a Kotlin-based application that brings OpenAI Assistants to the console. Developers can talk to AI assistants directly from the terminal, allowing for quick access to information and assistance.
+
+Assistants are installed as plugins allowing developers to share and create their own assistants. The application is designed to be extensible and easy to use.
 
 ```bash
  ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░ 
@@ -32,9 +34,12 @@ $
 ```
 
 ### Features
-- **Command Line Interface**: Input commands directly through a terminal prompt.
+- **Command Line Interface**: Talk to AI assistants directly from the terminal.
 - **Assistant Plugin System**: Allows for the installation and management of AI assistants as plugins.
-- **OpenAI API Key Requirement**: Users must configure an OpenAI API key to utilize assistant functionalities.
+- **Assistant Threads**: Manage multiple assistant conversations with threads.
+- **Talk to Assistants**: Directly address assistants using the `@` symbol.
+- **Interactive Mode**: Run the application in interactive mode to interact with assistants. `ask --interactive` until you exit with `/exit`.
+- **Ask Commands**: One shot commands to interact with assistants using `ask @coder to generate a ktor project`.
 
 ### Basic Commands
 - `/exit` - Exits the application.
@@ -86,8 +91,6 @@ class HelloFunctions {
 
 When defining which functions are available to the assistant, you can use the `@Fun` annotation to provide a description of the function.
 
-```kotlin
-
 For now until we have an external modular way of loading plugins you can register your assistant in the `App` class `init` block.
 
 ```kotlin
@@ -113,6 +116,9 @@ With assistant plugins installed, users can interact with them using the `@` sym
 - **Set API Key**: Start by setting your OpenAI API key with `/set-key <api-key>`.
 - **Command Execution**: With the application running, `@coder generate me a ktor project` to interact with the coder assistant for generating a Ktor project.
 - **Ask Commands**: You can also invoke assistants using the `ask` command. For example, `ask @designer to create a logo`.
+
+### Ask Application Properties
+Ask stores property files and other data in a `.ask` directory in the user's home directory. This file persists properties such as openai API key and context data such as current thread and installed assistants.
 
 ### Development
 Development is done in the intellij environment using the gradle build system.

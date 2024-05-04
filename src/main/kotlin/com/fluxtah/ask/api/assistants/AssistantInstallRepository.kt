@@ -4,7 +4,7 @@ import com.fluxtah.ask.api.FunctionToolGenerator
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.model.CreateAssistantRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.ModifyAssistantRequest
-import kotlinx.serialization.decodeFromString
+import com.fluxtah.ask.api.io.getUserConfigDirectory
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -85,7 +85,7 @@ class AssistantInstallRepository(private val assistantsApi: AssistantsApi) {
     fun getAssistantInstallRecords(): List<AssistantInstallRecord> {
         // Load from file JSONL
         val records = mutableListOf<AssistantInstallRecord>()
-        val file = File("assistants.jsonl")
+        val file = File(getUserConfigDirectory(), "assistants.jsonl")
         if (!file.exists()) {
             return emptyList()
         }
@@ -105,7 +105,7 @@ class AssistantInstallRepository(private val assistantsApi: AssistantsApi) {
         }
         records.add(record)
 
-        val file = File("assistants.jsonl")
+        val file = File(getUserConfigDirectory(), "assistants.jsonl")
         file.writeText(records.joinToString("\n") { Json.encodeToString(it) })
     }
 }

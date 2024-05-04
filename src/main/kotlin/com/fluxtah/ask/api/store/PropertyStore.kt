@@ -1,5 +1,6 @@
 package com.fluxtah.ask.api.store
 
+import com.fluxtah.ask.api.io.getUserConfigDirectory
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -7,17 +8,6 @@ import java.util.*
 
 class PropertyStore(private val filename: String) {
     private val properties = Properties()
-
-    fun getUserConfigDirectory(): File {
-        val userHome = System.getProperty("user.home")
-        val configDir = File(userHome, ".ask")
-
-        if (!configDir.exists()) {
-            configDir.mkdir()
-        }
-
-        return configDir
-    }
 
     init {
         load()
@@ -42,6 +32,8 @@ class PropertyStore(private val filename: String) {
     }
 
     fun save() {
+        val file = File(getUserConfigDirectory(), filename)
+        if(!file.exists()) file.createNewFile()
         FileOutputStream(filename).use { properties.store(it, null) }
     }
 }
