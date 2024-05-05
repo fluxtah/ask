@@ -6,8 +6,8 @@
 
 package com.fluxtah.ask.api
 
-import com.fluxtah.ask.api.assistants.Fun
-import com.fluxtah.ask.api.assistants.FunParam
+import com.fluxtah.askpluginsdk.Fun
+import com.fluxtah.askpluginsdk.FunParam
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantTool
 import kotlin.reflect.KFunction
 import kotlin.reflect.KVisibility

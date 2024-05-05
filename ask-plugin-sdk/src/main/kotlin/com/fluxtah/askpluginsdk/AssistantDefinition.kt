@@ -4,7 +4,7 @@
  * https://opensource.org/licenses/MIT
  */
 
-package com.fluxtah.ask.api.assistants
+package com.fluxtah.askpluginsdk
 
 abstract class AssistantDefinition(
     val id: String,

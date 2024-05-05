@@ -7,7 +7,7 @@
 package com.fluxtah.ask.app
 
 import com.fluxtah.ask.api.FunctionInvoker
-import com.fluxtah.ask.api.assistants.AssistantDefinition
+import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi

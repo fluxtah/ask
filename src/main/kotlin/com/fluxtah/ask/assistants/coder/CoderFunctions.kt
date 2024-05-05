@@ -6,8 +6,8 @@
 
 package com.fluxtah.ask.assistants.coder
 
-import com.fluxtah.ask.api.assistants.Fun
-import com.fluxtah.ask.api.assistants.FunParam
+import com.fluxtah.askpluginsdk.Fun
+import com.fluxtah.askpluginsdk.FunParam
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.tooling.GradleConnector

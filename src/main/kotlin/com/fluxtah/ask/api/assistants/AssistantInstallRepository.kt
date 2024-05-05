@@ -11,6 +11,7 @@ import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.model.CreateAssistantRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.ModifyAssistantRequest
 import com.fluxtah.ask.api.io.getUserConfigDirectory
+import com.fluxtah.askpluginsdk.AssistantDefinition
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File

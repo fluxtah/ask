@@ -6,7 +6,7 @@
 
 package com.fluxtah.ask.assistants.coder
 
-import com.fluxtah.ask.api.assistants.AssistantDefinition
+import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.ask.api.io.getCurrentWorkingDirectory
 
 class CoderAssistant : AssistantDefinition(

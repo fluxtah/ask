@@ -4,8 +4,8 @@
  * https://opensource.org/licenses/MIT
  */
 
-package com.fluxtah.ask.api.assistants
+package com.fluxtah.askpluginsdk
 
-@Target(AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class Fun(val description: String)
+annotation class FunParam(val description: String)

@@ -6,6 +6,8 @@
 
 package com.fluxtah.ask.api.assistants
 
+import com.fluxtah.askpluginsdk.AssistantDefinition
+
 class AssistantRegistry {
     private val assistants = mutableListOf<AssistantDefinition>()
 

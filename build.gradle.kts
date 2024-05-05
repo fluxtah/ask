@@ -9,7 +9,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.0"
 }
 
-group = "com.fluxtah"
+group = "com.fluxtah.ask"
 version = "0.12"
 
 repositories {
@@ -18,6 +18,8 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":ask-plugin-sdk"))
+
     // SLF4J API
     implementation("org.slf4j:slf4j-api:1.7.32")
     // Logback (which includes the SLF4J binding)
