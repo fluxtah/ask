@@ -27,5 +27,4 @@ class InstallAssistant(
 
         println("Installed assistant: @${def.id} ${def.version} as ${assistantInstallRecord.installId}")
     }
-
 }

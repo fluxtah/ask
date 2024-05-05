@@ -10,5 +10,3 @@ sealed class Command {
     abstract suspend fun execute()
     abstract val requiresApiKey: Boolean
 }
-
-

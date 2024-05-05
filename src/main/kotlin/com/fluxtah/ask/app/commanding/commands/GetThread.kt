@@ -27,4 +27,3 @@ class GetThread(
         println(JSON.encodeToString<AssistantThread>(assistantsApi.threads.getThread(actualThread)))
     }
 }
-
