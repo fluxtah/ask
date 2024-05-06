@@ -17,6 +17,7 @@ import com.fluxtah.ask.api.clients.openai.assistants.model.RunRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
 import com.fluxtah.ask.api.clients.openai.assistants.model.SubmitToolOutputsRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.ToolOutput
+import com.fluxtah.ask.api.plugins.AskPluginLoader
 import com.fluxtah.ask.api.pollRunStatus
 import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.ask.app.commanding.CommandFactory
@@ -41,7 +42,14 @@ class App(
 ) {
     init {
         userProperties.load()
+
+        // Register built in assistants
         assistantRegistry.register(CoderAssistant())
+
+        // Load plugin assistants
+        AskPluginLoader().loadPlugins().forEach {
+            assistantRegistry.register(it)
+        }
     }
 
     fun runOneShotCommand(command: String) {

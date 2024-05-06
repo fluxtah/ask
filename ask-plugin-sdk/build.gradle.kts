@@ -1,8 +1,9 @@
 plugins {
     kotlin("jvm")
+    id("maven-publish")
 }
 
-group = "com.fluxtah.ask"
+group = "com.github.fluxtah"
 version = "0.12"
 
 repositories {
@@ -18,4 +19,12 @@ tasks.test {
 }
 kotlin {
     jvmToolchain(17)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
+    }
 }

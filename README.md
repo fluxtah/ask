@@ -92,7 +92,7 @@ The class you assign to the functions property can define member functions in ko
 
 Function parameters can be annotated with the `@FunParam` annotation to provide a description of the parameter.
 
-This function will be used to generate the JSON template when creating the assistant with the openai API.
+Functions annotated with `@Fun` will be used to generate the JSON template when creating the assistant with the openai API.
 
 example:- 
 
@@ -114,13 +114,7 @@ class HelloFunctions {
 }
 ```
 
-When defining which functions are available to the assistant, you can use the `@Fun` annotation to provide a description of the function.
 
-For now until we have an external modular way of loading plugins you can register your assistant in the `App` class `init` block.
-
-```kotlin
-assistantRegistry.register(HelloAssistant())
-```
 
 Check the OpenAI assistant documentation for more information on functions.
 
