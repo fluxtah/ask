@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "1.9.23"
     id("com.github.johnrengelman.shadow") version "7.1.0"
-    id("com.github.fluxtah.ask-gradle-plugin") version "0.2.0"
+    id("com.github.fluxtah.ask-gradle-plugin") version "0.3.0"
 }
 
 group = "com.fluxtah"
@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.fluxtah:ask-plugin-sdk:0.2.0")
+    implementation("com.github.fluxtah:ask-plugin-sdk:0.3.0")
 
     testImplementation(kotlin("test"))
 }

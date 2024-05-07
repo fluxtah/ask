@@ -5,7 +5,7 @@ import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.askpluginsdk.Fun
 
 class HelloAssistantPlugin : AskPlugin {
-    override fun createAssistantDefinition() = HelloAssistant()
+    override fun createAssistantDefinitions() = listOf(HelloAssistant())
 }
 
 class HelloAssistant : AssistantDefinition(

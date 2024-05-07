@@ -20,7 +20,7 @@ class AskPluginLoader {
 
         val services = ServiceLoader.load(AskPlugin::class.java, classLoader)
         for (plugin in services) {
-            plugin.createAssistantDefinition()?.let {
+            plugin.createAssistantDefinitions().forEach {
                 plugins.add(it)
             }
         }
@@ -35,7 +35,7 @@ class AskPluginLoader {
 
         val services = ServiceLoader.load(AskPlugin::class.java, classLoader)
         for (plugin in services) {
-            plugin.createAssistantDefinition()?.let {
+            plugin.createAssistantDefinitions().forEach {
                 plugins.add(it)
             }
         }
