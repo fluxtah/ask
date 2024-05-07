@@ -21,10 +21,11 @@ version = appVersion
 repositories {
     mavenCentral()
     maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
-    implementation(project(":ask-plugin-sdk"))
+    implementation("com.github.fluxtah:ask-plugin-sdk:0.2.0")
 
     // SLF4J API
     implementation("org.slf4j:slf4j-api:1.7.32")
