@@ -65,9 +65,13 @@ class App(
         while (true) {
             print("$ ")
 
-            val input = readln()
+            try {
+                val input = readln()
 
-            handleInput(input)
+                handleInput(input)
+            } catch (e: Exception) {
+                println("Error: ${e.stackTraceToString()}")
+            }
         }
     }
 
