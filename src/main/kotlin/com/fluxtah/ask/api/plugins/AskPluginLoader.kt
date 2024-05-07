@@ -8,13 +8,14 @@ import java.net.URLClassLoader
 import java.util.*
 
 class AskPluginLoader {
-    fun loadPlugins() : List<AssistantDefinition> {
+    fun loadPlugins(): List<AssistantDefinition> {
         val plugins = mutableListOf<AssistantDefinition>()
-        val pluginsDir = File(getUserConfigDirectory(),"plugins")
+        val pluginsDir = File(getUserConfigDirectory(), "plugins")
         if (!pluginsDir.exists()) {
             pluginsDir.mkdirs()
         }
-        val urls = pluginsDir.listFiles { file -> file.path.endsWith(".jar") }?.map { it.toURI().toURL() }?.toTypedArray()
+        val urls =
+            pluginsDir.listFiles { file -> file.path.endsWith(".jar") }?.map { it.toURI().toURL() }?.toTypedArray()
         val classLoader = URLClassLoader(urls, Thread.currentThread().contextClassLoader)
 
         val services = ServiceLoader.load(AskPlugin::class.java, classLoader)
@@ -25,5 +26,20 @@ class AskPluginLoader {
         }
 
         return plugins
+    }
+
+    fun loadPlugin(file: File): AssistantDefinition {
+        val plugins = mutableListOf<AssistantDefinition>()
+        val urls = listOf(file).map { it.toURI().toURL() }.toTypedArray()
+        val classLoader = URLClassLoader(urls, Thread.currentThread().contextClassLoader)
+
+        val services = ServiceLoader.load(AskPlugin::class.java, classLoader)
+        for (plugin in services) {
+            plugin.createAssistantDefinition()?.let {
+                plugins.add(it)
+            }
+        }
+
+        return plugins.first()
     }
 }

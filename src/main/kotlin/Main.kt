@@ -4,9 +4,12 @@
  * https://opensource.org/licenses/MIT
  */
 
+import com.fluxtah.ask.Version
 import com.fluxtah.ask.app.App
+import java.io.File
 
 fun main(args: Array<String>) {
+    val testing = args.contains("--test-plugin")
     val interactive = args.contains("--interactive")
     val help = args.contains("--help")
     val version = args.contains("--version")
@@ -14,7 +17,7 @@ fun main(args: Array<String>) {
 
     when {
         version -> {
-            println("0.12")
+            println("Ask Version: ${Version.APP_VERSION}")
             return
         }
 
@@ -26,12 +29,28 @@ fun main(args: Array<String>) {
             println("  --version        Print the version of the application")
             println("  --help           Print this help message")
             println("  --interactive    Run ask in interactive mode")
-            println("  <command>  Run a command in ask, run in interactive mode for available commands to setup first")
+            println("  <command>        Run a command in ask, run in interactive mode for available commands to setup first")
             return
         }
     }
 
     val app = App()
+
+    if (testing) {
+        val testPluginArgIndex = args.indexOf("--test-plugin")
+        val pluginName = args.getOrNull(testPluginArgIndex + 1)
+        if(pluginName == null) {
+            println("Usage: ask --test-plugin <plugin-name>")
+            return
+        } else {
+            val pluginFile = File("plugins/$pluginName.jar")
+            if(!pluginFile.exists()) {
+                println("Plugin not found: $pluginName")
+                return
+            }
+            app.debugPlugin(pluginFile)
+        }
+    }
 
     if (interactive) {
         app.run()

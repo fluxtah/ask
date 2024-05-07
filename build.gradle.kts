@@ -1,6 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.*
 
 val ktor_version: String by project
+
+val versionProps = Properties().apply {
+    load(file("version.properties").inputStream())
+}
+val appVersion = versionProps["version"].toString()
 
 plugins {
     kotlin("jvm") version "1.9.10"
@@ -10,7 +16,7 @@ plugins {
 }
 
 group = "com.fluxtah.ask"
-version = "0.12"
+version = appVersion
 
 repositories {
     mavenCentral()
@@ -74,7 +80,7 @@ tasks.register("packageDistribution") {
         }
 
         // Define the path for the tarball within the dist directory
-        val tarPath = "$distDir/ask-$version.tar.gz"
+        val tarPath = "$distDir/ask-$appVersion.tar.gz"
 
         // Create tarball containing all contents of the dist directory
         exec {
@@ -89,4 +95,23 @@ tasks.register("packageDistribution") {
             commandLine("shasum", "-a", "256", tarPath)
         }
     }
+}
+
+tasks.register("generateVersionFile") {
+    doLast {
+        val fileContent = """
+            package com.fluxtah.ask
+
+            object Version {
+                const val APP_VERSION = "$appVersion"
+            }
+        """.trimIndent()
+        val file = File("src/main/kotlin/com/fluxtah/ask/Version.kt")
+        file.parentFile.mkdirs()
+        file.writeText(fileContent)
+    }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    dependsOn("generateVersionFile")
 }

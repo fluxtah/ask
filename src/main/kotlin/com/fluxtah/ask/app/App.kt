@@ -6,6 +6,7 @@
 
 package com.fluxtah.ask.app
 
+import com.fluxtah.ask.Version
 import com.fluxtah.ask.api.FunctionInvoker
 import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
@@ -23,6 +24,7 @@ import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.ask.assistants.coder.CoderAssistant
 import kotlinx.coroutines.runBlocking
+import java.io.File
 import kotlin.system.exitProcess
 
 class App(
@@ -67,6 +69,12 @@ class App(
 
             handleInput(input)
         }
+    }
+
+    fun debugPlugin(pluginFile: File) {
+        assistantRegistry.register(AskPluginLoader().loadPlugin(pluginFile))
+
+        run()
     }
 
     private fun handleInput(input: String) {
@@ -245,7 +253,7 @@ class App(
         ░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░             
         """.trimIndent()
         )
-        println("░▒▓█▓░ ASSISTANT  KOMMANDER v0.12 ░▓█▓▒░")
+        println("░▒▓█▓░ ASSISTANT KOMMANDER v${Version.APP_VERSION} ░▓█▓▒░")
         println()
         println("Assistants available:")
         runBlocking {

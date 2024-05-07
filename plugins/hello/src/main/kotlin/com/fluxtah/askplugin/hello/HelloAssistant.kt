@@ -15,11 +15,11 @@ class HelloAssistant : AssistantDefinition(
     version = "1.0",
     model = "gpt-3.5-turbo",
     temperature = 0.5f,
-    instructions = "Say hello to the assistant",
+    instructions = "Say hello to the user",
     functions = HelloFunctions()
 )
 
 class HelloFunctions {
-    @Fun("Say hello")
+    @Fun("Say hello to the user")
     fun hello() = "Hello!"
 }

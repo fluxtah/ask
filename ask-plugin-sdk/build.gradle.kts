@@ -1,10 +1,17 @@
+import java.util.*
+
 plugins {
     kotlin("jvm")
     id("maven-publish")
 }
 
+val versionProps = Properties().apply {
+    load(file("../version.properties").inputStream())
+}
+val appVersion = versionProps["version"].toString()
+
 group = "com.github.fluxtah"
-version = "0.12"
+version = appVersion
 
 repositories {
     mavenCentral()
