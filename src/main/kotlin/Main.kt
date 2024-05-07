@@ -38,14 +38,14 @@ fun main(args: Array<String>) {
 
     if (testing) {
         val testPluginArgIndex = args.indexOf("--test-plugin")
-        val pluginName = args.getOrNull(testPluginArgIndex + 1)
-        if(pluginName == null) {
+        val testPluginFilePath = args.getOrNull(testPluginArgIndex + 1)
+        if(testPluginFilePath == null) {
             println("Usage: ask --test-plugin <plugin-name>")
             return
         } else {
-            val pluginFile = File("plugins/$pluginName.jar")
+            val pluginFile = File(testPluginFilePath)
             if(!pluginFile.exists()) {
-                println("Plugin not found: $pluginName")
+                println("Plugin not found: $testPluginFilePath")
                 return
             }
             app.debugPlugin(pluginFile)
