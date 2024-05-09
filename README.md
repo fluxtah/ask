@@ -1,7 +1,7 @@
 ## Assistant Kommander (ALPHA)
 **Assistant Kommander** (ASK) is a Kotlin-based application that brings OpenAI Assistants to the console. Developers can talk to AI assistants directly from the terminal, allowing for quick access to information and assistance.
 
-Assistants are installed as plugins allowing developers to share and create their own assistants. The application is designed to be extensible and easy to use.
+Assistants can be created and installed as plugins allowing developers to share and create their own assistants. 
 
 ```bash
  ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░ 
@@ -33,15 +33,6 @@ The Kotlin "Hello World" function has been created in the file `Main.kt` within 
 $ 
 ```
 
-### Features
-- **Command Line Interface**: Talk to AI assistants directly from the terminal.
-- **Assistant Plugin System**: Allows for the installation and management of AI assistants as plugins.
-- **Assistant Threads**: Manage multiple assistant conversations with threads.
-- **Talk to Assistants**: Directly address assistants using the `@` symbol.
-- **Interactive Mode**: Run the application in interactive mode to interact with assistants. `ask --interactive` until you exit with `/exit`.
-- **Ask Commands**: One shot commands to interact with assistants using `ask @coder to generate a ktor project`.
-
-
 ### Installation With Homebrew
 
 To install `ask` using Homebrew, follow these simple steps:
@@ -65,7 +56,14 @@ If you need to uninstall `ask`, use the following command:
 brew uninstall ask
 ```
 
-### Basic Commands
+### Running the Application
+To run ASK, execute the following command:
+
+```bash
+$ ask --interactive
+```
+
+#### Basic Commands
 - `/exit` - Exits the application.
 - `/assistant-install <assistant-id>` - Installs an assistant plugin.
 - `/assistant-uninstall <assistant-id>` - Uninstalls an assistant plugin.
@@ -86,12 +84,87 @@ brew uninstall ask
 - `/log-level <level>` - Sets the log level (ERROR, DEBUG, INFO, OFF).
 
 ### Installing Assistant Plugins
-Assistant plugins can be installed using the `/assistant-install <assistant-id>` command. For example, to install the coder assistant, use `/assistant-install coder`.
+Assistant plugins should be deployed to the `{USER_HOME}/.ask/plugins` directory, once deployed, the assistant plugin can be installed using the `/assistant-install <assistant-id>` command.
+
+ASK ships with an inbuilt assistant plugin called `coder`, which can be installed using the following command:
+
+```bash
+$ /assistant-install coder
+```
+
+Once installed you can interact with the assistant using the `@coder` command.
+
+```bash
+$ @coder generate me a ktor project
+```
 
 ### Writing Assistant Plugins
-Assistant plugins make it easy to define functions that can be executed by an assistant.
+Assistant plugins are written in Kotlin and should be compiled to a jar file. The jar file should be placed in the `{USER_HOME}/.ask/plugins` directory.
+
+You can find a simple hello world plugin [here](https://github.com/fluxtah/ask-plugin-hello).
+
+A gradle plugin is provided to simplify the creation of assistant plugins.
+
+In your gradle build file, apply the `ask-gradle-plugin` plugin and add the `com.github.fluxtah.ask-gradle-plugin` dependency.
+
+```kotlin
+plugins {
+    kotlin("jvm") version "1.9.23"
+    id("com.github.johnrengelman.shadow") version "7.1.0"
+    id("com.github.fluxtah.ask-gradle-plugin") version "0.4.0"
+}
+```
+
+The plugin depends on the `shadow` plugin to create a fat jar which is the jar you can deploy to the plugins directory.
+
+In your dependencies block, add the `ask-plugin-sdk` dependency.
+
+```kotlin
+dependencies {
+    implementation("com.github.fluxtah:ask-plugin-sdk:0.5.0")
+}
+```
+
+In your projects `META-INF/services` directory, create a file called `com.fluxtah.askpluginsdk.AskPlugin` and add the fully qualified class name of your plugin class.
+
+```
+com.example.hello.HelloAssistant
+```
+
+Here is an example of a simple assistant plugin.
+
+```kotlin
+class HelloAssistantPlugin : AskPlugin {
+    override fun createAssistantDefinitions(config: CreateAssistantDefinitionsConfig): List<AssistantDefinition> {
+        return listOf(HelloAssistant(config.logger))
+    }
+}
+```
 
 Each assistant should implement the `AssistantDefinition` abstract class and assign a class to `functions` property. The `functions` property.
+
+example:- 
+
+```kotlin
+class HelloAssistant(logger: AskLogger) : AssistantDefinition(
+    logger = logger,
+    id = "hello",
+    name = "Hello Assistant",
+    description = "A simple assistant that says hello",
+    version = "1.0",
+    model = "gpt-3.5-turbo",
+    temperature = 0.5f,
+    instructions = "Say hello to the user",
+    functions = HelloFunctions()
+)
+
+class HelloFunctions {
+    @Fun("Say hello to the user")
+    fun hello(input: String): String {
+        return "Hello! $input"
+    }
+}
+```
 
 The class you assign to the functions property can define member functions in kotlin, any function you wish to expose should be annotated them with the `@Fun` annotation. The annotation should include a description of the function.
 
@@ -99,29 +172,9 @@ Function parameters can be annotated with the `@FunParam` annotation to provide 
 
 Functions annotated with `@Fun` will be used to generate the JSON template when creating the assistant with the openai API.
 
-example:- 
-
-```kotlin
-class HelloAssistant : AssistantDefinition(
-  id = "hello",
-  name = "Hello Assistant",
-  description = "A simple assistant to say hello",
-  model = "gpt-4-turbo",
-  temperature = 0.9f,
-  version = "1.0",
-  instructions = "Just say hello",
-  functions = HelloFunctions()
-)
-
-class HelloFunctions {
-  @Fun("Greets the user with a hello")
-  fun hello() = "Hello!"
-}
-```
-
-
-
-Check the OpenAI assistant documentation for more information on functions.
+The gradle plugin adds two useful tasks to your project:-
+* `testAskPlugin` task will attempt to run ASK with the java remote debugger enabled, you can attach to the debugger from your IDE to debug your plugin, you'll have to install the plugin first and make sure to uninstall it when you're done (for now).
+* `deployAskPlugin` task will build a fat jar and copy it to the plugins directory.
 
 ### Assistant Threads
 Assistant threads are used to manage interactions with assistants. Users can create new threads, list existing threads, and switch between them using the `/thread-new`, `/thread-list`, and `/thread-which` commands, respectively.
