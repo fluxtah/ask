@@ -50,7 +50,7 @@ class App(
         userProperties.load()
 
         // Register built in assistants
-        assistantRegistry.register(CoderAssistant())
+        assistantRegistry.register(CoderAssistant(logger))
 
         // Load plugin assistants
         AskPluginLoader(logger).loadPlugins().forEach {
@@ -87,7 +87,7 @@ class App(
     }
 
     fun debugPlugin(pluginFile: File) {
-        assistantRegistry.register(AskPluginLoader().loadPlugin(pluginFile))
+        assistantRegistry.register(AskPluginLoader(logger).loadPlugin(pluginFile))
 
         run()
     }

@@ -7,6 +7,7 @@
 package com.fluxtah.ask.app
 
 import com.fluxtah.ask.api.store.PropertyStore
+import com.fluxtah.askpluginsdk.logging.LogLevel
 
 class UserProperties(private val store: PropertyStore) {
     companion object {
