@@ -23,11 +23,14 @@ import com.fluxtah.ask.api.pollRunStatus
 import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.ask.assistants.coder.CoderAssistant
+import com.fluxtah.askpluginsdk.logging.AskLogger
+import com.fluxtah.askpluginsdk.logging.LogLevel
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import kotlin.system.exitProcess
 
 class App(
+    private val logger: AskLogger = AskLogger(),
     private val userProperties: UserProperties = UserProperties(PropertyStore("user.properties")),
     private val assistantsApi: AssistantsApi = AssistantsApi(
         apiKeyProvider = { userProperties.getOpenaiApiKey() }
@@ -35,6 +38,7 @@ class App(
     private val assistantRegistry: AssistantRegistry = AssistantRegistry(),
     private val assistantInstallRepository: AssistantInstallRepository = AssistantInstallRepository(assistantsApi),
     private val commandFactory: CommandFactory = CommandFactory(
+        logger,
         assistantsApi,
         assistantRegistry,
         assistantInstallRepository,
@@ -49,7 +53,7 @@ class App(
         assistantRegistry.register(CoderAssistant())
 
         // Load plugin assistants
-        AskPluginLoader().loadPlugins().forEach {
+        AskPluginLoader(logger).loadPlugins().forEach {
             assistantRegistry.register(it)
         }
     }
@@ -62,6 +66,13 @@ class App(
     fun run() {
         printWelcomeMessage()
 
+        val logLevel = userProperties.getLogLevel()
+        if (logLevel != LogLevel.OFF) {
+            logger.log(LogLevel.DEBUG, "Log level: $logLevel")
+        }
+
+        logger.setLogLevel(logLevel)
+
         while (true) {
             print("$ ")
 
@@ -70,7 +81,7 @@ class App(
 
                 handleInput(input)
             } catch (e: Exception) {
-                println("Error: ${e.stackTraceToString()}")
+                logger.log(LogLevel.ERROR, "Error: ${e.message}")
             }
         }
     }
@@ -217,7 +228,10 @@ class App(
         details.toolCalls.forEach { toolCall ->
             when (toolCall) {
                 is AssistantRunStepDetails.ToolCalls.ToolCallDetails.FunctionToolCallDetails -> {
-                    println("[Exec Fun] ${toolCall.function.name}: ${toolCall.function.arguments.take(200)}...")
+                    logger.log(
+                        LogLevel.DEBUG,
+                        "[Exec Fun] ${toolCall.function.name}: ${toolCall.function.arguments.take(200)}..."
+                    )
                     val result = functionInvoker.invokeFunction(assistant.functions, toolCall)
                     toolOutputs.add(
                         ToolOutput(
@@ -225,7 +239,7 @@ class App(
                             result
                         )
                     )
-                    println("[Fun Result] $result")
+                    logger.log(LogLevel.DEBUG, "[Fun Result] $result")
                 }
             }
         }

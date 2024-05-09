@@ -17,7 +17,7 @@ data object Help : Command() {
         println("/assistant-which - Displays the current assistant")
         println("/assistant-info <assistant-id> - Displays the assistant")
         println("/model <model-id> - Set model override affecting all assistants (gpt-3.5-turbo-16k, gpt-4-turbo, etc.)")
-        println("/model-clear - Clears the model override (resets to assistant definition)")
+        println("/model-clear - Clears the current model override")
         println("/model-which - Displays the current model override")
         println("/thread - Creates a new assistant thread")
         println("/thread-which - Displays the current assistant thread")
@@ -27,5 +27,7 @@ data object Help : Command() {
         println("/run-step-list - Lists all run steps in the current assistant thread")
         println("/http-log - Displays the last 10 HTTP requests")
         println("/set-key <api-key> - Set your openai api key")
+        println("/log-level <level> - Set the log level (ERROR, DEBUG, INFO, OFF)")
     }
 }
+

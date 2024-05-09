@@ -23,6 +23,7 @@ import com.fluxtah.ask.app.commanding.commands.ListMessages
 import com.fluxtah.ask.app.commanding.commands.ListRunSteps
 import com.fluxtah.ask.app.commanding.commands.ListRuns
 import com.fluxtah.ask.app.commanding.commands.ListThreads
+import com.fluxtah.ask.app.commanding.commands.SetLogLevel
 import com.fluxtah.ask.app.commanding.commands.SetModel
 import com.fluxtah.ask.app.commanding.commands.SetOpenAiApiKey
 import com.fluxtah.ask.app.commanding.commands.ShowHttpLog
@@ -31,12 +32,15 @@ import com.fluxtah.ask.app.commanding.commands.UnknownCommand
 import com.fluxtah.ask.app.commanding.commands.WhichAssistant
 import com.fluxtah.ask.app.commanding.commands.WhichModel
 import com.fluxtah.ask.app.commanding.commands.WhichThread
+import com.fluxtah.askpluginsdk.logging.AskLogger
+import com.fluxtah.askpluginsdk.logging.LogLevel
 
 class CommandFactory(
+    private val askLogger: AskLogger,
     private val assistantsApi: AssistantsApi,
     private val assistantRegistry: AssistantRegistry,
     private val assistantInstallRepository: AssistantInstallRepository,
-    private val userProperties: UserProperties
+    private val userProperties: UserProperties,
 ) {
     private val commands = mapOf<String, (List<String>) -> Command>(
         "/help" to { Help },
@@ -96,6 +100,17 @@ class CommandFactory(
                 UnknownCommand("Invalid number of arguments for /set-key, expected an API key following the command")
             } else {
                 SetOpenAiApiKey(userProperties, it.first())
+            }
+        },
+        "/log-level" to {
+            if (it.size != 1) {
+                UnknownCommand("Invalid number of arguments for /log-level, expected a log level ERROR, DEBUG, INFO or OFF following the command, current log level: ${userProperties.getLogLevel()}")
+            } else {
+                try {
+                    SetLogLevel(userProperties, askLogger, LogLevel.valueOf(it.first().uppercase()))
+                } catch (e: IllegalArgumentException) {
+                    UnknownCommand("Invalid log level: ${it.first()}")
+                }
             }
         }
     )

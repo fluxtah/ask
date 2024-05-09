@@ -15,6 +15,7 @@ class UserProperties(private val store: PropertyStore) {
         const val OPENAI_API_KEY = "openaiApiKey"
         const val MODEL = "model"
         const val ASSISTANT_ID = "assistantId"
+        const val LOG_LEVEL = "logLevel"
     }
 
     fun getThreadId(): String {
@@ -57,6 +58,14 @@ class UserProperties(private val store: PropertyStore) {
         store.setProperty(ASSISTANT_ID, assistantId)
     }
 
+    fun getLogLevel(): LogLevel {
+        return LogLevel.valueOf(store.getProperty(LOG_LEVEL, LogLevel.OFF.name))
+    }
+
+    fun setLogLevel(logLevel: LogLevel) {
+        store.setProperty(LOG_LEVEL, logLevel.name)
+    }
+
     fun load() {
         store.load()
     }
@@ -64,4 +73,5 @@ class UserProperties(private val store: PropertyStore) {
     fun save() {
         store.save()
     }
+
 }

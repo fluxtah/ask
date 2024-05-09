@@ -8,8 +8,10 @@ package com.fluxtah.ask.assistants.coder
 
 import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.ask.api.io.getCurrentWorkingDirectory
+import com.fluxtah.askpluginsdk.logging.AskLogger
 
-class CoderAssistant : AssistantDefinition(
+class CoderAssistant(logger: AskLogger) : AssistantDefinition(
+    logger = logger,
     id = "coder",
     name = "Coder Assistant",
     description = "A coder assistant to help write and maintain code",
@@ -17,7 +19,7 @@ class CoderAssistant : AssistantDefinition(
     temperature = 0.9f,
     version = "0.1",
     instructions = INSTRUCTIONS,
-    functions = CoderFunctions(getCurrentWorkingDirectory())
+    functions = CoderFunctions(logger, getCurrentWorkingDirectory())
 )
 
 private val INSTRUCTIONS = """

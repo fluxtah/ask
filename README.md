@@ -70,7 +70,11 @@ brew uninstall ask
 - `/assistant-install <assistant-id>` - Installs an assistant plugin.
 - `/assistant-uninstall <assistant-id>` - Uninstalls an assistant plugin.
 - `/assistant-list` - Lists all available assistants.
+- `/assistant-which` - Displays the current assistant (the last assistant used).
 - `/assistant-info <assistant-id>` - Displays details for a specified assistant.
+- `/model <model>` - Set model override affecting all assistants (gpt-3.5-turbo-16k, gpt-4-turbo, etc.)
+- `/model-which` - Displays the currently active model override.
+- `/model-clear` - Clears the model override.
 - `/thread-new` - Creates a new assistant thread.
 - `/thread-which` - Displays the currently active assistant thread.
 - `/thread-list` - Lists all assistant threads.
@@ -79,6 +83,7 @@ brew uninstall ask
 - `/run-step-list` - Lists steps of all runs within the current thread.
 - `/http-log` - Displays the last 10 HTTP requests.
 - `/set-key <api-key>` - Sets the OpenAI API key.
+- `/log-level <level>` - Sets the log level (ERROR, DEBUG, INFO, OFF).
 
 ### Installing Assistant Plugins
 Assistant plugins can be installed using the `/assistant-install <assistant-id>` command. For example, to install the coder assistant, use `/assistant-install coder`.

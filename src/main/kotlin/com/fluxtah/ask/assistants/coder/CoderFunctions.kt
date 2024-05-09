@@ -8,6 +8,8 @@ package com.fluxtah.ask.assistants.coder
 
 import com.fluxtah.askpluginsdk.Fun
 import com.fluxtah.askpluginsdk.FunParam
+import com.fluxtah.askpluginsdk.logging.AskLogger
+import com.fluxtah.askpluginsdk.logging.LogLevel
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.tooling.GradleConnector
@@ -15,7 +17,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.file.Paths
 
-class CoderFunctions(private val baseDir: String) {
+class CoderFunctions(val logger: AskLogger, private val baseDir: String) {
 
     init {
         // Ensure the base directory exists
@@ -38,7 +40,7 @@ class CoderFunctions(private val baseDir: String) {
         return try {
             val directory = getSafeFile(directoryName)
             if (directory.mkdirs()) {
-                println("Creating directory: ${directory.path}")
+                logger.log(LogLevel.INFO, "Creating directory: ${directory.path}")
                 Json.encodeToString(
                     mapOf(
                         "created" to "true",
@@ -70,7 +72,7 @@ class CoderFunctions(private val baseDir: String) {
         return try {
             val file = getSafeFile(fileName)
             if (file.createNewFile()) {
-                println("Creating file: ${file.path}")
+                logger.log(LogLevel.INFO, "Creating file: ${file.path}")
                 Json.encodeToString(
                     mapOf(
                         "created" to "true",
@@ -105,7 +107,7 @@ class CoderFunctions(private val baseDir: String) {
         return try {
             val file = getSafeFile(fileName)
             file.writeText(fileContents)
-            println("Writing to file: ${file.path}")
+            logger.log(LogLevel.INFO, "Writing to file: ${file.path}")
             Json.encodeToString(
                 mapOf(
                     "written" to "true",
@@ -152,7 +154,7 @@ class CoderFunctions(private val baseDir: String) {
             val file = getSafeFile(fileName)
             val lines = file.useLines { it.drop(startLine - 1).take(lineCount).toList() }
             val block = lines.joinToString("\n")
-            println(block)
+            logger.log(LogLevel.INFO, "[Read File Block] $block")
             block
         } catch (e: Exception) {
             Json.encodeToString(
@@ -242,7 +244,7 @@ class CoderFunctions(private val baseDir: String) {
             if (fileText.contains(textToReplace)) {
                 val newText = fileText.replace(textToReplace, replacementText)
                 file.writeText(newText)
-                println("Replaced specific text in file: ${file.path}")
+                logger.log(LogLevel.INFO, "Replaced specific text in file: ${file.path}")
                 Json.encodeToString(
                     mapOf(
                         "replaced" to "true",
@@ -286,7 +288,7 @@ class CoderFunctions(private val baseDir: String) {
                     .replace(startIndex, endIndex, replacementText)
                     .toString()
                 file.writeText(newText)
-                println("Replaced content in file: ${file.path}")
+                logger.log(LogLevel.INFO, "Replaced content in file: ${file.path}")
                 Json.encodeToString(
                     mapOf(
                         "replaced" to "true",
@@ -340,7 +342,7 @@ class CoderFunctions(private val baseDir: String) {
                 )
             )
         } catch (e: Exception) {
-            println("Error executing Gradle: ${e.cause}")
+            logger.log(LogLevel.ERROR, "Error executing Gradle: ${e.cause}")
             Json.encodeToString(
                 mapOf(
                     "success" to "false",

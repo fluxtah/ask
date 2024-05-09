@@ -3,11 +3,13 @@ package com.fluxtah.ask.api.plugins
 import com.fluxtah.ask.api.io.getUserConfigDirectory
 import com.fluxtah.askpluginsdk.AskPlugin
 import com.fluxtah.askpluginsdk.AssistantDefinition
+import com.fluxtah.askpluginsdk.CreateAssistantDefinitionsConfig
+import com.fluxtah.askpluginsdk.logging.AskLogger
 import java.io.File
 import java.net.URLClassLoader
 import java.util.*
 
-class AskPluginLoader {
+class AskPluginLoader(private val logger: AskLogger) {
     fun loadPlugins(): List<AssistantDefinition> {
         val plugins = mutableListOf<AssistantDefinition>()
         val pluginsDir = File(getUserConfigDirectory(), "plugins")
@@ -20,7 +22,7 @@ class AskPluginLoader {
 
         val services = ServiceLoader.load(AskPlugin::class.java, classLoader)
         for (plugin in services) {
-            plugin.createAssistantDefinitions().forEach {
+            plugin.createAssistantDefinitions(CreateAssistantDefinitionsConfig(logger)).forEach {
                 plugins.add(it)
             }
         }
@@ -35,7 +37,7 @@ class AskPluginLoader {
 
         val services = ServiceLoader.load(AskPlugin::class.java, classLoader)
         for (plugin in services) {
-            plugin.createAssistantDefinitions().forEach {
+            plugin.createAssistantDefinitions(CreateAssistantDefinitionsConfig(logger)).forEach {
                 plugins.add(it)
             }
         }
