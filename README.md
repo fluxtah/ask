@@ -1,27 +1,7 @@
 ## Assistant Kommander (ALPHA)
-**Assistant Kommander** (ASK) is a Kotlin-based application that brings OpenAI Assistants to the console. Developers can talk to AI assistants directly from the terminal addressing which assistant they wish to address with `@`.
-
-```
-$ @coder can you make me an example kotlin console app?
-```
-
-Assistants can be created and installed as plugins allowing developers to share and create their own assistants. 
+**Assistant Kommander** (ASK) is a Kotlin-based application that brings [OpenAI Assistants](https://platform.openai.com/docs/assistants/overview) to the terminal. Users can direct prompts to AI assistants from the terminal targeting which assistant they wish to address with `@`.
 
 ```bash
- ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓████████▓▒░░▒▓██████▓▒░░▒▓███████▓▒░  
-░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░             
-░▒▓█▓▒  Assistant Kommander v0.1  ▒▓█▓▒░
-
-Assistants available:
-@coder - Coder Assistant 1.0, installed: true
-
-Type /help for a list of commands
-
 $ @coder how do I make a basic kotlin hello world function?
 
 [Exec Fun] createDirectory: {"directoryName":"KotlinHelloWorld"}...
@@ -34,8 +14,9 @@ Creating file: /ask/KotlinHelloWorld/Main.kt
 Writing to file: /ask/KotlinHelloWorld/Main.kt
 [Fun Result] {"written":"true"}
 The Kotlin "Hello World" function has been created in the file `Main.kt` within the `KotlinHelloWorld` project.
-$ 
 ```
+
+Assistants can be created and installed as plugins allowing developers to share and create their own assistants.
 
 ### Installation With Homebrew
 
@@ -65,6 +46,13 @@ To run ASK, execute the following command:
 
 ```bash
 $ ask --interactive
+```
+
+#### Setting your OpenAI API Key
+Before you can interact with the assistants, you need to set your OpenAI API key. You can do this by running the following command:
+
+```bash
+$ /set-key <api-key>
 ```
 
 #### Basic Commands
@@ -183,20 +171,16 @@ The gradle plugin adds two useful tasks to your project:-
 ### Assistant Threads
 Assistant threads are used to manage interactions with assistants. Users can create new threads, list existing threads, and switch between them using the `/thread-new`, `/thread-list`, and `/thread-which` commands, respectively.
 
-Generally if you want to start a new conversation with an assistant, you should create a new thread (using `/thread-new`). This allows you to keep track of multiple conversations at once.
+Generally if you want to start a new conversation with an assistant, you should create a new thread (using `/thread-new`).
 
-### `@` Assistant Commands
-With assistant plugins installed, users can interact with them using the `@` symbol.
+### Non-Interactive Mode
+ASK can be run in non-interactive mode by passing a command as an argument.
 
-- `@<assistant-id> <command>` - Directly address an assistant to execute specific commands. For example:
-    - `@coder generate me an android project`
-    - `@designer create a logo`
+```bash
+$ ask @coder generate me a ktor project
+```
 
-
-### Usage Example
-- **Set API Key**: Start by setting your OpenAI API key with `/set-key <api-key>`.
-- **Command Execution**: With the application running, `@coder generate me a ktor project` to interact with the coder assistant for generating a Ktor project.
-- **Ask Commands**: You can also invoke assistants using the `ask` command. For example, `ask @designer to create a logo`.
+Once the command is executed, ASK will exit.
 
 ### Ask Application Properties
 Ask stores property files and other data in a `.ask` directory in the user's home directory. This file persists properties such as openai API key and context data such as current thread and installed assistants.
