@@ -8,7 +8,6 @@ package com.fluxtah.ask.app
 
 import com.fluxtah.ask.Version
 import com.fluxtah.ask.api.FunctionInvoker
-import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
@@ -23,8 +22,7 @@ import com.fluxtah.ask.api.pollRunStatus
 import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.ask.assistants.coder.CoderAssistant
-import com.fluxtah.ask.assistants.git.GitAssistant
-import com.fluxtah.ask.assistants.man.ManPageAssistant
+import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 import kotlinx.coroutines.runBlocking
@@ -286,4 +284,3 @@ class App(
         println()
     }
 }
-
