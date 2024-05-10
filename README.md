@@ -170,11 +170,11 @@ class HelloFunctions {
 }
 ```
 
-The class you assign to the functions property can define member functions in kotlin, any function you wish to expose should be annotated them with the `@Fun` annotation. The annotation should include a description of the function.
+The class you assign to the functions property can define member functions in kotlin, any function you wish to expose to your assistant should be annotated with the `@Fun` annotation. The annotation should include a description of the function.
 
 Function parameters can be annotated with the `@FunParam` annotation to provide a description of the parameter.
 
-Functions annotated with `@Fun` will be used to generate the JSON template when creating the assistant with the openai API.
+Functions annotated with `@Fun` will be used to generate the JSON  tool function templates when creating the assistant with the Assistants API.
 
 The gradle plugin adds two useful tasks to your project:-
 * `testAskPlugin` task will attempt to run ASK with the java remote debugger enabled, you can attach to the debugger from your IDE to debug your plugin, you'll have to install the plugin first and make sure to uninstall it when you're done (for now).
