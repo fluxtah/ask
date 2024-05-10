@@ -1,5 +1,9 @@
 ## Assistant Kommander (ALPHA)
-**Assistant Kommander** (ASK) is a Kotlin-based application that brings OpenAI Assistants to the console. Developers can talk to AI assistants directly from the terminal, allowing for quick access to information and assistance.
+**Assistant Kommander** (ASK) is a Kotlin-based application that brings OpenAI Assistants to the console. Developers can talk to AI assistants directly from the terminal addressing which assistant they wish to address with `@`.
+
+```
+$ @coder can you make me an example kotlin console app?
+```
 
 Assistants can be created and installed as plugins allowing developers to share and create their own assistants. 
 
