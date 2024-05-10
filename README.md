@@ -1,5 +1,9 @@
 ## Assistant Kommander (ALPHA)
-**Assistant Kommander** (ASK) is a Kotlin-based application that brings OpenAI Assistants to the console. Developers can talk to AI assistants directly from the terminal, allowing for quick access to information and assistance.
+**Assistant Kommander** (ASK) is a Kotlin-based application that brings OpenAI Assistants to the console. Developers can talk to AI assistants directly from the terminal addressing which assistant they wish to address with `@`.
+
+```
+$ @coder can you make me an example kotlin console app?
+```
 
 Assistants can be created and installed as plugins allowing developers to share and create their own assistants. 
 
@@ -166,11 +170,11 @@ class HelloFunctions {
 }
 ```
 
-The class you assign to the functions property can define member functions in kotlin, any function you wish to expose should be annotated them with the `@Fun` annotation. The annotation should include a description of the function.
+The class you assign to the functions property can define member functions in kotlin, any function you wish to expose to your assistant should be annotated with the `@Fun` annotation. The annotation should include a description of the function.
 
 Function parameters can be annotated with the `@FunParam` annotation to provide a description of the parameter.
 
-Functions annotated with `@Fun` will be used to generate the JSON template when creating the assistant with the openai API.
+Functions annotated with `@Fun` will be used to generate the JSON  tool function templates when creating the assistant with the Assistants API.
 
 The gradle plugin adds two useful tasks to your project:-
 * `testAskPlugin` task will attempt to run ASK with the java remote debugger enabled, you can attach to the debugger from your IDE to debug your plugin, you'll have to install the plugin first and make sure to uninstall it when you're done (for now).
@@ -211,6 +215,12 @@ Will create a tar file in the `build/dist` directory. ie:- ask-0.1.tar.gz, the t
 be distributed with homebrew, etc.
 
 Homebrew tap is available at [Homebrew Ask](https://github.com/fluxtah/homebrew-ask)
+
+## Related Projects
+* [Ask Gradle Plugin](https://github.com/fluxtah/ask-gradle-plugin) - For developing your own ask plugins with some useful tasks for testing and local deployment.
+* [Ask Plugin SDK](https://github.com/fluxtah/ask-plugin-sdk) - SDK dependency for base plugin interface and assistant definitions.
+* [Homebrew ASK](https://github.com/fluxtah/homebrew-ask) - The homebrew tap source.
+* [Plugin Hello World Example](https://github.com/fluxtah/ask-plugin-hello) - Example plugin project.
 
 ## License
 
