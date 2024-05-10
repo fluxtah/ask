@@ -128,7 +128,7 @@ dependencies {
 In your projects `META-INF/services` directory, create a file called `com.fluxtah.askpluginsdk.AskPlugin` and add the fully qualified class name of your plugin class.
 
 ```
-com.example.hello.HelloAssistant
+com.example.hello.HelloAssistantPlugin
 ```
 
 Here is an example of a simple assistant plugin.
