@@ -6,7 +6,7 @@
 
 package com.fluxtah.ask.api.assistants
 
-import com.fluxtah.ask.api.FunctionToolGenerator
+import com.fluxtah.ask.api.tools.fn.FunctionToolGenerator
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.model.CreateAssistantRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.ModifyAssistantRequest

@@ -4,7 +4,7 @@
  * https://opensource.org/licenses/MIT
  */
 
-package com.fluxtah.ask.api
+package com.fluxtah.ask.api.tools.fn
 
 import com.fluxtah.askpluginsdk.Fun
 import com.fluxtah.askpluginsdk.FunParam

@@ -4,10 +4,9 @@
  * https://opensource.org/licenses/MIT
  */
 
-package com.fluxtah.ask.api
+package com.fluxtah.ask.api.tools.fn
 
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRunStepDetails.ToolCalls.ToolCallDetails.FunctionToolCallDetails
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
