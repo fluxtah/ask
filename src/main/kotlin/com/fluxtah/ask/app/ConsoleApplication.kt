@@ -24,7 +24,7 @@ import kotlinx.coroutines.runBlocking
 import java.io.File
 import kotlin.system.exitProcess
 
-class App(
+class ConsoleApplication(
     private val logger: AskLogger = AskLogger(),
     private val userProperties: UserProperties = UserProperties(PropertyStore("user.properties")),
     private val assistantsApi: AssistantsApi = AssistantsApi(

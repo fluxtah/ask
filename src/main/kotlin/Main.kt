@@ -5,7 +5,7 @@
  */
 
 import com.fluxtah.ask.Version
-import com.fluxtah.ask.app.App
+import com.fluxtah.ask.app.ConsoleApplication
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -34,7 +34,7 @@ fun main(args: Array<String>) {
         }
     }
 
-    val app = App()
+    val consoleApplication = ConsoleApplication()
 
     if (testing) {
         val testPluginArgIndex = args.indexOf("--test-plugin")
@@ -48,23 +48,23 @@ fun main(args: Array<String>) {
                 println("Plugin not found: $testPluginFilePath")
                 return
             }
-            app.debugPlugin(pluginFile)
+            consoleApplication.debugPlugin(pluginFile)
         }
     }
 
     if (interactive) {
-        app.run()
+        consoleApplication.run()
         return
     }
 
     if (!startsWithProgramName) {
-        app.runOneShotCommand(args.joinToString(" "))
+        consoleApplication.runOneShotCommand(args.joinToString(" "))
         return
     }
 
     if (args.size < 2) {
         println("Usage: ask <command>")
     } else {
-        app.runOneShotCommand(args.drop(1).joinToString(" "))
+        consoleApplication.runOneShotCommand(args.drop(1).joinToString(" "))
     }
 }
