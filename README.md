@@ -212,6 +212,12 @@ be distributed with homebrew, etc.
 
 Homebrew tap is available at [Homebrew Ask](https://github.com/fluxtah/homebrew-ask)
 
+## Related Projects
+* [Ask Gradle Plugin](https://github.com/fluxtah/ask-gradle-plugin) - For developing your own ask plugins with some useful tasks for testing and local deployment.
+* [Ask Plugin SDK](https://github.com/fluxtah/ask-plugin-sdk) - SDK dependency for base plugin interface and assistant definitions.
+* [Homebrew ASK](https://github.com/fluxtah/homebrew-ask) - The homebrew tap source.
+* [Plugin Hello World Example](https://github.com/fluxtah/ask-plugin-hello) - Example plugin project.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
