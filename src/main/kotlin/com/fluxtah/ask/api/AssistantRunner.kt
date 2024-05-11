@@ -16,7 +16,7 @@ import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 
-class AssistantKommander(
+class AssistantRunner(
     private val logger: AskLogger,
     private val userProperties: UserProperties,
     private val assistantsApi: AssistantsApi,
@@ -25,7 +25,7 @@ class AssistantKommander(
     private val functionInvoker: FunctionInvoker,
     private val responsePrinter: AskResponsePrinter
 ) {
-    suspend fun promptAssistant(assistantId: String, threadId: String, prompt: String) {
+    suspend fun run(assistantId: String, threadId: String, prompt: String) {
         val assistantDef = assistantRegistry.getAssistantById(assistantId)
 
         if (assistantDef == null) {
