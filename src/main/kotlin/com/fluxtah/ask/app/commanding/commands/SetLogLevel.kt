@@ -1,6 +1,6 @@
 package com.fluxtah.ask.app.commanding.commands
 
-import com.fluxtah.ask.app.UserProperties
+import com.fluxtah.ask.api.UserProperties
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 

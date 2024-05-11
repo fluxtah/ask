@@ -6,7 +6,7 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
-import com.fluxtah.ask.app.UserProperties
+import com.fluxtah.ask.api.UserProperties
 
 class SetOpenAiApiKey(private val userProperties: UserProperties, private val apiKey: String) : Command() {
     override val requiresApiKey: Boolean = false

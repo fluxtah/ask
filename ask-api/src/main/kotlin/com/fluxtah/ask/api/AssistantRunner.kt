@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Ian Warwick
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ */
+
 package com.fluxtah.ask.api
 
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
@@ -11,7 +17,6 @@ import com.fluxtah.ask.api.clients.openai.assistants.model.SubmitToolOutputsRequ
 import com.fluxtah.ask.api.clients.openai.assistants.model.ToolOutput
 import com.fluxtah.ask.api.tools.fn.FunctionInvoker
 import com.fluxtah.ask.api.printers.AskResponsePrinter
-import com.fluxtah.ask.app.UserProperties
 import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
@@ -74,7 +79,7 @@ class AssistantRunner(
     ) {
         var currentRun = startRun
         responsePrinter.print(" ")
-        while (pollRunStatus(assistantsApi, currentThreadId, startRun) { status ->
+        while (com.fluxtah.ask.api.pollRunStatus(assistantsApi, currentThreadId, startRun) { status ->
                 responsePrinter.print(" > $status")
             }.status == RunStatus.REQUIRES_ACTION) {
             currentRun = executeRunSteps(assistantDef, currentThreadId, currentRun)

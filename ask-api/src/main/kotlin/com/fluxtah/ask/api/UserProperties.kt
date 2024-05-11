@@ -4,7 +4,7 @@
  * https://opensource.org/licenses/MIT
  */
 
-package com.fluxtah.ask.app
+package com.fluxtah.ask.api
 
 import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.askpluginsdk.logging.LogLevel

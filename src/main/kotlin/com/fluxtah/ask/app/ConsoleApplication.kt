@@ -7,7 +7,7 @@
 package com.fluxtah.ask.app
 
 import com.fluxtah.ask.Version
-import com.fluxtah.ask.api.AssistantRunner
+import com.fluxtah.ask.api.UserProperties
 import com.fluxtah.ask.api.tools.fn.FunctionInvoker
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
@@ -40,7 +40,7 @@ class ConsoleApplication(
         userProperties
     ),
     private val responsePrinter: AskResponsePrinter = AskConsoleResponsePrinter(),
-    private val assistantRunner: AssistantRunner = AssistantRunner(
+    private val assistantRunner: com.fluxtah.ask.api.AssistantRunner = com.fluxtah.ask.api.AssistantRunner(
         logger = logger,
         userProperties = userProperties,
         assistantsApi = assistantsApi,

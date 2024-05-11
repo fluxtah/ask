@@ -26,20 +26,12 @@ repositories {
 
 dependencies {
     implementation("com.github.fluxtah:ask-plugin-sdk:0.5.0")
+    implementation(project(":ask-api"))
 
-    // SLF4J API
-    implementation("org.slf4j:slf4j-api:1.7.32")
-    // Logback (which includes the SLF4J binding)
-    implementation("ch.qos.logback:logback-classic:1.4.12")
-
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("io.ktor:ktor-client-core:$ktor_version")
-    implementation("io.ktor:ktor-client-cio:$ktor_version")
-    implementation("io.ktor:ktor-client-okhttp:$ktor_version")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-logging-jvm:$ktor_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.gradle:gradle-tooling-api:8.4")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.7.0")
 

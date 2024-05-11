@@ -6,7 +6,7 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
-import com.fluxtah.ask.app.UserProperties
+import com.fluxtah.ask.api.UserProperties
 
 class SetModel(
     private val userProperties: UserProperties,
