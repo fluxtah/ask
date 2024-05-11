@@ -22,6 +22,7 @@ data object Help : Command() {
         println("/thread - Creates a new assistant thread")
         println("/thread-which - Displays the current assistant thread")
         println("/thread-list - Lists all assistant threads")
+        println("/thread-info <thread-id> - Displays the assistant thread")
         println("/message-list - Lists all messages in the current assistant thread")
         println("/run-list - Lists all runs in the current assistant thread")
         println("/run-step-list - Lists all run steps in the current assistant thread")
