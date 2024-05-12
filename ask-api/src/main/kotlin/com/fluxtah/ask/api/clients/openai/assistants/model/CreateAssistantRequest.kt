@@ -18,8 +18,19 @@ data class CreateAssistantRequest(
     @SerialName("tools") val tools: List<AssistantTool> = emptyList(),
     @SerialName("tool_resources") val toolResource: ToolResources? = null,
     @SerialName("metadata") val metadata: Map<String, String> = emptyMap(),
-    @SerialName("temperature") val temperature: Float? = null
+    @SerialName("temperature") val temperature: Float? = null,
+    @SerialName("top_p") val topP: Float? = null,
+    @SerialName("response_format") val responseFormat: ResponseFormat? = null
 )
+
+@Serializable
+data class ResponseFormat(
+    @SerialName("type") val type: String,
+) {
+    companion object {
+        val JSON = ResponseFormat("json_object")
+    }
+}
 
 @Serializable
 data class ModifyAssistantRequest(
