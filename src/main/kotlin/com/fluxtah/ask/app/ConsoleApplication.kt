@@ -21,6 +21,10 @@ import com.fluxtah.ask.assistants.coder.CoderAssistant
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 import kotlinx.coroutines.runBlocking
+import org.jline.reader.LineReader
+import org.jline.reader.LineReaderBuilder
+import org.jline.terminal.Terminal
+import org.jline.terminal.TerminalBuilder
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -50,6 +54,15 @@ class ConsoleApplication(
         responsePrinter = responsePrinter
     ),
 ) {
+    val completer = AskCommandCompleter(assistantRegistry)
+    val terminal: Terminal = TerminalBuilder.builder()
+        .system(true)
+        .build()
+    val lineReader: LineReader = LineReaderBuilder.builder()
+        .terminal(terminal)
+        .completer(completer)
+        .build()
+
     init {
         userProperties.load()
 
@@ -80,10 +93,10 @@ class ConsoleApplication(
         logger.setLogLevel(logLevel)
 
         while (true) {
-            print("${green("$")} ")
+            println()
 
             try {
-                val input = readln()
+                val input = lineReader.readLine("${green("ask ➜")} ")
                 printWhite()
 
                 handleInput(input)
@@ -148,13 +161,12 @@ class ConsoleApplication(
     }
 
     private fun printWelcomeMessage() {
-        responsePrinter.println(
-            """
-         ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░ 
-        ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
-        ░▒▓████████▓▒░░▒▓██████▓▒░░▒▓██████▓▒░  
-        ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
-        ░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░             
+        responsePrinter.println("""
+             ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░
+            ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░
+            ░▒▓████████▓▒░░▒▓██████▓▒░░▒▓██████▓▒░
+            ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░
+            ░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░             
         """.trimIndent()
         )
         responsePrinter.println("░▒▓█▓░ ASSISTANT KOMMANDER v${Version.APP_VERSION} ░▓█▓▒░")
@@ -165,7 +177,6 @@ class ConsoleApplication(
         }
         responsePrinter.println()
         responsePrinter.println("Type /help for a list of commands")
-        responsePrinter.println()
     }
 
 
