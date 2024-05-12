@@ -6,7 +6,7 @@
 
 package com.fluxtah.ask.api.store
 
-import com.fluxtah.ask.api.io.getUserConfigDirectory
+import com.fluxtah.askpluginsdk.io.getUserConfigDirectory
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream

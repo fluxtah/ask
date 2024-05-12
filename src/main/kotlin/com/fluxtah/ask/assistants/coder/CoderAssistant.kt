@@ -7,7 +7,7 @@
 package com.fluxtah.ask.assistants.coder
 
 import com.fluxtah.askpluginsdk.AssistantDefinition
-import com.fluxtah.ask.api.io.getCurrentWorkingDirectory
+import com.fluxtah.askpluginsdk.io.getCurrentWorkingDirectory
 import com.fluxtah.askpluginsdk.logging.AskLogger
 
 class CoderAssistant(logger: AskLogger) : AssistantDefinition(

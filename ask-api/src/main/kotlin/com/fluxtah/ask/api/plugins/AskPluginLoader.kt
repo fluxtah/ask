@@ -1,9 +1,9 @@
 package com.fluxtah.ask.api.plugins
 
-import com.fluxtah.ask.api.io.getUserConfigDirectory
 import com.fluxtah.askpluginsdk.AskPlugin
 import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.askpluginsdk.CreateAssistantDefinitionsConfig
+import com.fluxtah.askpluginsdk.io.getUserConfigDirectory
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import java.io.File
 import java.net.URLClassLoader

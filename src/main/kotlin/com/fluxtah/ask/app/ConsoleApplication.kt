@@ -80,10 +80,11 @@ class ConsoleApplication(
         logger.setLogLevel(logLevel)
 
         while (true) {
-            print("$ ")
+            print("${green("$")} ")
 
             try {
                 val input = readln()
+                printWhite()
 
                 handleInput(input)
             } catch (e: Exception) {
@@ -165,6 +166,15 @@ class ConsoleApplication(
         responsePrinter.println()
         responsePrinter.println("Type /help for a list of commands")
         responsePrinter.println()
+    }
+
+
+    fun green(text: String) : String {
+        return "\u001b[32m$text"
+    }
+
+    fun printWhite() {
+        print("\u001b[37m")
     }
 }
 

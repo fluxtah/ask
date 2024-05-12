@@ -11,6 +11,7 @@ import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRun
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRunStepDetails
+import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRunStepDetails.ToolCalls.ToolCallDetails.FunctionToolCallDetails
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
 import com.fluxtah.ask.api.clients.openai.assistants.model.SubmitToolOutputsRequest
@@ -79,13 +80,45 @@ class AssistantRunner(
     ) {
         var currentRun = startRun
         responsePrinter.print(" ")
-        while (com.fluxtah.ask.api.pollRunStatus(assistantsApi, currentThreadId, startRun) { status ->
-                responsePrinter.print(" > $status")
-            }.status == RunStatus.REQUIRES_ACTION) {
-            currentRun = executeRunSteps(assistantDef, currentThreadId, currentRun)
-        }
+        val loadingChars = listOf("|", "/", "-", "\\")
+        var loadingCharIndex = 0
+        responsePrinter.println(" ${loadingChars[loadingCharIndex]} ${RunStatus.QUEUED}")
+        while (true) {
+            currentRun = pollRunStatus(assistantsApi, currentThreadId, currentRun) { status ->
+                responsePrinter.print("\u001b[1A\u001b[2K")
+                responsePrinter.println(" ${loadingChars[loadingCharIndex]} $status")
+                loadingCharIndex = (loadingCharIndex + 1) % loadingChars.size
+            }
 
-        responsePrinter.println(" > ${currentRun.status}")
+            when (currentRun.status) {
+                RunStatus.REQUIRES_ACTION -> {
+                    currentRun = executeRunSteps(assistantDef, currentThreadId, currentRun)
+                }
+
+                RunStatus.COMPLETED -> {
+                    break
+                }
+
+                RunStatus.FAILED -> {
+                    responsePrinter.println("Run failed: ${currentRun.lastError?.message}")
+                    break
+                }
+
+                RunStatus.CANCELLED -> {
+                    responsePrinter.println("Run cancelled")
+                    break
+                }
+
+                RunStatus.EXPIRED -> {
+                    responsePrinter.println("Run expired")
+                    break
+                }
+
+                else -> {}
+            }
+        }
+        responsePrinter.print("\u001b[1A\u001b[2K")
+        responsePrinter.println(" \u2714 ${currentRun.status}")
         responsePrinter.println()
     }
 
@@ -117,7 +150,7 @@ class AssistantRunner(
 
         details.toolCalls.forEach { toolCall ->
             when (toolCall) {
-                is AssistantRunStepDetails.ToolCalls.ToolCallDetails.FunctionToolCallDetails -> {
+                is FunctionToolCallDetails -> {
                     logger.log(
                         LogLevel.DEBUG,
                         "[Exec Fun] ${toolCall.function.name}: ${toolCall.function.arguments.take(200)}..."

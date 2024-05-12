@@ -6,12 +6,12 @@
 
 package com.fluxtah.ask.api.assistants
 
-import com.fluxtah.ask.api.tools.fn.FunctionToolGenerator
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.model.CreateAssistantRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.ModifyAssistantRequest
-import com.fluxtah.ask.api.io.getUserConfigDirectory
+import com.fluxtah.ask.api.tools.fn.FunctionToolGenerator
 import com.fluxtah.askpluginsdk.AssistantDefinition
+import com.fluxtah.askpluginsdk.io.getUserConfigDirectory
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
