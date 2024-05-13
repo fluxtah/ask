@@ -14,4 +14,8 @@ class AskConsoleResponsePrinter : AskResponsePrinter {
     override fun print(message: String) {
         kotlin.io.print(message)
     }
+
+    override fun flush() {
+        System.out.flush()
+    }
 }

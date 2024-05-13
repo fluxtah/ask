@@ -38,7 +38,9 @@ fun main(args: Array<String>) {
     val consoleApplication = ConsoleApplication()
 
     if (testing) {
-        val testPluginArgIndex = args.indexOf("--test-plugin")
+        val testPluginArgIndexLong = args.indexOf("--test-plugin")
+        val testPluginArgIndexShort = args.indexOf("-t")
+        val testPluginArgIndex = if (testPluginArgIndexLong != -1) testPluginArgIndexLong else testPluginArgIndexShort
         val testPluginFilePath = args.getOrNull(testPluginArgIndex + 1)
         if (testPluginFilePath == null) {
             println("Usage: ask --test-plugin <plugin-name>")

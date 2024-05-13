@@ -11,6 +11,7 @@ data object Help : Command() {
     override suspend fun execute() {
         println("Help: List of available commands...")
         println("/exit - Exits the application")
+        println("/clear - Clears the screen")
         println("/assistant-list - Displays all available assistants")
         println("/assistant-install <assistant-id> - Installs an assistant")
         println("/assistant-uninstall <assistant-id> - Uninstalls an assistant")
@@ -19,7 +20,7 @@ data object Help : Command() {
         println("/model <model-id> - Set model override affecting all assistants (gpt-3.5-turbo-16k, gpt-4-turbo, etc.)")
         println("/model-clear - Clears the current model override")
         println("/model-which - Displays the current model override")
-        println("/thread - Creates a new assistant thread")
+        println("/thread-new - Creates a new assistant thread")
         println("/thread-which - Displays the current assistant thread")
         println("/thread-list - Lists all assistant threads")
         println("/thread-info <thread-id> - Displays the assistant thread")

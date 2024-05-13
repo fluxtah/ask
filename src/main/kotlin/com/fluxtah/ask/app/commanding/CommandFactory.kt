@@ -10,6 +10,7 @@ import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.UserProperties
+import com.fluxtah.ask.app.commanding.commands.Clear
 import com.fluxtah.ask.app.commanding.commands.ClearModel
 import com.fluxtah.ask.app.commanding.commands.Command
 import com.fluxtah.ask.app.commanding.commands.CreateAssistantThread
@@ -45,6 +46,7 @@ class CommandFactory(
     private val commands = mapOf<String, (List<String>) -> Command>(
         "/help" to { Help },
         "/exit" to { Exit },
+        "/clear" to { Clear() },
         "/assistant-install" to {
             if (it.size != 1) {
                 UnknownCommand("Invalid number of arguments for /assistant-install, expected an assistant ID following the command")
