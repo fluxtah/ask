@@ -2,7 +2,7 @@
 **Assistant Kommander** (ASK) is a Kotlin-based application that brings [OpenAI Assistants](https://platform.openai.com/docs/assistants/overview) to the terminal. Users can direct prompts to AI assistants from the terminal targeting which assistant they wish to address with `@`.
 
 ```bash
-$ @coder how do I make a basic kotlin hello world function?
+$ @koder how do I make a basic kotlin hello world function?
 
 [Exec Fun] createDirectory: {"directoryName":"KotlinHelloWorld"}...
 Creating directory: /ask/KotlinHelloWorld
@@ -55,39 +55,30 @@ Before you can interact with the assistants, you need to set your OpenAI API key
 $ /set-key <api-key>
 ```
 
-#### Basic Commands
-- `/exit` - Exits the application.
+#### Some Basic Commands
+- `/set-key <api-key>` - Sets the OpenAI API key.
 - `/assistant-install <assistant-id>` - Installs an assistant plugin.
 - `/assistant-uninstall <assistant-id>` - Uninstalls an assistant plugin.
 - `/assistant-list` - Lists all available assistants.
-- `/assistant-which` - Displays the current assistant (the last assistant used).
-- `/assistant-info <assistant-id>` - Displays details for a specified assistant.
 - `/model <model>` - Set model override affecting all assistants (gpt-3.5-turbo-16k, gpt-4-turbo, etc.)
-- `/model-which` - Displays the currently active model override.
-- `/model-clear` - Clears the model override.
 - `/thread-new` - Creates a new assistant thread.
-- `/thread-which` - Displays the currently active assistant thread.
-- `/thread-list` - Lists all assistant threads.
-- `/message-list` - Lists all messages in the current thread.
-- `/run-list` - Lists all runs within the current thread.
-- `/run-step-list` - Lists steps of all runs within the current thread.
-- `/http-log` - Displays the last 10 HTTP requests.
-- `/set-key <api-key>` - Sets the OpenAI API key.
 - `/log-level <level>` - Sets the log level (ERROR, DEBUG, INFO, OFF).
+- 
+To see a list of all  commands run ask and use `/help`.
 
 ### Installing Assistant Plugins
 Assistant plugins should be deployed to the `{USER_HOME}/.ask/plugins` directory, once deployed, the assistant plugin can be installed using the `/assistant-install <assistant-id>` command.
 
-ASK ships with an inbuilt assistant plugin called `coder`, which can be installed using the following command:
+ASK ships with an inbuilt assistant plugin called `koder`, which can be installed using the following command:
 
 ```bash
-$ /assistant-install coder
+$ /assistant-install koder
 ```
 
-Once installed you can interact with the assistant using the `@coder` command.
+Once installed you can interact with the assistant using the `@koder` command.
 
 ```bash
-$ @coder generate me a ktor project
+$ @koder generate me a ktor project
 ```
 
 ### Writing Assistant Plugins
@@ -177,7 +168,7 @@ Generally if you want to start a new conversation with an assistant, you should 
 ASK can be run in non-interactive mode by passing a command as an argument.
 
 ```bash
-$ ask @coder generate me a ktor project
+$ ask @koder generate me a ktor project
 ```
 
 Once the command is executed, ASK will exit.
