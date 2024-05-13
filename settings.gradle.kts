@@ -3,4 +3,5 @@ plugins {
 }
 rootProject.name = "ask"
 includeBuild("../ask-plugin-sdk")
+includeBuild("../ask-plugin-koder")
 include("ask-api")
