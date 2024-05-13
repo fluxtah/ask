@@ -35,14 +35,15 @@ class ConsoleApplication(
     ),
     private val assistantRegistry: AssistantRegistry = AssistantRegistry(),
     private val assistantInstallRepository: AssistantInstallRepository = AssistantInstallRepository(assistantsApi),
+    private val responsePrinter: AskResponsePrinter = AskConsoleResponsePrinter(),
     private val commandFactory: CommandFactory = CommandFactory(
         logger,
+        responsePrinter,
         assistantsApi,
         assistantRegistry,
         assistantInstallRepository,
         userProperties
     ),
-    private val responsePrinter: AskResponsePrinter = AskConsoleResponsePrinter(),
     private val assistantRunner: com.fluxtah.ask.api.AssistantRunner = com.fluxtah.ask.api.AssistantRunner(
         logger = logger,
         userProperties = userProperties,
@@ -53,7 +54,7 @@ class ConsoleApplication(
         responsePrinter = responsePrinter
     ),
 ) {
-    val completer = AskCommandCompleter(assistantRegistry)
+    val completer = AskCommandCompleter(assistantRegistry, commandFactory)
     val terminal: Terminal = TerminalBuilder.builder()
         .system(true)
         .build()
@@ -155,6 +156,7 @@ class ConsoleApplication(
     }
 
     private fun printWelcomeMessage() {
+        responsePrinter.println()
         responsePrinter.println("""
              ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░
             ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░

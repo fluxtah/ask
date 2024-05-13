@@ -10,6 +10,7 @@ import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.UserProperties
+import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.app.commanding.commands.Clear
 import com.fluxtah.ask.app.commanding.commands.ClearModel
 import com.fluxtah.ask.app.commanding.commands.Command
@@ -27,6 +28,7 @@ import com.fluxtah.ask.app.commanding.commands.ListThreads
 import com.fluxtah.ask.app.commanding.commands.SetLogLevel
 import com.fluxtah.ask.app.commanding.commands.SetModel
 import com.fluxtah.ask.app.commanding.commands.SetOpenAiApiKey
+import com.fluxtah.ask.app.commanding.commands.ShellExec
 import com.fluxtah.ask.app.commanding.commands.ShowHttpLog
 import com.fluxtah.ask.app.commanding.commands.UnInstallAssistant
 import com.fluxtah.ask.app.commanding.commands.UnknownCommand
@@ -38,6 +40,7 @@ import com.fluxtah.askpluginsdk.logging.LogLevel
 
 class CommandFactory(
     private val askLogger: AskLogger,
+    private val responsePrinter: AskResponsePrinter,
     private val assistantsApi: AssistantsApi,
     private val assistantRegistry: AssistantRegistry,
     private val assistantInstallRepository: AssistantInstallRepository,
@@ -114,11 +117,22 @@ class CommandFactory(
                     UnknownCommand("Invalid log level: ${it.first()}")
                 }
             }
+        },
+        "/exec" to {
+            if (it.isEmpty()) {
+                UnknownCommand("Invalid number of arguments for /exec, expected a shell command following the command")
+            } else {
+                ShellExec(responsePrinter, it.joinToString(" "))
+            }
         }
     )
 
     fun create(input: String): Command {
         val parts = input.split(" ")
         return commands[parts[0]]?.invoke(parts.drop(1)) ?: UnknownCommand("Unknown command: ${parts[0]}")
+    }
+
+    fun getCommands(): List<String> {
+        return commands.keys.toList()
     }
 }

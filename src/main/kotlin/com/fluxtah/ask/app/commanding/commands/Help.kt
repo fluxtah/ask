@@ -30,6 +30,7 @@ data object Help : Command() {
         println("/http-log - Displays the last 10 HTTP requests")
         println("/set-key <api-key> - Set your openai api key")
         println("/log-level <level> - Set the log level (ERROR, DEBUG, INFO, OFF)")
+        println("/exec <command> - Executes a shell command for convenience")
     }
 }
 
