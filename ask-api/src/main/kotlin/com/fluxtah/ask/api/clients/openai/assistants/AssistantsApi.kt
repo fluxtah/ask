@@ -33,7 +33,7 @@ fun addHttpLog(message: String) {
 }
 
 fun HttpRequestBuilder.openAiAssistantsBetaHeader() {
-    header("OpenAI-Beta", "assistants=v1")
+    header("OpenAI-Beta", "assistants=v2")
 }
 
 class AssistantsApi(
