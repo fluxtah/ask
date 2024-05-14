@@ -380,6 +380,7 @@ private val httpClient = HttpClient(OkHttp) {
     install(ContentNegotiation) {
         json(json = Json {
             ignoreUnknownKeys = true
+            encodeDefaults = false
         })
     }
     install(Logging) {

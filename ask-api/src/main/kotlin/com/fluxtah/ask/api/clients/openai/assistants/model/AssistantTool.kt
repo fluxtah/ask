@@ -6,6 +6,8 @@
 
 package com.fluxtah.ask.api.clients.openai.assistants.model
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -20,7 +22,8 @@ sealed class AssistantTool {
         @Serializable
         data class FunctionSpec(
             val name: String,
-            val description: String? = null,
+            @EncodeDefault(EncodeDefault.Mode.NEVER)
+            val description: String = "",
             val parameters: ParametersSpec = ParametersSpec()
         )
 
@@ -32,10 +35,12 @@ sealed class AssistantTool {
         )
 
         @Serializable
-        data class PropertySpec(
+        data class PropertySpec @OptIn(ExperimentalSerializationApi::class) constructor(
             val type: String,
-            val description: String,
-            val properties: Map<String, PropertySpec>? = null // Adding nested properties for object types
+            @EncodeDefault(EncodeDefault.Mode.NEVER)
+            val description: String = "",
+            @EncodeDefault(EncodeDefault.Mode.NEVER)
+            val properties: Map<String, PropertySpec> = emptyMap()
         )
     }
 

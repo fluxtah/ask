@@ -18,10 +18,8 @@ import kotlin.reflect.full.memberProperties
 
 class FunctionToolGenerator {
     fun <T : Any> generateToolsForInstance(targetInstance: T): List<AssistantTool> {
-        return targetInstance::class.memberFunctions.filter {
-            it.visibility == KVisibility.PUBLIC && it.findAnnotation<Fun>() != null
-        }.map { function ->
-            val description = function.findAnnotation<Fun>()?.description ?: "No description available"
+        return targetInstance::class.memberFunctions.filterPublicAskFun().map { function ->
+            val description = function.findAnnotation<Fun>()?.description ?: ""
             AssistantTool.FunctionTool(
                 function = AssistantTool.FunctionTool.FunctionSpec(
                     name = function.name,
@@ -51,7 +49,7 @@ class FunctionToolGenerator {
                 properties = if (property.returnType.classifier is KClass<*>) {
                     createPropertiesSpecForDataClass(property.returnType.classifier as KClass<*>)
                 } else {
-                    null
+                    emptyMap()
                 }
             )
         }
@@ -87,5 +85,11 @@ class FunctionToolGenerator {
             properties = properties,
             required = properties.keys.toList()
         )
+    }
+}
+
+private fun  Collection<KFunction<*>>.filterPublicAskFun(): List<KFunction<*>> {
+    return filter {
+        it.visibility == KVisibility.PUBLIC && it.findAnnotation<Fun>() != null
     }
 }
