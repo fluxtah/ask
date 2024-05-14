@@ -17,6 +17,7 @@ import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.ask.api.tools.fn.FunctionInvoker
 import com.fluxtah.ask.app.commanding.CommandFactory
+import com.fluxtah.ask.assistants.FoodOrderingAssistant
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 import kotlinx.coroutines.runBlocking
@@ -65,6 +66,8 @@ class ConsoleApplication(
 
     init {
         userProperties.load()
+
+        assistantRegistry.register(FoodOrderingAssistant(logger))
 
         // Load plugin assistants
         AskPluginLoader(logger).loadPlugins().forEach {

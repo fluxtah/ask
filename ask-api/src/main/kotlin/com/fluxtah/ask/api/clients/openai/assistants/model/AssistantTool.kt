@@ -35,6 +35,7 @@ sealed class AssistantTool {
         data class PropertySpec(
             val type: String,
             val description: String,
+            val properties: Map<String, PropertySpec>? = null // Adding nested properties for object types
         )
     }
 
