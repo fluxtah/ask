@@ -39,4 +39,28 @@ class FoodOrderAssistantFunctions {
     ) : String {
         return "Ordering ${query.quantity} ${query.food} from ${query.restaurant}."
     }
+
+    @Fun("gets a list of food vendors by category")
+    fun getFoodVendors(
+        @FunParam("The category of food for instance chinese, indian, fast food, etc.")
+        category: String
+    ) : String {
+        return """
+            Nearby:
+            1. McDonald's - Fast food
+            2. KFC - Fried chicken
+            3. Pizza Hut - Pizza
+            4. Subway - Sandwiches
+            5. Starbucks - Coffee
+            
+            Open later:
+            6. Taco Bell - Mexican
+            7. Dunkin' - Donuts
+            8. Indian Palace - Indian
+            9. Panda Express - Chinese
+            10. Chipotle - Mexican
+            11. Olive Garden - Italian
+            12. Red Lobster - Seafood
+        """.trimIndent()
+    }
 }
