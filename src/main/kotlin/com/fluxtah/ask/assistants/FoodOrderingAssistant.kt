@@ -18,8 +18,8 @@ class FoodOrderingAssistant(logger: AskLogger) : AssistantDefinition(
     name = "Food Ordering Assistant",
     description = "An assistant that helps you order food from your favorite restaurants.",
     version = "1.0.0",
-    instructions = "Help the user order food from their favorite restaurants.",
-    model = "gpt-3.5-turbo",
+    instructions = "Help the user order food, nothing else.",
+    model = "gpt-4o",
     temperature = 0.7f,
     functions = FoodOrderAssistantFunctions()
 )
