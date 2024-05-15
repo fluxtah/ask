@@ -33,6 +33,12 @@ dependencies {
     implementation("org.gradle:gradle-tooling-api:8.4")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.7.0")
 
+    implementation("org.xerial:sqlite-jdbc:3.36.0.3")
+    implementation("org.jetbrains.exposed:exposed-core:0.37.3")
+    implementation("org.jetbrains.exposed:exposed-dao:0.37.3")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.37.3")
+    implementation("org.jetbrains.exposed:exposed-java-time:0.37.3")
+
     testImplementation(kotlin("test"))
 }
 

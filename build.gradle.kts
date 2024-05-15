@@ -39,6 +39,10 @@ dependencies {
 
     implementation("org.jline:jline:3.20.0")
 
+    implementation("org.jetbrains.exposed:exposed-dao:0.37.3")
+
+    implementation("ch.qos.logback:logback-classic:1.2.3")
+
     testImplementation(kotlin("test"))
 }
 

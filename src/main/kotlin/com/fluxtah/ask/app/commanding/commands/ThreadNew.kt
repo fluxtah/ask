@@ -8,9 +8,14 @@ package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.UserProperties
+import com.fluxtah.ask.repository.ThreadRepository
 import java.util.*
 
-class CreateAssistantThread(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties) :
+class ThreadNew(
+    private val assistantsApi: AssistantsApi,
+    private val userProperties: UserProperties,
+    private val threadRepository: ThreadRepository
+) :
     Command() {
     override val requiresApiKey: Boolean = true
     override suspend fun execute() {
@@ -18,5 +23,6 @@ class CreateAssistantThread(private val assistantsApi: AssistantsApi, private va
         println("Created thread: ${thread.id} at ${Date(thread.createdAt)}")
         userProperties.setThreadId(thread.id)
         userProperties.save()
+        threadRepository.createThread(thread.id, "")
     }
 }

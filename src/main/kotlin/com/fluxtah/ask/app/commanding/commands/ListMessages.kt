@@ -23,3 +23,4 @@ class ListMessages(private val assistantsApi: AssistantsApi, private val userPro
         println(JSON.encodeToString<AssistantMessageList>(assistantsApi.messages.listMessages(threadId)))
     }
 }
+

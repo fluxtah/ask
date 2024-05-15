@@ -6,6 +6,8 @@
 
 package com.fluxtah.ask.app
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.fluxtah.ask.Version
 import com.fluxtah.ask.api.UserProperties
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
@@ -18,6 +20,7 @@ import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.ask.api.tools.fn.FunctionInvoker
 import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.ask.assistants.FoodOrderingAssistant
+import com.fluxtah.ask.repository.ThreadRepository
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 import kotlinx.coroutines.runBlocking
@@ -25,6 +28,7 @@ import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
 import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
+import org.slf4j.LoggerFactory
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -37,13 +41,15 @@ class ConsoleApplication(
     private val assistantRegistry: AssistantRegistry = AssistantRegistry(),
     private val assistantInstallRepository: AssistantInstallRepository = AssistantInstallRepository(assistantsApi),
     private val responsePrinter: AskResponsePrinter = AskConsoleResponsePrinter(),
+    private val threadRepository: ThreadRepository = ThreadRepository(),
     private val commandFactory: CommandFactory = CommandFactory(
         logger,
         responsePrinter,
         assistantsApi,
         assistantRegistry,
         assistantInstallRepository,
-        userProperties
+        userProperties,
+        threadRepository
     ),
     private val assistantRunner: com.fluxtah.ask.api.AssistantRunner = com.fluxtah.ask.api.AssistantRunner(
         logger = logger,
@@ -81,6 +87,10 @@ class ConsoleApplication(
     }
 
     fun run() {
+        val loggerContext = LoggerFactory.getILoggerFactory()
+        val exposedLogger = org.jetbrains.exposed.sql.exposedLogger as Logger
+        exposedLogger.level = Level.OFF
+
         printWelcomeMessage()
 
         val logLevel = userProperties.getLogLevel()
@@ -177,14 +187,13 @@ class ConsoleApplication(
         responsePrinter.println()
         responsePrinter.println("Type /help for a list of commands")
     }
+}
 
+fun green(text: String) : String {
+    return "\u001b[32m$text"
+}
 
-    fun green(text: String) : String {
-        return "\u001b[32m$text"
-    }
-
-    fun printWhite() {
-        print("\u001b[37m")
-    }
+fun printWhite() {
+    print("\u001b[37m")
 }
 

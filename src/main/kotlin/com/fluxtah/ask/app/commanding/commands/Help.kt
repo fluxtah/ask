@@ -6,6 +6,8 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
+import com.fluxtah.ask.repository.ThreadRepository
+
 data object Help : Command() {
     override val requiresApiKey: Boolean = false
     override suspend fun execute() {
@@ -24,6 +26,8 @@ data object Help : Command() {
         println("/thread-which - Displays the current assistant thread")
         println("/thread-list - Lists all assistant threads")
         println("/thread-info <thread-id> - Displays the assistant thread")
+        println("/thread-rename <thread-id> <new-title> - Renames the given thread")
+        println("/thread-recall - Recalls the current assistant thread messages (prints out message history)")
         println("/message-list - Lists all messages in the current assistant thread")
         println("/run-list - Lists all runs in the current assistant thread")
         println("/run-step-list - Lists all run steps in the current assistant thread")
@@ -31,6 +35,13 @@ data object Help : Command() {
         println("/set-key <api-key> - Set your openai api key")
         println("/log-level <level> - Set the log level (ERROR, DEBUG, INFO, OFF)")
         println("/exec <command> - Executes a shell command for convenience")
+    }
+}
+
+class ThreadRename(private val threadRepository: ThreadRepository, private val threadId: String, private val newTitle: String) : Command() {
+    override val requiresApiKey: Boolean = false
+    override suspend fun execute() {
+        threadRepository.renameThread(threadId, newTitle)
     }
 }
 

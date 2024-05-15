@@ -14,7 +14,7 @@ import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.app.commanding.commands.Clear
 import com.fluxtah.ask.app.commanding.commands.ClearModel
 import com.fluxtah.ask.app.commanding.commands.Command
-import com.fluxtah.ask.app.commanding.commands.CreateAssistantThread
+import com.fluxtah.ask.app.commanding.commands.ThreadNew
 import com.fluxtah.ask.app.commanding.commands.Exit
 import com.fluxtah.ask.app.commanding.commands.GetAssistant
 import com.fluxtah.ask.app.commanding.commands.GetThread
@@ -30,11 +30,14 @@ import com.fluxtah.ask.app.commanding.commands.SetModel
 import com.fluxtah.ask.app.commanding.commands.SetOpenAiApiKey
 import com.fluxtah.ask.app.commanding.commands.ShellExec
 import com.fluxtah.ask.app.commanding.commands.ShowHttpLog
+import com.fluxtah.ask.app.commanding.commands.ThreadRecall
+import com.fluxtah.ask.app.commanding.commands.ThreadRename
 import com.fluxtah.ask.app.commanding.commands.UnInstallAssistant
 import com.fluxtah.ask.app.commanding.commands.UnknownCommand
 import com.fluxtah.ask.app.commanding.commands.WhichAssistant
 import com.fluxtah.ask.app.commanding.commands.WhichModel
 import com.fluxtah.ask.app.commanding.commands.WhichThread
+import com.fluxtah.ask.repository.ThreadRepository
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 
@@ -45,6 +48,7 @@ class CommandFactory(
     private val assistantRegistry: AssistantRegistry,
     private val assistantInstallRepository: AssistantInstallRepository,
     private val userProperties: UserProperties,
+    private val threadRepository: ThreadRepository,
 ) {
     private val commands = mapOf<String, (List<String>) -> Command>(
         "/help" to { Help },
@@ -86,7 +90,7 @@ class CommandFactory(
         },
         "/model-clear" to { ClearModel(userProperties) },
         "/model-which" to { WhichModel(userProperties) },
-        "/thread-new" to { CreateAssistantThread(assistantsApi, userProperties) },
+        "/thread-new" to { ThreadNew(assistantsApi, userProperties, threadRepository) },
         "/thread-which" to { WhichThread(userProperties) },
         "/thread-info" to {
             if (it.isEmpty()) {
@@ -95,7 +99,17 @@ class CommandFactory(
                 GetThread(assistantsApi, userProperties, it.first())
             }
         },
-        "/thread-list" to { ListThreads(assistantsApi) },
+        "/thread-list" to { ListThreads(assistantsApi, threadRepository) },
+        "/thread-rename" to {
+            if (it.size != 2) {
+                UnknownCommand("Invalid number of arguments for /thread-rename, expected a thread ID and new title following the command")
+            } else {
+                ThreadRename(threadRepository, it[0], it[1])
+            }
+        },
+        "/thread-recall" to {
+            ThreadRecall(assistantsApi, userProperties)
+        },
         "/message-list" to { ListMessages(assistantsApi, userProperties) },
         "/run-list" to { ListRuns(assistantsApi, userProperties) },
         "/run-step-list" to { ListRunSteps(assistantsApi, userProperties) },
