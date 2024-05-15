@@ -99,7 +99,7 @@ class CommandFactory(
                 GetThread(assistantsApi, userProperties, it.first())
             }
         },
-        "/thread-list" to { ListThreads(assistantsApi, threadRepository) },
+        "/thread-list" to { ListThreads(userProperties, threadRepository) },
         "/thread-rename" to {
             if (it.size != 2) {
                 UnknownCommand("Invalid number of arguments for /thread-rename, expected a thread ID and new title following the command")

@@ -6,10 +6,12 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
+import com.fluxtah.ask.api.UserProperties
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.repository.ThreadRepository
 
-class ListThreads(private val assistantsApi: AssistantsApi, private val threadRepository: ThreadRepository) : Command() {
+class ListThreads(private val userProperties: UserProperties, private val threadRepository: ThreadRepository) :
+    Command() {
     override val requiresApiKey: Boolean = true
     override suspend fun execute() {
         // TODO currently its not possible to list threads though the API should be up soon
@@ -23,7 +25,11 @@ class ListThreads(private val assistantsApi: AssistantsApi, private val threadRe
             println("No threads found, type /thread-new to create a new thread")
         } else {
             threads.forEach {
-                println(String.format("%-40s %-30s", it.threadId, it.title))
+                if (userProperties.getThreadId() == it.threadId) {
+                    println(String.format("%-40s %-30s", it.threadId, it.title + " (Active)"))
+                } else {
+                    println(String.format("%-40s %-30s", it.threadId, it.title))
+                }
             }
         }
     }

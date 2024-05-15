@@ -20,6 +20,7 @@ class ThreadRecall(private val assistantsApi: AssistantsApi, private val userPro
         val messages = assistantsApi.messages.listMessages(threadId)
         println()
         println("-- Thread Recall $threadId --")
+        println()
         messages.data.reversed().forEach { message ->
             if (message.role == "user") {
                 print("${green("ask ➜")} ")
