@@ -7,7 +7,7 @@
 package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
-import com.fluxtah.ask.repository.ThreadRepository
+import com.fluxtah.ask.api.repository.ThreadRepository
 
 class ListThreads(private val assistantsApi: AssistantsApi, private val threadRepository: ThreadRepository) : Command() {
     override val requiresApiKey: Boolean = true

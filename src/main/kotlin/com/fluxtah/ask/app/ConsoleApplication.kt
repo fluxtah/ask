@@ -10,6 +10,8 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.fluxtah.ask.Version
 import com.fluxtah.ask.api.UserProperties
+import com.fluxtah.ask.api.ansi.green
+import com.fluxtah.ask.api.ansi.printWhite
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
@@ -20,7 +22,7 @@ import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.ask.api.tools.fn.FunctionInvoker
 import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.ask.assistants.FoodOrderingAssistant
-import com.fluxtah.ask.repository.ThreadRepository
+import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 import kotlinx.coroutines.runBlocking
@@ -187,13 +189,5 @@ class ConsoleApplication(
         responsePrinter.println()
         responsePrinter.println("Type /help for a list of commands")
     }
-}
-
-fun green(text: String) : String {
-    return "\u001b[32m$text"
-}
-
-fun printWhite() {
-    print("\u001b[37m")
 }
 

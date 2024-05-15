@@ -6,6 +6,9 @@
 
 package com.fluxtah.ask.api
 
+import com.fluxtah.ask.api.ansi.blue
+import com.fluxtah.ask.api.ansi.printWhite
+import com.fluxtah.ask.api.ansi.white
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
@@ -16,6 +19,8 @@ import com.fluxtah.ask.api.clients.openai.assistants.model.RunRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
 import com.fluxtah.ask.api.clients.openai.assistants.model.SubmitToolOutputsRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.ToolOutput
+import com.fluxtah.ask.api.parser.MarkdownParser
+import com.fluxtah.ask.api.parser.Token
 import com.fluxtah.ask.api.tools.fn.FunctionInvoker
 import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.askpluginsdk.AssistantDefinition
@@ -68,7 +73,22 @@ class AssistantRunner(
             ).data.firstOrNull()
         if (lastMessage != null) {
             if (userMessage.id != lastMessage.id) {
-                responsePrinter.println(lastMessage.content.first().text.value)
+                val markdownParser = MarkdownParser(lastMessage.content.first().text.value)
+                responsePrinter.print(white(""))
+                markdownParser.parse().forEach { token ->
+                    when (token) {
+                        is Token.CodeBlock -> {
+                            responsePrinter.println()
+                            responsePrinter.println()
+                            responsePrinter.println(blue(token.content.trim()))
+                            responsePrinter.print(white(""))
+                        }
+
+                        is Token.Text -> {
+                            responsePrinter.print(token.content)
+                        }
+                    }
+                }
             }
         }
     }

@@ -6,7 +6,7 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
-import com.fluxtah.ask.repository.ThreadRepository
+import com.fluxtah.ask.api.repository.ThreadRepository
 
 data object Help : Command() {
     override val requiresApiKey: Boolean = false

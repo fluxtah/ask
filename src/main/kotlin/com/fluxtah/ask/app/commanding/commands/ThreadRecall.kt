@@ -1,9 +1,12 @@
 package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.UserProperties
+import com.fluxtah.ask.api.ansi.blue
+import com.fluxtah.ask.api.ansi.green
+import com.fluxtah.ask.api.ansi.white
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
-import com.fluxtah.ask.app.green
-import com.fluxtah.ask.app.printWhite
+import com.fluxtah.ask.api.parser.MarkdownParser
+import com.fluxtah.ask.api.parser.Token
 
 class ThreadRecall(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties) :
     Command() {
@@ -15,14 +18,37 @@ class ThreadRecall(private val assistantsApi: AssistantsApi, private val userPro
             return
         }
         val messages = assistantsApi.messages.listMessages(threadId)
-        messages.data.forEach {
-            if (it.role == "user") {
+        println()
+        println("-- Thread Recall $threadId --")
+        messages.data.reversed().forEach { message ->
+            if (message.role == "user") {
                 print("${green("ask ➜")} ")
-                println(it.content)
+                message.content.forEach { content ->
+                    println(content.text.value)
+                }
             } else {
-                printWhite()
-                println(it.content)
+                println(white())
+                message.content.forEach { content ->
+                    val markdownParser = MarkdownParser(content.text.value)
+                    markdownParser.parse().forEach { token ->
+                        when (token) {
+                            is Token.CodeBlock -> {
+                                println()
+                                println()
+                                println(blue(token.content.trim()))
+                                println()
+                                println(white())
+                            }
+
+                            is Token.Text -> {
+                                print(token.content.trim())
+                            }
+                        }
+                    }
+                }
+                println()
             }
+            println()
         }
     }
 }

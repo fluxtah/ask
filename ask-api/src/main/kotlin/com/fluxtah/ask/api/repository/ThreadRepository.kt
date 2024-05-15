@@ -1,4 +1,4 @@
-package com.fluxtah.ask.repository
+package com.fluxtah.ask.api.repository
 
 import com.fluxtah.askpluginsdk.io.getUserConfigDirectory
 import org.jetbrains.exposed.dao.IntEntity
@@ -46,7 +46,7 @@ class ThreadRepository {
         transaction {
             Thread.find { Threads.threadId eq threadId }.firstOrNull()?.let {
                 Threads.update({ Threads.threadId eq threadId }) {
-                    it[Threads.title] = newName
+                    it[title] = newName
                 }
             }
         }

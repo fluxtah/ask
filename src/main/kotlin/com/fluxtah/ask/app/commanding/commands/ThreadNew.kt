@@ -8,7 +8,7 @@ package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.UserProperties
-import com.fluxtah.ask.repository.ThreadRepository
+import com.fluxtah.ask.api.repository.ThreadRepository
 import java.util.*
 
 class ThreadNew(
