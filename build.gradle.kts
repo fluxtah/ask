@@ -25,8 +25,9 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.fluxtah:ask-plugin-sdk:0.5.0")
-    implementation("com.fluxtah.ask:ask-plugin-koder:0.5.0")
+    implementation("com.github.fluxtah:ask-plugin-sdk:0.7.2")
+    implementation("com.fluxtah.ask:ask-plugin-koder:0.7.2")
+
     implementation(project(":ask-api"))
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
