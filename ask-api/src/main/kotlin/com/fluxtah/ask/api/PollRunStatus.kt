@@ -30,9 +30,6 @@ suspend fun pollRunStatus(
             }
 
             RunStatus.REQUIRES_ACTION, RunStatus.CANCELLED, RunStatus.FAILED, RunStatus.COMPLETED, RunStatus.EXPIRED -> {
-                if(run.status == RunStatus.FAILED) {
-                    println("$run")
-                }
                 onStatusChanged(run.status)
                 return run
             }
