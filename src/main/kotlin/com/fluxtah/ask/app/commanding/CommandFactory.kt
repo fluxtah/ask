@@ -41,6 +41,8 @@ import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 
+data class CommandEntry(val name: String, val description: String, val command: (List<String>) -> Command)
+
 class CommandFactory(
     private val askLogger: AskLogger,
     private val responsePrinter: AskResponsePrinter,
@@ -50,103 +52,193 @@ class CommandFactory(
     private val userProperties: UserProperties,
     private val threadRepository: ThreadRepository,
 ) {
-    private val commands = mapOf<String, (List<String>) -> Command>(
-        "/help" to { Help },
-        "/exit" to { Exit },
-        "/clear" to { Clear() },
-        "/assistant-install" to {
-            if (it.size != 1) {
-                UnknownCommand("Invalid number of arguments for /assistant-install, expected an assistant ID following the command")
-            } else {
-                InstallAssistant(assistantRegistry, assistantInstallRepository, it.first())
-            }
-        },
-        "/assistant-uninstall" to {
-            if (it.size != 1) {
-                UnknownCommand("Invalid number of arguments for /assistant-uninstall, expected an assistant ID following the command")
-            } else {
-                UnInstallAssistant(assistantRegistry, assistantInstallRepository, it.first())
-            }
-        },
-        "/assistant-list" to {
-            ListAssistants(assistantRegistry, assistantInstallRepository)
-        },
-        "/assistant-which" to {
-            WhichAssistant(userProperties, assistantRegistry, assistantInstallRepository)
-        },
-        "/assistant-info" to {
-            if (it.size != 1) {
-                UnknownCommand("Invalid number of arguments for /assistant-info, expected a assistant ID following the command")
-            } else {
-                GetAssistant(assistantRegistry, assistantInstallRepository, assistantsApi, it.first())
-            }
-        },
-        "/model" to {
-            if (it.size != 1) {
-                UnknownCommand("Invalid number of arguments for /model, expected a model ID following the command")
-            } else {
-                SetModel(userProperties, it.first())
-            }
-        },
-        "/model-clear" to { ClearModel(userProperties) },
-        "/model-which" to { WhichModel(userProperties) },
-        "/thread-new" to { ThreadNew(assistantsApi, userProperties, threadRepository) },
-        "/thread-which" to { WhichThread(userProperties) },
-        "/thread-info" to {
-            if (it.isEmpty()) {
-                GetThread(assistantsApi, userProperties, null)
-            } else {
-                GetThread(assistantsApi, userProperties, it.first())
-            }
-        },
-        "/thread-list" to { ListThreads(userProperties, threadRepository) },
-        "/thread-rename" to {
-            if (it.size != 2) {
-                UnknownCommand("Invalid number of arguments for /thread-rename, expected a thread ID and new title following the command")
-            } else {
-                ThreadRename(threadRepository, it[0], it[1])
-            }
-        },
-        "/thread-recall" to {
-            ThreadRecall(assistantsApi, userProperties)
-        },
-        "/message-list" to { ListMessages(assistantsApi, userProperties) },
-        "/run-list" to { ListRuns(assistantsApi, userProperties) },
-        "/run-step-list" to { ListRunSteps(assistantsApi, userProperties) },
-        "/http-log" to { ShowHttpLog },
-        "/set-key" to {
-            if (it.size != 1) {
-                UnknownCommand("Invalid number of arguments for /set-key, expected an API key following the command")
-            } else {
-                SetOpenAiApiKey(userProperties, it.first())
-            }
-        },
-        "/log-level" to {
-            if (it.size != 1) {
-                UnknownCommand("Invalid number of arguments for /log-level, expected a log level ERROR, DEBUG, INFO or OFF following the command, current log level: ${userProperties.getLogLevel()}")
-            } else {
-                try {
-                    SetLogLevel(userProperties, askLogger, LogLevel.valueOf(it.first().uppercase()))
-                } catch (e: IllegalArgumentException) {
-                    UnknownCommand("Invalid log level: ${it.first()}")
+    private val commands = mutableMapOf<String, CommandEntry>()
+
+    init {
+        registerCommand(
+            name = "help",
+            description = "Show this help",
+            command = { Help(this, responsePrinter) }
+        )
+        registerCommand(
+            name = "exit",
+            description = "Exits ask",
+            command = { Exit() })
+        registerCommand(
+            name = "clear",
+            description = "Clears the screen",
+            command = { Clear() }
+        )
+        registerCommand(
+            name = "assistant-install",
+            description = "<assistant-id> Installs an assistant",
+            command = {
+                if (it.size != 1) {
+                    UnknownCommand("Invalid number of arguments for /assistant-install, expected an assistant ID following the command")
+                } else {
+                    InstallAssistant(assistantRegistry, assistantInstallRepository, it.first())
                 }
             }
-        },
-        "/exec" to {
-            if (it.isEmpty()) {
-                UnknownCommand("Invalid number of arguments for /exec, expected a shell command following the command")
-            } else {
-                ShellExec(responsePrinter, it.joinToString(" "))
+        )
+        registerCommand(
+            name = "assistant-uninstall",
+            description = "<assistant-id> Uninstalls an assistant", command = {
+                if (it.size != 1) {
+                    UnknownCommand("Invalid number of arguments for /assistant-uninstall, expected an assistant ID following the command")
+                } else {
+                    UnInstallAssistant(assistantRegistry, assistantInstallRepository, it.first())
+                }
             }
-        }
-    )
-
-    fun create(input: String): Command {
-        val parts = input.split(" ")
-        return commands[parts[0]]?.invoke(parts.drop(1)) ?: UnknownCommand("Unknown command: ${parts[0]}")
+        )
+        registerCommand(
+            name = "assistant-list",
+            description = "Displays all available assistants",
+            command = { ListAssistants(assistantRegistry, assistantInstallRepository) }
+        )
+        registerCommand(
+            name = "assistant-which",
+            description = "Displays the current assistant thread",
+            command = {
+                WhichAssistant(
+                    userProperties,
+                    assistantRegistry,
+                    assistantInstallRepository
+                )
+            }
+        )
+        registerCommand(
+            name = "assistant-info",
+            description = "<assistant-id> Displays info for the assistant",
+            command = {
+                if (it.size != 1) {
+                    UnknownCommand("Invalid number of arguments for /assistant-info, expected a assistant ID following the command")
+                } else {
+                    GetAssistant(assistantRegistry, assistantInstallRepository, assistantsApi, it.first())
+                }
+            })
+        registerCommand(
+            name = "model",
+            description = "<model-id> Set model override affecting all assistants (gpt-3.5-turbo-16k, gpt-4-turbo, etc.)",
+            command = {
+                if (it.size != 1) {
+                    UnknownCommand("Invalid number of arguments for /model, expected a model ID following the command")
+                } else {
+                    SetModel(userProperties, it.first())
+                }
+            })
+        registerCommand(
+            name = "model-clear",
+            description = "Clears the current model override",
+            command = { ClearModel(userProperties) })
+        registerCommand(
+            name = "model-which",
+            description = "Displays the current model override",
+            command = { WhichModel(userProperties) })
+        registerCommand(
+            name = "thread-new",
+            description = "Creates a new assistant thread",
+            command = { ThreadNew(assistantsApi, userProperties, threadRepository) })
+        registerCommand(
+            name = "thread-which",
+            description = "Displays the current assistant thread",
+            command = { WhichThread(userProperties) })
+        registerCommand(
+            name = "thread-info",
+            description = "<thread-id> - Displays the assistant thread",
+            command = {
+                if (it.isEmpty()) {
+                    GetThread(assistantsApi, userProperties, null)
+                } else {
+                    GetThread(assistantsApi, userProperties, it.first())
+                }
+            })
+        registerCommand(
+            name = "thread-list",
+            description = "Lists all assistant threads",
+            command = { ListThreads(userProperties, threadRepository) })
+        registerCommand(
+            name = "thread-rename",
+            description = "<thread-id> <new-title> - Renames the given thread",
+            command = {
+                if (it.size != 2) {
+                    UnknownCommand("Invalid number of arguments for /thread-rename, expected a thread ID and new title following the command")
+                } else {
+                    ThreadRename(threadRepository, it[0], it[1])
+                }
+            }
+        )
+        registerCommand(
+            name = "thread-recall",
+            description = "Recalls the current assistant thread messages (prints out message history)",
+            command = { ThreadRecall(assistantsApi, userProperties) }
+        )
+        registerCommand(
+            name = "message-list",
+            description = "Lists all messages in the current assistant thread",
+            command = { ListMessages(assistantsApi, userProperties) }
+        )
+        registerCommand(
+            name = "run-list",
+            description = "Lists all runs in the current assistant thread",
+            command = { ListRuns(assistantsApi, userProperties) }
+        )
+        registerCommand(
+            name = "run-step-list",
+            description = "Lists all run steps in the current assistant thread",
+            command = { ListRunSteps(assistantsApi, userProperties) })
+        registerCommand(
+            name = "http-log",
+            description = "Displays the last 10 HTTP requests",
+            command = { ShowHttpLog })
+        registerCommand(
+            name = "set-key",
+            description = "<api-key> - Set your openai api key",
+            command = {
+                if (it.size != 1) {
+                    UnknownCommand("Invalid number of arguments for /set-key, expected an API key following the command")
+                } else {
+                    SetOpenAiApiKey(userProperties, it.first())
+                }
+            }
+        )
+        registerCommand(
+            name = "log-level",
+            description = "<level> Set the log level (ERROR, DEBUG, INFO, OFF)",
+            command = {
+                if (it.size != 1) {
+                    UnknownCommand("Invalid number of arguments for /log-level, expected a log level ERROR, DEBUG, INFO or OFF following the command, current log level: ${userProperties.getLogLevel()}")
+                } else {
+                    try {
+                        SetLogLevel(userProperties, askLogger, LogLevel.valueOf(it.first().uppercase()))
+                    } catch (e: IllegalArgumentException) {
+                        UnknownCommand("Invalid log level: ${it.first()}")
+                    }
+                }
+            })
+        registerCommand(
+            name = "exec",
+            description = "<command> - Executes a shell command for convenience",
+            command = {
+                if (it.isEmpty()) {
+                    UnknownCommand("Invalid number of arguments for /exec, expected a shell command following the command")
+                } else {
+                    ShellExec(responsePrinter, it.joinToString(" "))
+                }
+            }
+        )
     }
 
-    fun getCommands(): List<String> {
-        return commands.keys.toList()
+
+    fun registerCommand(name: String, description: String, command: (List<String>) -> Command) {
+        commands[name] = CommandEntry(name, description, command)
+    }
+
+    fun create(input: String): Command {
+        val parts = input.drop(1).split(" ")
+        return commands[parts[0]]?.command?.invoke(parts.drop(1)) ?: UnknownCommand("Unknown command: ${parts[0]}")
+    }
+
+    fun getCommands(): List<CommandEntry> {
+        return commands.values.sortedBy { it.name }
     }
 }

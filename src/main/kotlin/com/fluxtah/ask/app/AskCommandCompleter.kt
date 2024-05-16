@@ -50,8 +50,8 @@ class AskCommandCompleter(
             }
 
             wordIndex == 0 -> {
-                commandFactory.getCommands().filter { it.startsWith(currentWord) }
-                    .forEach { candidates.add(Candidate(it)) }
+                commandFactory.getCommands().filter { it.name.startsWith(currentWord) }
+                    .forEach { candidates.add(Candidate(it.name)) }
             }
         }
     }

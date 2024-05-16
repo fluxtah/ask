@@ -8,7 +8,7 @@ package com.fluxtah.ask.app.commanding.commands
 
 import kotlin.system.exitProcess
 
-data object Exit : Command() {
+class Exit : Command() {
     override val requiresApiKey: Boolean = false
     override suspend fun execute() {
         println("Exiting the application...")

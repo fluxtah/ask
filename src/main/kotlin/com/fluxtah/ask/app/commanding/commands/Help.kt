@@ -6,42 +6,17 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
-import com.fluxtah.ask.api.repository.ThreadRepository
+import com.fluxtah.ask.api.printers.AskResponsePrinter
+import com.fluxtah.ask.app.commanding.CommandFactory
 
-data object Help : Command() {
+class Help(val commandFactory: CommandFactory, val printer: AskResponsePrinter) : Command() {
     override val requiresApiKey: Boolean = false
     override suspend fun execute() {
-        println("Help: List of available commands...")
-        println("/exit - Exits the application")
-        println("/clear - Clears the screen")
-        println("/assistant-list - Displays all available assistants")
-        println("/assistant-install <assistant-id> - Installs an assistant")
-        println("/assistant-uninstall <assistant-id> - Uninstalls an assistant")
-        println("/assistant-which - Displays the current assistant")
-        println("/assistant-info <assistant-id> - Displays the assistant")
-        println("/model <model-id> - Set model override affecting all assistants (gpt-3.5-turbo-16k, gpt-4-turbo, etc.)")
-        println("/model-clear - Clears the current model override")
-        println("/model-which - Displays the current model override")
-        println("/thread-new - Creates a new assistant thread")
-        println("/thread-which - Displays the current assistant thread")
-        println("/thread-list - Lists all assistant threads")
-        println("/thread-info <thread-id> - Displays the assistant thread")
-        println("/thread-rename <thread-id> <new-title> - Renames the given thread")
-        println("/thread-recall - Recalls the current assistant thread messages (prints out message history)")
-        println("/message-list - Lists all messages in the current assistant thread")
-        println("/run-list - Lists all runs in the current assistant thread")
-        println("/run-step-list - Lists all run steps in the current assistant thread")
-        println("/http-log - Displays the last 10 HTTP requests")
-        println("/set-key <api-key> - Set your openai api key")
-        println("/log-level <level> - Set the log level (ERROR, DEBUG, INFO, OFF)")
-        println("/exec <command> - Executes a shell command for convenience")
-    }
-}
-
-class ThreadRename(private val threadRepository: ThreadRepository, private val threadId: String, private val newTitle: String) : Command() {
-    override val requiresApiKey: Boolean = false
-    override suspend fun execute() {
-        threadRepository.renameThread(threadId, newTitle)
+        printer.println(String.format("%-20s %-30s", "Command", "Description"))
+        printer.println("--------------------------------------------------------------------------------")
+        commandFactory.getCommands().forEach {
+            printer.println(String.format("%-20s %-30s", it.name, it.description))
+        }
     }
 }
 
