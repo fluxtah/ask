@@ -38,6 +38,7 @@ import com.fluxtah.ask.app.commanding.commands.WhichAssistant
 import com.fluxtah.ask.app.commanding.commands.WhichModel
 import com.fluxtah.ask.app.commanding.commands.WhichThread
 import com.fluxtah.ask.api.repository.ThreadRepository
+import com.fluxtah.ask.app.commanding.commands.DeleteThread
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 
@@ -151,11 +152,24 @@ class CommandFactory(
                 } else {
                     GetThread(assistantsApi, userProperties, it.first())
                 }
-            })
+            }
+        )
+        registerCommand(
+            name = "thread-delete",
+            description = "<thread-id> - Delete the thread by the given id",
+            command = {
+                if (it.size != 1) {
+                    UnknownCommand("Invalid number of arguments for /thread-delete, expected a thread ID following the command")
+                } else {
+                    DeleteThread(assistantsApi, threadRepository, it.first())
+                }
+            }
+        )
         registerCommand(
             name = "thread-list",
             description = "Lists all assistant threads",
-            command = { ListThreads(userProperties, threadRepository) })
+            command = { ListThreads(userProperties, threadRepository) }
+        )
         registerCommand(
             name = "thread-rename",
             description = "<thread-id> <new-title> - Renames the given thread",

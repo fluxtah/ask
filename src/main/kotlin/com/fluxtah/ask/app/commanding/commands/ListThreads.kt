@@ -19,16 +19,16 @@ class ListThreads(private val userProperties: UserProperties, private val thread
 
         val threads = threadRepository.listThreads()
         println()
-        println(String.format("%-40s %-30s", "Thread", "Title"))
+        println(String.format("%-36s %-30s", "Thread", "Title"))
         println("--------------------------------------------------------------------------------")
         if (threads.isEmpty()) {
             println("No threads found, type /thread-new to create a new thread")
         } else {
             threads.forEach {
                 if (userProperties.getThreadId() == it.threadId) {
-                    println(String.format("%-40s %-30s", it.threadId, it.title + " (Active)"))
+                    println(String.format("%-36s %-30s", it.threadId, it.title + " (Active)"))
                 } else {
-                    println(String.format("%-40s %-30s", it.threadId, it.title))
+                    println(String.format("%-36s %-30s", it.threadId, it.title))
                 }
             }
         }

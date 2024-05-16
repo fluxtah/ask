@@ -57,4 +57,10 @@ class ThreadRepository {
             Thread.all().toList()
         }
     }
+
+    fun deleteThread(threadId: String) {
+        transaction {
+            Thread.find { Threads.threadId eq threadId }.firstOrNull()?.delete()
+        }
+    }
 }
