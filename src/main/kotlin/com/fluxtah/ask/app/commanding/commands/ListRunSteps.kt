@@ -22,7 +22,7 @@ class ListRunSteps(private val assistantsApi: AssistantsApi, private val userPro
         }
         val runId = userProperties.getRunId()
         if (runId.isEmpty()) {
-            println("You need to create a run first. Use /run-new")
+            println("No last run")
             return
         }
 

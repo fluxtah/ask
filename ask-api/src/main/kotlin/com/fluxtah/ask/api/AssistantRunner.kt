@@ -27,119 +27,123 @@ import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 
+data class RunDetails(
+    val assistantId: String,
+    val model: String? = null,
+    val threadId: String,
+    val prompt: String
+)
+
+sealed class RunResult {
+    data class Complete(
+        val runId: String,
+        val responseText: String
+    ) : RunResult()
+
+    data class Error(val message: String) : RunResult()
+}
+
 class AssistantRunner(
     private val logger: AskLogger,
-    private val userProperties: UserProperties,
     private val assistantsApi: AssistantsApi,
     private val assistantRegistry: AssistantRegistry,
     private val assistantInstallRepository: AssistantInstallRepository,
     private val functionInvoker: FunctionInvoker,
-    private val responsePrinter: AskResponsePrinter
 ) {
-    suspend fun run(assistantId: String, threadId: String, prompt: String) {
-        val assistantDef = assistantRegistry.getAssistantById(assistantId)
-
-        if (assistantDef == null) {
-            responsePrinter.println("Assistant definition not found: $assistantId")
-            return
-        }
+    suspend fun run(details: RunDetails, onRunStatusChanged: (RunStatus) -> Unit): RunResult {
+        val assistantDef = assistantRegistry.getAssistantById(details.assistantId)
+            ?: return RunResult.Error("Assistant definition not found: $details.assistantId")
 
         val assistantInstallRecord = assistantInstallRepository.getAssistantInstallRecord(assistantDef.id)
+            ?: return RunResult.Error("Assistant not installed: $details.assistantId, to install use /assistant-install ${details.assistantId}")
 
-        if (assistantInstallRecord == null) {
-            responsePrinter.println("Assistant not installed: $assistantId, to install use /assistant-install $assistantId")
-            return
-        }
-
-        val userMessage = assistantsApi.messages.createUserMessage(threadId, prompt)
+        val userMessage = assistantsApi.messages.createUserMessage(details.threadId, details.prompt)
         val createRun = assistantsApi.runs.createRun(
-            threadId, RunRequest(
+            details.threadId, RunRequest(
                 assistantId = assistantInstallRecord.installId,
-                model = userProperties.getModel().ifEmpty {
+                model = details.model?.ifEmpty {
                     null
                 },
             )
         )
-        userProperties.setRunId(createRun.id)
-        userProperties.setAssistantId(assistantId)
-        userProperties.save()
 
-        processRun(assistantDef, createRun, threadId)
+        processRun(assistantDef, createRun, details.threadId, onRunStatusChanged)
+
+        val responseBuilder = StringBuilder()
 
         val lastMessage =
             assistantsApi.messages.listMessages(
-                threadId = threadId,
+                threadId = details.threadId,
                 beforeId = userMessage.id
             ).data.firstOrNull()
+
         if (lastMessage != null) {
             if (userMessage.id != lastMessage.id) {
                 val markdownParser = MarkdownParser(lastMessage.content.first().text.value)
-                responsePrinter.print(white(""))
+                responseBuilder.append(white(""))
                 markdownParser.parse().forEach { token ->
                     when (token) {
                         is Token.CodeBlock -> {
-                            responsePrinter.println()
-                            responsePrinter.println()
-                            responsePrinter.println(blue(token.content.trim()))
-                            responsePrinter.print(white(""))
+                            responseBuilder.appendLine()
+                            responseBuilder.appendLine()
+                            responseBuilder.appendLine(blue(token.content.trim()))
+                            responseBuilder.appendLine(white(""))
                         }
 
                         is Token.Text -> {
-                            responsePrinter.print(token.content)
+                            responseBuilder.append(token.content)
                         }
                     }
                 }
             }
         }
+
+        return RunResult.Complete(createRun.id, responseBuilder.toString())
     }
 
     private suspend fun processRun(
         assistantDef: AssistantDefinition,
         startRun: AssistantRun,
-        currentThreadId: String
+        currentThreadId: String,
+        onRunStatusChanged: (RunStatus) -> Unit
     ) {
         var currentRun = startRun
-        responsePrinter.print(" ")
-        val loadingChars = listOf("|", "/", "-", "\\")
-        var loadingCharIndex = 0
-        responsePrinter.println(" ${loadingChars[loadingCharIndex]} ${RunStatus.QUEUED}")
         while (true) {
             currentRun = pollRunStatus(assistantsApi, currentThreadId, currentRun) { status ->
-                responsePrinter.print("\u001b[1A\u001b[2K")
-                responsePrinter.println(" ${loadingChars[loadingCharIndex]} $status")
-                loadingCharIndex = (loadingCharIndex + 1) % loadingChars.size
+                onRunStatusChanged(status)
             }
 
             when (currentRun.status) {
                 RunStatus.REQUIRES_ACTION -> {
                     currentRun = executeRunSteps(assistantDef, currentThreadId, currentRun)
+                    onRunStatusChanged(currentRun.status)
                 }
 
                 RunStatus.COMPLETED -> {
+                    onRunStatusChanged(currentRun.status)
                     break
                 }
 
                 RunStatus.FAILED -> {
-                    responsePrinter.println("Run failed: ${currentRun.lastError?.message}")
+                    onRunStatusChanged(currentRun.status)
                     break
                 }
 
                 RunStatus.CANCELLED -> {
-                    responsePrinter.println("Run cancelled")
+                    onRunStatusChanged(currentRun.status)
                     break
                 }
 
                 RunStatus.EXPIRED -> {
-                    responsePrinter.println("Run expired")
+                    onRunStatusChanged(currentRun.status)
                     break
                 }
 
-                else -> {}
+                else -> {
+                    onRunStatusChanged(currentRun.status)
+                }
             }
         }
-        responsePrinter.print("\u001b[1A\u001b[2K")
-        responsePrinter.println(" \u2714 ${currentRun.status}")
-        responsePrinter.println()
     }
 
     private suspend fun executeRunSteps(

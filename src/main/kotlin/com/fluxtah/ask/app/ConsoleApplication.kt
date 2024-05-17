@@ -9,12 +9,16 @@ package com.fluxtah.ask.app
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.fluxtah.ask.Version
+import com.fluxtah.ask.api.AssistantRunner
+import com.fluxtah.ask.api.RunDetails
+import com.fluxtah.ask.api.RunResult
 import com.fluxtah.ask.api.UserProperties
 import com.fluxtah.ask.api.ansi.green
 import com.fluxtah.ask.api.ansi.printWhite
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
+import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
 import com.fluxtah.ask.api.plugins.AskPluginLoader
 import com.fluxtah.ask.api.printers.AskConsoleResponsePrinter
 import com.fluxtah.ask.api.printers.AskResponsePrinter
@@ -23,6 +27,7 @@ import com.fluxtah.ask.api.tools.fn.FunctionInvoker
 import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.ask.assistants.FoodOrderingAssistant
 import com.fluxtah.ask.api.repository.ThreadRepository
+import com.fluxtah.ask.app.commanding.commands.Command
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 import kotlinx.coroutines.runBlocking
@@ -30,7 +35,6 @@ import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
 import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
-import org.slf4j.LoggerFactory
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -53,21 +57,19 @@ class ConsoleApplication(
         userProperties,
         threadRepository
     ),
-    private val assistantRunner: com.fluxtah.ask.api.AssistantRunner = com.fluxtah.ask.api.AssistantRunner(
+    private val assistantRunner: AssistantRunner = AssistantRunner(
         logger = logger,
-        userProperties = userProperties,
         assistantsApi = assistantsApi,
         assistantRegistry = assistantRegistry,
         assistantInstallRepository = assistantInstallRepository,
         functionInvoker = FunctionInvoker(),
-        responsePrinter = responsePrinter
     ),
 ) {
-    val completer = AskCommandCompleter(assistantRegistry, commandFactory)
-    val terminal: Terminal = TerminalBuilder.builder()
+    private val completer = AskCommandCompleter(assistantRegistry, commandFactory)
+    private val terminal: Terminal = TerminalBuilder.builder()
         .system(true)
         .build()
-    val lineReader: LineReader = LineReaderBuilder.builder()
+    private val lineReader: LineReader = LineReaderBuilder.builder()
         .terminal(terminal)
         .completer(completer)
         .build()
@@ -89,7 +91,6 @@ class ConsoleApplication(
     }
 
     fun run() {
-        val loggerContext = LoggerFactory.getILoggerFactory()
         val exposedLogger = org.jetbrains.exposed.sql.exposedLogger as Logger
         exposedLogger.level = Level.OFF
 
@@ -106,7 +107,12 @@ class ConsoleApplication(
             println()
 
             try {
-                val input = lineReader.readLine("${green("ask ➜")} ")
+                val prompt = if (userProperties.getAssistantId().isEmpty()) {
+                    green("ask ➜")
+                } else {
+                    green("ask@${userProperties.getAssistantId()} ➜")
+                }
+                val input = lineReader.readLine("$prompt ")
                 printWhite()
 
                 handleInput(input)
@@ -128,39 +134,85 @@ class ConsoleApplication(
         }
 
         try {
-            if (input.startsWith("/")) {
-                val command = commandFactory.create(input)
-                if (command.requiresApiKey) {
-                    if (userProperties.getOpenaiApiKey().isEmpty()) {
-                        responsePrinter.println("You need to set an OpenAI API key first! with /set-key <api-key>")
-                        return
-                    }
+            when {
+                input.startsWith("/") -> {
+                    val command = commandFactory.create(input)
+                    if (runCommand(command)) return
                 }
-                runBlocking {
-                    command.execute()
+
+                input.startsWith(":") -> { // Alias for /exec
+                    val command = commandFactory.create("/exec ${input.drop(1)}")
+                    if (runCommand(command)) return
                 }
-            } else {
-                runBlocking {
-                    val currentThreadId = userProperties.getThreadId()
 
-                    if (currentThreadId.isEmpty()) {
-                        responsePrinter.println("You need to create a thread first. Use /thread-new")
-                    }
+                else -> {
+                    runBlocking {
+                        val currentThreadId = userProperties.getThreadId()
 
-                    if (!input.startsWith("@") && userProperties.getAssistantId().isEmpty()) {
-                        responsePrinter.println("You need to address an assistant with @assistant-id <prompt>, to see available assistants use /assistant-list")
-                    } else {
-
-                        val assistantId = if (input.startsWith("@")) {
-                            val parts = input.split(" ")
-                            val assistantId = parts[0].substring(1)
-                            parts.drop(1).joinToString(" ")
-                            assistantId
-                        } else {
-                            userProperties.getAssistantId()
+                        if (currentThreadId.isEmpty()) {
+                            responsePrinter.println("You need to create a thread first. Use /thread-new")
                         }
 
-                        assistantRunner.run(assistantId, currentThreadId, input)
+                        if (!input.startsWith("@") && userProperties.getAssistantId().isEmpty()) {
+                            responsePrinter.println("You need to address an assistant with @assistant-id <prompt>, to see available assistants use /assistant-list")
+                        } else {
+
+                            val assistantId = if (input.startsWith("@")) {
+                                val parts = input.split(" ")
+                                val assistantId = parts[0].substring(1)
+                                parts.drop(1).joinToString(" ")
+                                assistantId
+                            } else {
+                                userProperties.getAssistantId()
+                            }
+
+                            responsePrinter.println()
+                            val loadingChars = listOf("|", "/", "-", "\\")
+                            var loadingCharIndex = 0
+
+                            val result = assistantRunner.run(
+                                details = RunDetails(
+                                    assistantId = assistantId,
+                                    threadId = currentThreadId,
+                                    model = userProperties.getModel(),
+                                    prompt = input
+                                ),
+                                onRunStatusChanged = { status ->
+                                    responsePrinter.print("\u001b[1A\u001b[2K")
+                                    loadingCharIndex = (loadingCharIndex + 1) % loadingChars.size
+
+                                    when (status) {
+                                        RunStatus.FAILED,
+                                        RunStatus.CANCELLED,
+                                        RunStatus.EXPIRED -> {
+                                            responsePrinter.println(" x $status")
+                                        }
+                                        RunStatus.COMPLETED -> {
+                                            responsePrinter.println(" ✔ $status")
+                                        }
+                                        else -> {
+                                            responsePrinter.println(" ${loadingChars[loadingCharIndex]} $status")
+                                        }
+                                    }
+                                }
+                            )
+
+                            when (result) {
+                                is RunResult.Complete -> {
+                                    userProperties.setRunId(result.runId)
+                                    userProperties.setAssistantId(assistantId)
+                                    userProperties.save()
+
+                                    responsePrinter.println(result.responseText)
+                                }
+
+                                is RunResult.Error -> {
+                                    responsePrinter.println(result.message)
+                                }
+                            }
+
+
+                        }
                     }
                 }
             }
@@ -170,9 +222,23 @@ class ConsoleApplication(
         }
     }
 
+    private fun runCommand(command: Command): Boolean {
+        if (command.requiresApiKey) {
+            if (userProperties.getOpenaiApiKey().isEmpty()) {
+                responsePrinter.println("You need to set an OpenAI API key first! with /set-key <api-key>")
+                return true
+            }
+        }
+        runBlocking {
+            command.execute()
+        }
+        return false
+    }
+
     private fun printWelcomeMessage() {
         responsePrinter.println()
-        responsePrinter.println("""
+        responsePrinter.println(
+            """
              ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░
             ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░
             ░▒▓████████▓▒░░▒▓██████▓▒░░▒▓██████▓▒░
