@@ -34,15 +34,17 @@ class ThreadRecall(private val assistantsApi: AssistantsApi, private val userPro
                     markdownParser.parse().forEach { token ->
                         when (token) {
                             is Token.CodeBlock -> {
-                                println()
-                                println()
                                 println(blue(token.content.trim()))
-                                println()
-                                println(white())
+                                print(white())
                             }
 
                             is Token.Text -> {
-                                print(token.content.trim())
+                                print(token.content)
+                            }
+
+                            is Token.Code -> {
+                                print(blue(token.content))
+                                print(white())
                             }
                         }
                     }

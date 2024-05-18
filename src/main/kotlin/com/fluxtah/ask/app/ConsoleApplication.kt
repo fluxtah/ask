@@ -178,19 +178,21 @@ class ConsoleApplication(
                                     prompt = input
                                 ),
                                 onRunStatusChanged = { status ->
-                                    responsePrinter.print("\u001b[1A\u001b[2K")
                                     loadingCharIndex = (loadingCharIndex + 1) % loadingChars.size
 
                                     when (status) {
                                         RunStatus.FAILED,
                                         RunStatus.CANCELLED,
                                         RunStatus.EXPIRED -> {
+                                            responsePrinter.print("\u001b[1A\u001b[2K")
                                             responsePrinter.println(" x $status")
                                         }
                                         RunStatus.COMPLETED -> {
+                                            responsePrinter.print("\u001b[1A\u001b[2K")
                                             responsePrinter.println(" ✔ $status")
                                         }
                                         else -> {
+                                            responsePrinter.print("\u001b[1A\u001b[2K")
                                             responsePrinter.println(" ${loadingChars[loadingCharIndex]} $status")
                                         }
                                     }

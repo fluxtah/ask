@@ -91,6 +91,10 @@ class AssistantRunner(
                         is Token.Text -> {
                             responseBuilder.append(token.content)
                         }
+
+                        is Token.Code -> {
+                            responseBuilder.append(blue(token.content))
+                        }
                     }
                 }
             }

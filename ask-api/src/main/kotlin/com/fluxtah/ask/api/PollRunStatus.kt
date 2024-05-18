@@ -9,6 +9,7 @@ package com.fluxtah.ask.api
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRun
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
+import kotlinx.coroutines.delay
 
 /**
  * Poll until the run status is no longer QUEUED or IN_PROGRESS
@@ -26,7 +27,7 @@ suspend fun pollRunStatus(
             RunStatus.QUEUED, RunStatus.IN_PROGRESS, RunStatus.CANCELLING -> {
                 // These statuses imply waiting is needed. You can log or handle these differently if needed.
                 onStatusChanged(run.status)
-                Thread.sleep(3000)
+                delay(1000)
             }
 
             RunStatus.REQUIRES_ACTION, RunStatus.CANCELLED, RunStatus.FAILED, RunStatus.COMPLETED, RunStatus.EXPIRED -> {

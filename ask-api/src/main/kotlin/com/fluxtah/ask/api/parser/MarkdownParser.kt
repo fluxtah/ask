@@ -3,61 +3,68 @@ package com.fluxtah.ask.api.parser
 class MarkdownParser(private val input: String) {
     private val tokens = mutableListOf<Token>()
     private var pos = 0 // Manually controlled position variable
-
+    private val buffer = StringBuilder()
     fun parse(): List<Token> {
-        var insideCodeBlock = false
-        val content = StringBuilder()
-        var language: String? = null
-
         while (pos < input.length) {
             val c = input[pos]
-            if (input.startsWith("```", pos)) {
-                if (!insideCodeBlock) {
-                    // Handle start of a code block
-                    if (content.isNotEmpty()) {
-                        tokens.add(
-                            Token.Text(
-                                content.toString().dropLastWhile { it == '\n' })
-                        ) // Drop trailing newlines from text
-                        content.clear()
+            buffer.append(c)
+
+            if (buffer.endsWith("```")) {
+                tokens.add(Token.Text(buffer.dropLast(3).toString()))
+                buffer.clear()
+                val language = readLanguage()
+                readCodeBlock(language)
+            } else if(input.startsWith("`", pos) && !input.startsWith("``", pos)) {
+                tokens.add(Token.Text(buffer.dropLast(1).toString()))
+                buffer.clear()
+                pos++
+                while (pos < input.length) {
+                    val c = input[pos]
+                    buffer.append(c)
+                    if (buffer.endsWith("`")) {
+                        tokens.add(Token.Code(buffer.dropLast(1).toString()))
+                        buffer.clear()
+                        break
                     }
-                    insideCodeBlock = true
-                    val nextNewLine = input.indexOf('\n', pos + 3)
-                    language = if (nextNewLine > -1) {
-                        input.substring(pos + 3, nextNewLine).trim()
-                    } else {
-                        null
-                    }
-                    pos = nextNewLine + 1 // Move pos to the start of the code content
-                    continue
-                } else {
-                    // Handle end of a code block
-                    tokens.add(Token.CodeBlock(language, content.toString()))
-                    content.clear()
-                    insideCodeBlock = false
-                    language = null
-                    pos += 3 // Skip the closing ```
-                    continue
+                    pos++
                 }
             }
-
-            // Regular text accumulation
-            content.append(c)
 
             pos++ // Increment position after handling the current character
         }
 
-        // Handle any remaining content
-        if (content.isNotEmpty()) {
-            tokens.add(
-                if (insideCodeBlock) Token.CodeBlock(
-                    language,
-                    content.toString()
-                ) else Token.Text(content.toString())
-            )
+        if(buffer.isNotEmpty()) {
+            tokens.add(Token.Text(buffer.toString()))
+            buffer.clear()
         }
 
         return tokens
+    }
+
+    fun readLanguage(): String {
+        val language = StringBuilder()
+        while (pos < input.length) {
+            val c = input[pos]
+            if (c == '\n') {
+                break
+            }
+            language.append(c)
+            pos++
+        }
+        return language.toString()
+    }
+
+    fun readCodeBlock(language: String) {
+        val codeBlock = StringBuilder()
+        while (pos < input.length) {
+            val c = input[pos]
+            codeBlock.append(c)
+            if (codeBlock.endsWith("```")) {
+                tokens.add(Token.CodeBlock(language, codeBlock.dropLast(3).toString()))
+                break
+            }
+            pos++
+        }
     }
 }
 
