@@ -24,10 +24,11 @@ class ListThreads(private val userProperties: UserProperties, private val thread
             println("No threads found, type /thread-new to create a new thread")
         } else {
             threads.forEach {
+                val title = it.title.ifEmpty { "<unnamed>" }
                 if (userProperties.getThreadId() == it.threadId) {
-                    println(String.format("%-36s %-30s", it.threadId, it.title + " (Active)"))
+                    println(String.format("%-36s %-30s", it.threadId, "$title (Active)"))
                 } else {
-                    println(String.format("%-36s %-30s", it.threadId, it.title))
+                    println(String.format("%-36s %-30s", it.threadId, title))
                 }
             }
         }
