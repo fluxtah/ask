@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.fluxtah:ask-plugin-sdk:0.5.0")
+    api("com.github.fluxtah:ask-plugin-sdk:0.5.0")
 
     // SLF4J API
     implementation("org.slf4j:slf4j-api:1.7.32")
