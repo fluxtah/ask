@@ -6,7 +6,7 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
-import com.fluxtah.ask.api.UserProperties
+import com.fluxtah.ask.app.UserProperties
 
 class ClearModel(
     private val userProperties: UserProperties

@@ -1,6 +1,6 @@
 package com.fluxtah.ask.app.commanding.commands
 
-import com.fluxtah.ask.api.UserProperties
+import com.fluxtah.ask.app.UserProperties
 import com.fluxtah.ask.api.ansi.blue
 import com.fluxtah.ask.api.ansi.green
 import com.fluxtah.ask.api.ansi.white

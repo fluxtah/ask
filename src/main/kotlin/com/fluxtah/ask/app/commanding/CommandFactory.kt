@@ -9,7 +9,7 @@ package com.fluxtah.ask.app.commanding
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
-import com.fluxtah.ask.api.UserProperties
+import com.fluxtah.ask.app.UserProperties
 import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.app.commanding.commands.Clear
 import com.fluxtah.ask.app.commanding.commands.ClearModel

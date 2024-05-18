@@ -12,7 +12,6 @@ import com.fluxtah.ask.Version
 import com.fluxtah.ask.api.AssistantRunner
 import com.fluxtah.ask.api.RunDetails
 import com.fluxtah.ask.api.RunResult
-import com.fluxtah.ask.api.UserProperties
 import com.fluxtah.ask.api.ansi.green
 import com.fluxtah.ask.api.ansi.printWhite
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository

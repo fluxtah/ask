@@ -7,7 +7,6 @@
 package com.fluxtah.ask.api
 
 import com.fluxtah.ask.api.ansi.blue
-import com.fluxtah.ask.api.ansi.printWhite
 import com.fluxtah.ask.api.ansi.white
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
@@ -22,7 +21,6 @@ import com.fluxtah.ask.api.clients.openai.assistants.model.ToolOutput
 import com.fluxtah.ask.api.parser.MarkdownParser
 import com.fluxtah.ask.api.parser.Token
 import com.fluxtah.ask.api.tools.fn.FunctionInvoker
-import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
