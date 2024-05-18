@@ -63,7 +63,7 @@ class ConsoleApplication(
         functionInvoker = FunctionInvoker(),
     ),
 ) {
-    private val completer = AskCommandCompleter(assistantRegistry, commandFactory)
+    private val completer = AskCommandCompleter(assistantRegistry, commandFactory, threadRepository)
     private val terminal: Terminal = TerminalBuilder.builder()
         .system(true)
         .build()

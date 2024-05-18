@@ -1,6 +1,7 @@
 package com.fluxtah.ask.app
 
 import com.fluxtah.ask.api.assistants.AssistantRegistry
+import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.app.commanding.CommandFactory
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.jline.reader.Candidate
@@ -10,7 +11,8 @@ import org.jline.reader.ParsedLine
 
 class AskCommandCompleter(
     private val assistantRegistry: AssistantRegistry,
-    private val commandFactory: CommandFactory
+    private val commandFactory: CommandFactory,
+    private val threadRepository: ThreadRepository
 ) : Completer {
 
     private val models = listOf("gpt-3.5-turbo-16k", "gpt-4-turbo", "gpt-4o")
@@ -46,6 +48,12 @@ class AskCommandCompleter(
             words.size > 1 && words[0].startsWith("/log-level") -> {
                 if (wordIndex == 1) {
                     logLevels.forEach { candidates.add(Candidate(it)) }
+                }
+            }
+
+            words.size > 1 && words[0].startsWith("/thread-delete") -> {
+                if (wordIndex == 1) {
+                    threadRepository.listThreads().forEach { candidates.add(Candidate(it.threadId)) }
                 }
             }
 

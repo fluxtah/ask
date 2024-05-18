@@ -7,3 +7,7 @@ fun green(text: String = "") : String {
 fun blue(text: String = "") : String {
     return "\u001b[34m$text\u001B[0m"
 }
+
+fun cyan(text: String = "") : String {
+    return "\u001b[36m$text\u001B[0m"
+}

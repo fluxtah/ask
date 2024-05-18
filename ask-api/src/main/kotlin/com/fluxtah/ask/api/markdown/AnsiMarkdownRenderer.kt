@@ -6,6 +6,7 @@
 package com.fluxtah.ask.api.markdown
 
 import com.fluxtah.ask.api.ansi.blue
+import com.fluxtah.ask.api.ansi.cyan
 
 class AnsiMarkdownRenderer {
     fun render(tokens: List<Token>): String {
@@ -13,7 +14,7 @@ class AnsiMarkdownRenderer {
         tokens.forEach { token ->
             when (token) {
                 is Token.CodeBlock -> {
-                    builder.appendLine(blue(token.content.trim()))
+                    builder.appendLine(cyan(token.content.trim()))
                 }
 
                 is Token.Text -> {
@@ -21,7 +22,7 @@ class AnsiMarkdownRenderer {
                 }
 
                 is Token.Code -> {
-                    builder.append(blue(token.content))
+                    builder.append(cyan(token.content))
                 }
 
                 is Token.Bold -> {

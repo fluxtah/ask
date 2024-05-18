@@ -158,10 +158,10 @@ class CommandFactory(
             name = "thread-delete",
             description = "<thread-id> - Delete the thread by the given id",
             command = {
-                if (it.size != 1) {
+                if (it.isEmpty() || it.joinToString("").trim().isEmpty()) {
                     UnknownCommand("Invalid number of arguments for /thread-delete, expected a thread ID following the command")
                 } else {
-                    DeleteThread(assistantsApi, threadRepository, it.first())
+                    DeleteThread(assistantsApi, threadRepository, userProperties, it.first().trim())
                 }
             }
         )
