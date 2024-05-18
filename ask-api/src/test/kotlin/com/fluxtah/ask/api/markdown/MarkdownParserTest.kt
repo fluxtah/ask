@@ -3,7 +3,7 @@
  * Released under the MIT license
  * https://opensource.org/licenses/MIT
  */
-package com.fluxtah.ask.api.parser
+package com.fluxtah.ask.api.markdown
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

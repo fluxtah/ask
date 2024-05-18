@@ -13,7 +13,6 @@ import com.fluxtah.ask.api.AssistantRunner
 import com.fluxtah.ask.api.RunDetails
 import com.fluxtah.ask.api.RunResult
 import com.fluxtah.ask.api.ansi.green
-import com.fluxtah.ask.api.ansi.printWhite
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
@@ -113,7 +112,6 @@ class ConsoleApplication(
                     green("ask@${userProperties.getAssistantId()} ➜")
                 }
                 val input = lineReader.readLine("$prompt ")
-                printWhite()
 
                 handleInput(input)
             } catch (e: Exception) {

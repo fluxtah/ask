@@ -6,8 +6,6 @@
 
 package com.fluxtah.ask.api
 
-import com.fluxtah.ask.api.ansi.blue
-import com.fluxtah.ask.api.ansi.white
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
@@ -18,8 +16,8 @@ import com.fluxtah.ask.api.clients.openai.assistants.model.RunRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
 import com.fluxtah.ask.api.clients.openai.assistants.model.SubmitToolOutputsRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.ToolOutput
-import com.fluxtah.ask.api.parser.MarkdownParser
-import com.fluxtah.ask.api.parser.Token
+import com.fluxtah.ask.api.markdown.AnsiMarkdownRenderer
+import com.fluxtah.ask.api.markdown.MarkdownParser
 import com.fluxtah.ask.api.tools.fn.FunctionInvoker
 import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.askpluginsdk.logging.AskLogger
@@ -78,25 +76,9 @@ class AssistantRunner(
         if (lastMessage != null) {
             if (userMessage.id != lastMessage.id) {
                 val markdownParser = MarkdownParser(lastMessage.content.first().text.value)
-                responseBuilder.append(white(""))
-                markdownParser.parse().forEach { token ->
-                    when (token) {
-                        is Token.CodeBlock -> {
-                            responseBuilder.appendLine()
-                            responseBuilder.appendLine()
-                            responseBuilder.appendLine(blue(token.content.trim()))
-                            responseBuilder.appendLine(white(""))
-                        }
-
-                        is Token.Text -> {
-                            responseBuilder.append(token.content)
-                        }
-
-                        is Token.Code -> {
-                            responseBuilder.append(blue(token.content))
-                        }
-                    }
-                }
+                val ansiMarkdown = AnsiMarkdownRenderer().render(markdownParser.parse())
+                responseBuilder.append("\u001B[0m")
+                responseBuilder.append(ansiMarkdown)
             }
         }
 

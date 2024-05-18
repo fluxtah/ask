@@ -1,12 +1,10 @@
 package com.fluxtah.ask.app.commanding.commands
 
-import com.fluxtah.ask.app.UserProperties
-import com.fluxtah.ask.api.ansi.blue
 import com.fluxtah.ask.api.ansi.green
-import com.fluxtah.ask.api.ansi.white
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
-import com.fluxtah.ask.api.parser.MarkdownParser
-import com.fluxtah.ask.api.parser.Token
+import com.fluxtah.ask.api.markdown.AnsiMarkdownRenderer
+import com.fluxtah.ask.api.markdown.MarkdownParser
+import com.fluxtah.ask.app.UserProperties
 
 class ThreadRecall(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties) :
     Command() {
@@ -28,26 +26,11 @@ class ThreadRecall(private val assistantsApi: AssistantsApi, private val userPro
                     println(content.text.value)
                 }
             } else {
-                println(white())
+                println("\u001B[0m")
                 message.content.forEach { content ->
                     val markdownParser = MarkdownParser(content.text.value)
-                    markdownParser.parse().forEach { token ->
-                        when (token) {
-                            is Token.CodeBlock -> {
-                                println(blue(token.content.trim()))
-                                print(white())
-                            }
-
-                            is Token.Text -> {
-                                print(token.content)
-                            }
-
-                            is Token.Code -> {
-                                print(blue(token.content))
-                                print(white())
-                            }
-                        }
-                    }
+                    val ansiMarkdown = AnsiMarkdownRenderer().render(markdownParser.parse())
+                    println(ansiMarkdown)
                 }
                 println()
             }
