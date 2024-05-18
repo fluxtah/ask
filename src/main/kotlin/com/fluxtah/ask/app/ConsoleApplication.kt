@@ -74,6 +74,9 @@ class ConsoleApplication(
         .build()
 
     init {
+        val exposedLogger = org.jetbrains.exposed.sql.exposedLogger as Logger
+        exposedLogger.level = Level.OFF
+
         userProperties.load()
 
         assistantRegistry.register(FoodOrderingAssistant(logger))
@@ -90,8 +93,6 @@ class ConsoleApplication(
     }
 
     fun run() {
-        val exposedLogger = org.jetbrains.exposed.sql.exposedLogger as Logger
-        exposedLogger.level = Level.OFF
 
         printWelcomeMessage()
 
