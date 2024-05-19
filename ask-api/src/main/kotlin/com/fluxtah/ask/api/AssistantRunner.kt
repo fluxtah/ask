@@ -61,7 +61,7 @@ class AssistantRunner(
                 model = details.model?.ifEmpty {
                     null
                 },
-                truncationStrategy = TruncationStrategy.LastMessages(1)
+                truncationStrategy = TruncationStrategy.LastMessages(8)
             )
         )
 
