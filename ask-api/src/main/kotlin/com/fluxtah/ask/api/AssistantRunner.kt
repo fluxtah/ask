@@ -16,6 +16,7 @@ import com.fluxtah.ask.api.clients.openai.assistants.model.RunRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
 import com.fluxtah.ask.api.clients.openai.assistants.model.SubmitToolOutputsRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.ToolOutput
+import com.fluxtah.ask.api.clients.openai.assistants.model.TruncationStrategy
 import com.fluxtah.ask.api.markdown.AnsiMarkdownRenderer
 import com.fluxtah.ask.api.markdown.MarkdownParser
 import com.fluxtah.ask.api.tools.fn.FunctionInvoker
@@ -60,6 +61,7 @@ class AssistantRunner(
                 model = details.model?.ifEmpty {
                     null
                 },
+                truncationStrategy = TruncationStrategy.LastMessages(1)
             )
         )
 
