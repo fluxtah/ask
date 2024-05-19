@@ -14,7 +14,8 @@ import java.util.*
 class ThreadNew(
     private val assistantsApi: AssistantsApi,
     private val userProperties: UserProperties,
-    private val threadRepository: ThreadRepository
+    private val threadRepository: ThreadRepository,
+    private val title: String? = null
 ) :
     Command() {
     override val requiresApiKey: Boolean = true
@@ -23,6 +24,6 @@ class ThreadNew(
         println("Created thread: ${thread.id} at ${Date(thread.createdAt)}")
         userProperties.setThreadId(thread.id)
         userProperties.save()
-        threadRepository.createThread(thread.id, "")
+        threadRepository.createThread(thread.id, title ?: "")
     }
 }

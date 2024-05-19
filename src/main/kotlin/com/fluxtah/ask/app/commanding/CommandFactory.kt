@@ -138,7 +138,10 @@ class CommandFactory(
         registerCommand(
             name = "thread-new",
             description = "Creates a new assistant thread",
-            command = { ThreadNew(assistantsApi, userProperties, threadRepository) })
+            command = { args ->
+                val title = if (args.isNotEmpty()) args.joinToString(" ") else null
+                ThreadNew(assistantsApi, userProperties, threadRepository, title)
+            })
         registerCommand(
             name = "thread-which",
             description = "Displays the current assistant thread",
