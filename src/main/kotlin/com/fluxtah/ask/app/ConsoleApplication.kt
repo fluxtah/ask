@@ -196,8 +196,8 @@ class ConsoleApplication(
                                     }
                                 },
                                 onMessageCreation = { message ->
-                                    responsePrinter.print("\u001b[1A\u001b[2K")
                                     responsePrinter.println(message.content.joinToString(" ") { it.text.value })
+                                    responsePrinter.println()
                                     responsePrinter.println()
                                 }
                             )
