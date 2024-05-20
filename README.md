@@ -35,7 +35,6 @@ To install `ask` using Homebrew, follow these simple steps:
    ```
 
 #### Uninstallation With Homebrew
-
 If you need to uninstall `ask`, use the following command:
 ```bash
 brew uninstall ask
@@ -71,14 +70,115 @@ Assistant plugins should be deployed to the `{USER_HOME}/.ask/plugins` directory
 
 ASK ships with an inbuilt assistant plugin called `koder`, which can be installed using the following command:
 
-```bash
+```
 $ /assistant-install koder
 ```
 
 Once installed you can interact with the assistant using the `@koder` command.
 
-```bash
+```
 $ @koder generate me a ktor project
+```
+
+### Interacting with Assistants
+OpenAI Assistants have a few concepts that you should be aware of:-
+
+   * Assistants - A specific AI model that can perform a set of tasks.
+   * Threads - A thread is where an assistant runs, you can create multiple threads and switch between them.
+   * Runs - A run is a single interaction with an assistant.
+
+#### Creating a Thread
+Before we can interact with an assistant we need to create a thread using the `/thread-new` command.
+
+```bash
+$ /thread-new <title>
+```
+
+#### Listing Threads
+Threads are where assistants run, you can create multiple threads and switch between them using the `/thread-list` and `/thread-which` commands.
+
+```
+ask@koder ➜ /thread-list
+
+Thread                               Title                         
+--------------------------------------------------------------------------------
+thread_VxznbmWH4kHOd7sv9RBpai7t      <unnamed>                     
+thread_lQ4HBlAZxM4Cn8ys1oHqGH5S      <unnamed>                     
+thread_38klQJc6ZLvMivzLfhUI9OHF      <unnamed>                     
+thread_tTXkLm6Si9DQPrQwyfh8Af87      <unnamed>                     
+thread_eQuHg7tEaejAVP8afdsfs123      hello (Active)          
+```
+
+#### Running an Assistant
+Once you have created a thread, you can interact with an assistant using the `@` command.
+
+```
+$ @koder Can you tell me about the project in the current directory?
+```
+
+Sending this message will run your prompt against the `koder` assistant in the current thread and generate a response. You can show the status of your run and how many tokens you have used by using the `/run-list` command.
+
+```
+ask@koder ➜ /run-list
+
+ID                           Status       In         Out       
+------------------------------------------------------------------
+run_CQmFPZo3pLILxHYIi0tFVJS8 COMPLETED    13845      601       
+run_4pcZ0l1eG4CKYJDhykFKSA89 EXPIRED      4914       545       
+run_aR20yctKE2zJZ1ioK76dDckA EXPIRED      1300       15        
+```
+
+#### Recalling all messages in a thread
+You can recall all messages in a thread using the `/thread-recall` command.
+
+```
+ask@koder ➜ /thread-recall
+
+-- Thread Recall thread_eQuHg7tEaejAVP8afdsfs123 --
+
+ask ➜ hello
+
+Hello! How can I assist you with your Kotlin code today?
+
+ask ➜ tell me about the project in .
+
+The project consists of various Kotlin packages with several files within each package. Here are the packages and their respective files:
+
+- com.fluxtah.ask.api.tools.fn
+  - FunctionInvokerTest.kt
+  - FunctionToolGenerator.kt
+  - FunctionInvoker.kt
+  ...
+```
+
+#### Listing all messages in a thread
+You can list all messages in the current thread by using the `/message-list` command, this is useful if you want
+to see a compact view of all messages in a thread with their respective IDs.
+
+```
+ask@koder ➜ /message-list
+ID                           Role       Content                     
+--------------------------------------------------------------------------------
+msg_d9h8eVEx5s26uSHHrAbfjFEd assistant  The main class of this project i...
+msg_ockOLq0XvDUZhzUfkSjFDiET user       ok what is the main class   
+msg_aoRAy9lEvoCoh9mDB8ShSFDV assistant  The project consists of various ...
+msg_HwKpGPlnaeY0v5yYC99FDjsa user       tell me about the project in .
+msg_vFgwutaDBuwT8Pj6jDH45YW8 assistant  Hello! How can I assist you with...
+msg_KUtiLpwqRiIJn3E4sQyd£HFH user       hello                       
+```
+
+#### Renaming a Thread
+You can rename a thread using the `/thread-rename` command.
+
+```   
+ask@koder ➜ /thread-rename my-kotlin-project
+```
+
+#### Switching Threads
+You can switch between threads using the `/thread-switch` command.
+
+```
+ask@koder ➜ /thread-switch <thread-id>
 ```
 
 ### Writing Assistant Plugins

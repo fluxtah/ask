@@ -78,7 +78,7 @@ class ConsoleApplication(
 
         userProperties.load()
 
-        assistantRegistry.register(FoodOrderingAssistant(logger))
+        // assistantRegistry.register(FoodOrderingAssistant(logger))
 
         // Load plugin assistants
         AskPluginLoader(logger).loadPlugins().forEach {
