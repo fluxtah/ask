@@ -39,6 +39,7 @@ import com.fluxtah.ask.app.commanding.commands.WhichModel
 import com.fluxtah.ask.app.commanding.commands.WhichThread
 import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.app.commanding.commands.DeleteThread
+import com.fluxtah.ask.app.commanding.commands.SwitchThread
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 
@@ -172,6 +173,17 @@ class CommandFactory(
             name = "thread-list",
             description = "Lists all assistant threads",
             command = { ListThreads(userProperties, threadRepository) }
+        )
+        registerCommand(
+            name = "thread-switch",
+            description = "<thread-id> - Switches to the given thread",
+            command = {
+                if (it.size != 1) {
+                    UnknownCommand("Invalid number of arguments for /thread-switch, expected a thread ID following the command")
+                } else {
+                    SwitchThread(assistantsApi, userProperties, threadRepository, it.first().trim())
+                }
+            }
         )
         registerCommand(
             name = "thread-rename",
