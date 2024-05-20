@@ -22,7 +22,7 @@ class ListMessages(private val assistantsApi: AssistantsApi, private val userPro
         }
         println()
         println(String.format("%-28s %-10s %-28s", "ID", "Role", "Content"))
-        println("--------------------------------------------------------------------------------")
+        println("---------------------------------------------------------------------------")
         assistantsApi.messages.listMessages(threadId).data.forEach {
             val contentShortened = it.content.joinToString { it.text.value }.take(32)
             val contentElipsised = if (contentShortened.length < 32) contentShortened else "$contentShortened..."

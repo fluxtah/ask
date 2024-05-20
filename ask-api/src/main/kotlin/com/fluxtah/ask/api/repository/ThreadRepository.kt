@@ -58,6 +58,12 @@ class ThreadRepository {
         }
     }
 
+    fun getThreadById(threadId: String): Thread? {
+        return transaction {
+            Thread.find { Threads.threadId eq threadId }.firstOrNull()
+        }
+    }
+
     fun deleteThread(threadId: String) {
         transaction {
             Thread.find { Threads.threadId eq threadId }.firstOrNull()?.delete()

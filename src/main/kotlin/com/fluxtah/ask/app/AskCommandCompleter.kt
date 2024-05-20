@@ -51,7 +51,8 @@ class AskCommandCompleter(
                 }
             }
 
-            words.size > 1 && words[0].startsWith("/thread-delete") -> {
+            words.size > 1 && (words[0].startsWith("/thread-delete") ||
+                    words[0].startsWith("/thread-switch")) -> {
                 if (wordIndex == 1) {
                     threadRepository.listThreads().forEach { candidates.add(Candidate(it.threadId)) }
                 }

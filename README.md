@@ -128,6 +128,13 @@ run_4pcZ0l1eG4CKYJDhykFKSA89 EXPIRED      4914       545
 run_aR20yctKE2zJZ1ioK76dDckA EXPIRED      1300       15        
 ```
 
+#### Switching Threads
+You can switch between threads using the `/thread-switch` command.
+
+```
+ask@koder ➜ /thread-switch <thread-id>
+```
+
 #### Recalling all messages in a thread
 You can recall all messages in a thread using the `/thread-recall` command.
 
@@ -172,13 +179,6 @@ You can rename a thread using the `/thread-rename` command.
 
 ```   
 ask@koder ➜ /thread-rename my-kotlin-project
-```
-
-#### Switching Threads
-You can switch between threads using the `/thread-switch` command.
-
-```
-ask@koder ➜ /thread-switch <thread-id>
 ```
 
 ### Shell fallthrough commands
