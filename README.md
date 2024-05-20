@@ -181,6 +181,14 @@ You can switch between threads using the `/thread-switch` command.
 ask@koder ➜ /thread-switch <thread-id>
 ```
 
+### Shell fallthrough commands
+You can exit interactive mode any time with `/exit` if you want to run a shell commands though
+ask has a convenient way to run shell commands without exiting the interactive mode by prefixing the command with `:`.
+
+```
+ask@koder ➜ :ls
+```
+
 ### Writing Assistant Plugins
 Assistant plugins are written in Kotlin and should be compiled to a jar file. The jar file should be placed in the `{USER_HOME}/.ask/plugins` directory.
 
