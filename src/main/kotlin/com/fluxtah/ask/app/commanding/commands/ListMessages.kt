@@ -20,7 +20,14 @@ class ListMessages(private val assistantsApi: AssistantsApi, private val userPro
             println("You need to create a thread first. Use /thread-new")
             return
         }
-        println(JSON.encodeToString<AssistantMessageList>(assistantsApi.messages.listMessages(threadId)))
+        println()
+        println(String.format("%-28s %-10s %-28s", "ID", "Role", "Content"))
+        println("--------------------------------------------------------------------------------")
+        assistantsApi.messages.listMessages(threadId).data.forEach {
+            val contentShortened = it.content.joinToString { it.text.value }.take(32)
+            val contentElipsised = if (contentShortened.length < 32) contentShortened else "$contentShortened..."
+            println(String.format("%-28s %-10s %-28s", it.id, it.role, contentElipsised))
+        }
     }
 }
 
