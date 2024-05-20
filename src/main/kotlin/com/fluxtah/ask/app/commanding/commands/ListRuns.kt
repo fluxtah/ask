@@ -18,8 +18,11 @@ class ListRuns(private val assistantsApi: AssistantsApi, private val userPropert
             println("You need to create a thread first. Use /thread-new")
             return
         }
+        println()
+        println(String.format("%-28s %-12s %-10s %-10s", "ID", "Status", "In", "Out"))
+        println("------------------------------------------------------------------")
         assistantsApi.runs.listRuns(threadId).data.forEach {
-            println("${it.id}, created: ${Date(it.createdAt)}, status: ${it.status}, last error: ${it.lastError}")
+            println(String.format("%-28s %-12s %-10s %-10s", it.id, it.status, it.usage?.promptTokens, it.usage?.completionTokens))
         }
     }
 }

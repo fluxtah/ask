@@ -27,6 +27,14 @@ data class AssistantRun(
     @SerialName("instructions") val instructions: String? = null,
     @SerialName("tools") val tools: List<AssistantTool> = emptyList(),
     @SerialName("file_ids") val fileIds: List<String> = emptyList(),
-    @SerialName("metadata") val metadata: Map<String, String> = emptyMap()
+    @SerialName("metadata") val metadata: Map<String, String> = emptyMap(),
+    @SerialName("usage") val usage: AssistantRunUsage? = null
+)
+
+@Serializable
+data class AssistantRunUsage(
+    @SerialName("prompt_tokens") val promptTokens: Long,
+    @SerialName("completion_tokens") val completionTokens: Long,
+    @SerialName("total_tokens") val totalTokens: Long,
 )
 
