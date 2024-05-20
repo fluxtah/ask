@@ -194,6 +194,11 @@ class ConsoleApplication(
                                             responsePrinter.println(" ${loadingChars[loadingCharIndex]} $status")
                                         }
                                     }
+                                },
+                                onMessageCreation = { message ->
+                                    responsePrinter.print("\u001b[1A\u001b[2K")
+                                    responsePrinter.println(message.content.joinToString(" ") { it.text.value })
+                                    responsePrinter.println()
                                 }
                             )
 

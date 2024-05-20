@@ -12,6 +12,7 @@ import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRun
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRunStepDetails
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRunStepDetails.ToolCalls.ToolCallDetails.FunctionToolCallDetails
+import com.fluxtah.ask.api.clients.openai.assistants.model.Message
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
 import com.fluxtah.ask.api.clients.openai.assistants.model.SubmitToolOutputsRequest
@@ -47,7 +48,11 @@ class AssistantRunner(
     private val assistantInstallRepository: AssistantInstallRepository,
     private val functionInvoker: FunctionInvoker,
 ) {
-    suspend fun run(details: RunDetails, onRunStatusChanged: (RunStatus) -> Unit): RunResult {
+    suspend fun run(
+        details: RunDetails,
+        onRunStatusChanged: (RunStatus) -> Unit,
+        onMessageCreation: (Message) -> Unit,
+    ): RunResult {
         val assistantDef = assistantRegistry.getAssistantById(details.assistantId)
             ?: return RunResult.Error("Assistant definition not found: $details.assistantId")
 
@@ -65,7 +70,7 @@ class AssistantRunner(
             )
         )
 
-        processRun(assistantDef, createRun, details.threadId, onRunStatusChanged)
+        processRun(assistantDef, createRun, details.threadId, onRunStatusChanged, onMessageCreation)
 
         val responseBuilder = StringBuilder()
 
@@ -91,7 +96,8 @@ class AssistantRunner(
         assistantDef: AssistantDefinition,
         startRun: AssistantRun,
         currentThreadId: String,
-        onRunStatusChanged: (RunStatus) -> Unit
+        onRunStatusChanged: (RunStatus) -> Unit,
+        onMessageCreation: (Message) -> Unit
     ) {
         var currentRun = startRun
         while (true) {
@@ -101,7 +107,7 @@ class AssistantRunner(
 
             when (currentRun.status) {
                 RunStatus.REQUIRES_ACTION -> {
-                    currentRun = executeRunSteps(assistantDef, currentThreadId, currentRun)
+                    currentRun = executeRunSteps(assistantDef, currentThreadId, currentRun, onMessageCreation)
                     onRunStatusChanged(currentRun.status)
                 }
 
@@ -135,13 +141,18 @@ class AssistantRunner(
     private suspend fun executeRunSteps(
         assistantDef: AssistantDefinition,
         currentThreadId: String,
-        run: AssistantRun
+        run: AssistantRun,
+        onMessageCreation: (Message) -> Unit
     ): AssistantRun {
         val steps = assistantsApi.runs.listRunSteps(currentThreadId, run.id)
 
         steps.data.forEach { step ->
             when (val details = step.stepDetails) {
-                is AssistantRunStepDetails.MessageCreation -> {}
+                is AssistantRunStepDetails.MessageCreation -> {
+                    val message = assistantsApi.messages.getMessage(step.threadId, details.messageCreation.messageId)
+                    onMessageCreation(message)
+                }
+
                 is AssistantRunStepDetails.ToolCalls -> {
                     return executeTools(assistantDef, currentThreadId, run, details)
                 }
