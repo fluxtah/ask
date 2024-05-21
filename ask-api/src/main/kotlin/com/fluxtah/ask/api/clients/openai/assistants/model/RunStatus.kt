@@ -33,5 +33,8 @@ enum class RunStatus {
     COMPLETED,
 
     @SerialName("expired")
-    EXPIRED
+    EXPIRED,
+
+    @SerialName("incomplete")
+    INCOMPLETE
 }

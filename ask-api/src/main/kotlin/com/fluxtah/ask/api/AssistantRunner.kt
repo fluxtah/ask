@@ -52,6 +52,7 @@ class AssistantRunner(
         details: RunDetails,
         onRunStatusChanged: (RunStatus) -> Unit,
         onMessageCreation: (Message) -> Unit,
+        truncationStrategy: TruncationStrategy? = null
     ): RunResult {
         val assistantDef = assistantRegistry.getAssistantById(details.assistantId)
             ?: return RunResult.Error("Assistant definition not found: $details.assistantId")
@@ -66,7 +67,7 @@ class AssistantRunner(
                 model = details.model?.ifEmpty {
                     null
                 },
-                truncationStrategy = TruncationStrategy.LastMessages(8)
+                truncationStrategy = truncationStrategy
             )
         )
 
@@ -111,27 +112,18 @@ class AssistantRunner(
                     onRunStatusChanged(currentRun.status)
                 }
 
-                RunStatus.COMPLETED -> {
+                RunStatus.COMPLETED,
+                RunStatus.FAILED,
+                RunStatus.CANCELLED,
+                RunStatus.EXPIRED,
+                RunStatus.INCOMPLETE -> {
                     onRunStatusChanged(currentRun.status)
                     break
                 }
 
-                RunStatus.FAILED -> {
-                    onRunStatusChanged(currentRun.status)
-                    break
-                }
-
-                RunStatus.CANCELLED -> {
-                    onRunStatusChanged(currentRun.status)
-                    break
-                }
-
-                RunStatus.EXPIRED -> {
-                    onRunStatusChanged(currentRun.status)
-                    break
-                }
-
-                else -> {
+                RunStatus.QUEUED,
+                RunStatus.IN_PROGRESS,
+                RunStatus.CANCELLING -> {
                     onRunStatusChanged(currentRun.status)
                 }
             }

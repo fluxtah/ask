@@ -17,6 +17,7 @@ import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
+import com.fluxtah.ask.api.clients.openai.assistants.model.TruncationStrategy
 import com.fluxtah.ask.api.plugins.AskPluginLoader
 import com.fluxtah.ask.api.printers.AskConsoleResponsePrinter
 import com.fluxtah.ask.api.printers.AskResponsePrinter
@@ -199,7 +200,8 @@ class ConsoleApplication(
                                     responsePrinter.println(message.content.joinToString(" ") { it.text.value })
                                     responsePrinter.println()
                                     responsePrinter.println()
-                                }
+                                },
+                                truncationStrategy = TruncationStrategy.Auto
                             )
 
                             when (result) {

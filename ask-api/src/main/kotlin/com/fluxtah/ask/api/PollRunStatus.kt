@@ -30,7 +30,7 @@ suspend fun pollRunStatus(
                 delay(1000)
             }
 
-            RunStatus.REQUIRES_ACTION, RunStatus.CANCELLED, RunStatus.FAILED, RunStatus.COMPLETED, RunStatus.EXPIRED -> {
+            RunStatus.REQUIRES_ACTION, RunStatus.CANCELLED, RunStatus.FAILED, RunStatus.COMPLETED, RunStatus.EXPIRED, RunStatus.INCOMPLETE -> {
                 onStatusChanged(run.status)
                 return run
             }
