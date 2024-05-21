@@ -137,7 +137,6 @@ class AssistantRunner(
         onMessageCreation: (Message) -> Unit
     ): AssistantRun {
         val steps = assistantsApi.runs.listRunSteps(currentThreadId, run.id)
-        var currentRun = run
 
         steps.data.forEach { step ->
             when (val details = step.stepDetails) {
@@ -147,11 +146,11 @@ class AssistantRunner(
                 }
 
                 is AssistantRunStepDetails.ToolCalls -> {
-                    currentRun = executeTools(assistantDef, currentThreadId, run, details)
+                    return executeTools(assistantDef, currentThreadId, run, details)
                 }
             }
         }
-        return currentRun
+        return run
     }
 
     private suspend fun executeTools(
