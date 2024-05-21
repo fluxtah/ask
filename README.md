@@ -66,8 +66,6 @@ $ /set-key <api-key>
 To see a list of all  commands run ask and use `/help`.
 
 ### Installing Assistant Plugins
-Assistant plugins should be deployed to the `{USER_HOME}/.ask/plugins` directory, once deployed, the assistant plugin can be installed using the `/assistant-install <assistant-id>` command.
-
 ASK ships with an inbuilt assistant plugin called `koder`, which can be installed using the following command:
 
 ```
@@ -79,6 +77,8 @@ Once installed you can interact with the assistant using the `@koder` command.
 ```
 $ @koder generate me a ktor project
 ```
+
+Additional assistant can be installed via plugins deployed as fat jars to the `{USER_HOME}/.ask/plugins` directory, once deployed, the plugin assistants can be installed using the `/assistant-install <assistant-id>` command.
 
 ### Interacting with Assistants
 OpenAI Assistants have a few concepts that you should be aware of:-
