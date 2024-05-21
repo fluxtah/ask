@@ -19,10 +19,11 @@ class ListRuns(private val assistantsApi: AssistantsApi, private val userPropert
             return
         }
         println()
-        println(String.format("%-28s %-12s %-10s %-10s", "ID", "Status", "In", "Out"))
-        println("------------------------------------------------------------------")
+        println(String.format("%-19s %-28s %-12s %-10s %-10s", "Created", "ID", "Status", "In", "Out"))
+        println("------------------------------------------------------------------------------------")
         assistantsApi.runs.listRuns(threadId).data.forEach {
-            println(String.format("%-28s %-12s %-10s %-10s", it.id, it.status, it.usage?.promptTokens, it.usage?.completionTokens))
+            println(String.format("%-19s %-28s %-12s %-10s %-10s", it.createdAt.toShortDateTimeString(), it.id, it.status, it.usage?.promptTokens, it.usage?.completionTokens))
         }
     }
 }
+
