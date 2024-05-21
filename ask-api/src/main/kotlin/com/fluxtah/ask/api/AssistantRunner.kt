@@ -112,6 +112,14 @@ class AssistantRunner(
                     onRunStatusChanged(currentRun.status)
                 }
 
+                // Polling states
+                RunStatus.QUEUED,
+                RunStatus.IN_PROGRESS,
+                RunStatus.CANCELLING -> {
+                    onRunStatusChanged(currentRun.status)
+                }
+
+                // Terminal states
                 RunStatus.COMPLETED,
                 RunStatus.FAILED,
                 RunStatus.CANCELLED,
@@ -119,12 +127,6 @@ class AssistantRunner(
                 RunStatus.INCOMPLETE -> {
                     onRunStatusChanged(currentRun.status)
                     break
-                }
-
-                RunStatus.QUEUED,
-                RunStatus.IN_PROGRESS,
-                RunStatus.CANCELLING -> {
-                    onRunStatusChanged(currentRun.status)
                 }
             }
         }
