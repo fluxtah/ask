@@ -59,26 +59,24 @@ class AskCommandCompleter(
                 }
             }
 
-            line.line().trim().matches("file:.+/$".toRegex()) -> {
-                if (wordIndex == words.size - 1) {
-                    // Properly form the path to include a separator between the directory parts
-                    val path = line.line().substringAfterLast("file:").dropLast(1)
-                    val fullPath = getCurrentWorkingDirectory() + "/" + path
-                    File(fullPath).listFiles()?.forEach {
-                        candidates.add(
-                            Candidate(
-                                if (it.isDirectory)
-                                    "file:$path/${it.name}/"
-                                else
-                                    "file:$path/${it.name}",
-                                if (it.isDirectory)
-                                    "${it.name}/"
-                                else
-                                    it.name,
-                                null, null, null, null, !it.isDirectory
-                            )
+            line.word().matches("file:.+/$".toRegex()) -> {
+                // Properly form the path to include a separator between the directory parts
+                val path = line.line().substringAfterLast("file:").dropLast(1)
+                val fullPath = getCurrentWorkingDirectory() + "/" + path
+                File(fullPath).listFiles()?.forEach {
+                    candidates.add(
+                        Candidate(
+                            if (it.isDirectory)
+                                "file:$path/${it.name}/"
+                            else
+                                "file:$path/${it.name}",
+                            if (it.isDirectory)
+                                "${it.name}/"
+                            else
+                                it.name,
+                            null, null, null, null, !it.isDirectory
                         )
-                    }
+                    )
                 }
             }
 
