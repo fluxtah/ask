@@ -62,7 +62,7 @@ $ /set-key <api-key>
 - `/model <model>` - Set model override affecting all assistants (gpt-3.5-turbo-16k, gpt-4-turbo, etc.)
 - `/thread-new` - Creates a new assistant thread.
 - `/log-level <level>` - Sets the log level (ERROR, DEBUG, INFO, OFF).
-- 
+ 
 To see a list of all  commands run ask and use `/help`.
 
 ### Installing Assistant Plugins
