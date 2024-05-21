@@ -269,13 +269,8 @@ The gradle plugin adds two useful tasks to your project:-
 * `testAskPlugin` task will attempt to run ASK with the java remote debugger enabled, you can attach to the debugger from your IDE to debug your plugin, you'll have to install the plugin first and make sure to uninstall it when you're done (for now).
 * `deployAskPlugin` task will build a fat jar and copy it to the plugins directory.
 
-### Assistant Threads
-Assistant threads are used to manage interactions with assistants. Users can create new threads, list existing threads, and switch between them using the `/thread-new`, `/thread-list`, and `/thread-which` commands, respectively.
-
-Generally if you want to start a new conversation with an assistant, you should create a new thread (using `/thread-new`).
-
 ### Non-Interactive Mode
-ASK can be run in non-interactive mode by passing a command as an argument.
+ASK can be run in non-interactive mode as follows:-
 
 ```bash
 $ ask @koder generate me a ktor project
