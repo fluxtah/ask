@@ -87,6 +87,8 @@ OpenAI Assistants have a few concepts that you should be aware of:-
    * Threads - A thread is where an assistant runs, you can create multiple threads and switch between them.
    * Runs - A run is a single interaction with an assistant.
 
+See the [Open AI Assistant Documentation](https://platform.openai.com/docs/assistants/overview) to gain a better understanding of assistants.
+
 #### Creating a Thread
 Before we can interact with an assistant we need to create a thread using the `/thread-new` command.
 
