@@ -62,12 +62,10 @@ $ /set-key <api-key>
 - `/model <model>` - Set model override affecting all assistants (gpt-3.5-turbo-16k, gpt-4-turbo, etc.)
 - `/thread-new` - Creates a new assistant thread.
 - `/log-level <level>` - Sets the log level (ERROR, DEBUG, INFO, OFF).
-- 
+ 
 To see a list of all  commands run ask and use `/help`.
 
 ### Installing Assistant Plugins
-Assistant plugins should be deployed to the `{USER_HOME}/.ask/plugins` directory, once deployed, the assistant plugin can be installed using the `/assistant-install <assistant-id>` command.
-
 ASK ships with an inbuilt assistant plugin called `koder`, which can be installed using the following command:
 
 ```
@@ -80,12 +78,16 @@ Once installed you can interact with the assistant using the `@koder` command.
 $ @koder generate me a ktor project
 ```
 
+Additional assistant can be installed via plugins deployed as fat jars to the `{USER_HOME}/.ask/plugins` directory, once deployed, the plugin assistants can be installed using the `/assistant-install <assistant-id>` command.
+
 ### Interacting with Assistants
 OpenAI Assistants have a few concepts that you should be aware of:-
 
    * Assistants - A specific AI model that can perform a set of tasks.
    * Threads - A thread is where an assistant runs, you can create multiple threads and switch between them.
    * Runs - A run is a single interaction with an assistant.
+
+See the [Open AI Assistant Documentation](https://platform.openai.com/docs/assistants/overview) to gain a better understanding of assistants.
 
 #### Creating a Thread
 Before we can interact with an assistant we need to create a thread using the `/thread-new` command.
