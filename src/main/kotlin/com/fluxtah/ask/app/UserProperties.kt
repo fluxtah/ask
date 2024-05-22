@@ -16,6 +16,7 @@ class UserProperties(private val store: PropertyStore) {
         const val OPENAI_API_KEY = "openaiApiKey"
         const val MODEL = "model"
         const val ASSISTANT_ID = "assistantId"
+        const val MAX_PROMPT_TOKENS = "maxPromptTokens"
         const val LOG_LEVEL = "logLevel"
     }
 
@@ -49,6 +50,14 @@ class UserProperties(private val store: PropertyStore) {
 
     fun setModel(model: String) {
         store.setProperty(MODEL, model)
+    }
+
+    fun getMaxPromptTokens(): Int {
+        return store.getProperty(MAX_PROMPT_TOKENS, "0").toInt()
+    }
+
+    fun setMaxPromptTokens(maxPromptTokens: Int) {
+        store.setProperty(MAX_PROMPT_TOKENS, maxPromptTokens.toString())
     }
 
     fun getAssistantId(): String {

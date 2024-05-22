@@ -39,6 +39,7 @@ import com.fluxtah.ask.app.commanding.commands.WhichModel
 import com.fluxtah.ask.app.commanding.commands.WhichThread
 import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.app.commanding.commands.DeleteThread
+import com.fluxtah.ask.app.commanding.commands.MaxPromptTokens
 import com.fluxtah.ask.app.commanding.commands.SwitchThread
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
@@ -57,6 +58,18 @@ class CommandFactory(
     private val commands = mutableMapOf<String, CommandEntry>()
 
     init {
+        registerCommand(
+            name = "max-prompt-tokens",
+            description = "<number> - Set the max prompt tokens value",
+            command = {
+                if (it.size != 1 || it.first().toIntOrNull() == null) {
+                    UnknownCommand("Current max prompt tokens: ${userProperties.getMaxPromptTokens()}, to set a new value use /max-prompt-tokens <number>")
+                } else {
+                    MaxPromptTokens(userProperties, it.first().toInt())
+                }
+            }
+        )
+
         registerCommand(
             name = "help",
             description = "Show this help",
