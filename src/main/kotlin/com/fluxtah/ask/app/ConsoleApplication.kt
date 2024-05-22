@@ -169,12 +169,30 @@ class ConsoleApplication(
                             val loadingChars = listOf("|", "/", "-", "\\")
                             var loadingCharIndex = 0
 
+                            val truncationStrategy = if (userProperties.getTruncateLastMessages() > 0) {
+                                TruncationStrategy.LastMessages(userProperties.getTruncateLastMessages())
+                            } else {
+                                null
+                            }
+                            val maxPromptTokens = if (userProperties.getMaxPromptTokens() > 0) {
+                                userProperties.getMaxPromptTokens()
+                            } else {
+                                null
+                            }
+                            val maxCompletionTokens = if (userProperties.getMaxCompletionTokens() > 0) {
+                                userProperties.getMaxCompletionTokens()
+                            } else {
+                                null
+                            }
                             val result = assistantRunner.run(
                                 details = RunDetails(
                                     assistantId = assistantId,
                                     threadId = currentThreadId,
                                     model = userProperties.getModel(),
-                                    prompt = input
+                                    prompt = input,
+                                    maxPromptTokens = maxPromptTokens,
+                                    maxCompletionTokens = maxCompletionTokens,
+                                    truncationStrategy = truncationStrategy
                                 ),
                                 onRunStatusChanged = { status ->
                                     loadingCharIndex = (loadingCharIndex + 1) % loadingChars.size
@@ -186,10 +204,12 @@ class ConsoleApplication(
                                             responsePrinter.print("\u001b[1A\u001b[2K")
                                             responsePrinter.println(" x $status")
                                         }
+
                                         RunStatus.COMPLETED -> {
                                             responsePrinter.print("\u001b[1A\u001b[2K")
                                             responsePrinter.println(" ✔ $status")
                                         }
+
                                         else -> {
                                             responsePrinter.print("\u001b[1A\u001b[2K")
                                             responsePrinter.println(" ${loadingChars[loadingCharIndex]} $status")
@@ -200,8 +220,7 @@ class ConsoleApplication(
                                     responsePrinter.println(message.content.joinToString(" ") { it.text.value })
                                     responsePrinter.println()
                                     responsePrinter.println()
-                                },
-                                truncationStrategy = TruncationStrategy.Auto
+                                }
                             )
 
                             when (result) {

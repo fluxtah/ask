@@ -29,7 +29,10 @@ data class RunDetails(
     val assistantId: String,
     val model: String? = null,
     val threadId: String,
-    val prompt: String
+    val prompt: String,
+    val maxPromptTokens: Int? = null,
+    val maxCompletionTokens: Int? = null,
+    val truncationStrategy: TruncationStrategy? = null
 )
 
 sealed class RunResult {
@@ -52,7 +55,6 @@ class AssistantRunner(
         details: RunDetails,
         onRunStatusChanged: (RunStatus) -> Unit,
         onMessageCreation: (Message) -> Unit,
-        truncationStrategy: TruncationStrategy? = null
     ): RunResult {
         val assistantDef = assistantRegistry.getAssistantById(details.assistantId)
             ?: return RunResult.Error("Assistant definition not found: $details.assistantId")
@@ -67,7 +69,9 @@ class AssistantRunner(
                 model = details.model?.ifEmpty {
                     null
                 },
-                truncationStrategy = truncationStrategy
+                truncationStrategy = details.truncationStrategy,
+                maxCompletionTokens = details.maxCompletionTokens,
+                maxPromptTokens = details.maxPromptTokens
             )
         )
 
@@ -140,6 +144,8 @@ class AssistantRunner(
     ): AssistantRun {
         val steps = assistantsApi.runs.listRunSteps(currentThreadId, run.id)
 
+        val toolOutputs = mutableListOf<ToolOutput>()
+
         steps.data.forEach { step ->
             when (val details = step.stepDetails) {
                 is AssistantRunStepDetails.MessageCreation -> {
@@ -148,11 +154,12 @@ class AssistantRunner(
                 }
 
                 is AssistantRunStepDetails.ToolCalls -> {
-                    return executeTools(assistantDef, currentThreadId, run, details)
+                    toolOutputs.addAll(executeTools(assistantDef, currentThreadId, run, details))
                 }
             }
         }
-        return run
+
+        return submitToolOutputs(toolOutputs, currentThreadId, run)
     }
 
     private suspend fun executeTools(
@@ -160,7 +167,7 @@ class AssistantRunner(
         currentThreadId: String,
         run: AssistantRun,
         details: AssistantRunStepDetails.ToolCalls
-    ): AssistantRun {
+    ): List<ToolOutput> {
         val toolOutputs = mutableListOf<ToolOutput>()
 
         details.toolCalls.forEach { toolCall ->
@@ -182,7 +189,7 @@ class AssistantRunner(
             }
         }
 
-        return submitToolOutputs(toolOutputs, currentThreadId, run)
+        return toolOutputs
     }
 
     private suspend fun submitToolOutputs(
