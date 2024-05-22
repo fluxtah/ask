@@ -17,6 +17,7 @@ class UserProperties(private val store: PropertyStore) {
         const val MODEL = "model"
         const val ASSISTANT_ID = "assistantId"
         const val MAX_PROMPT_TOKENS = "maxPromptTokens"
+        const val MAX_COMPLETION_TOKENS = "maxCompletionTokens"
         const val LOG_LEVEL = "logLevel"
     }
 
@@ -50,6 +51,14 @@ class UserProperties(private val store: PropertyStore) {
 
     fun setModel(model: String) {
         store.setProperty(MODEL, model)
+    fun getMaxCompletionTokens(): Int {
+        return store.getProperty(MAX_COMPLETION_TOKENS, "0").toInt()
+    }
+
+    fun setMaxCompletionTokens(maxCompletionTokens: Int) {
+        store.setProperty(MAX_COMPLETION_TOKENS, maxCompletionTokens.toString())
+    }
+
     }
 
     fun getMaxPromptTokens(): Int {

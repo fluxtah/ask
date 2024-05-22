@@ -59,6 +59,18 @@ class CommandFactory(
 
     init {
         registerCommand(
+            name = "max-completion-tokens",
+            description = "<maxCompletionTokens> - Set the max completion tokens value",
+            command = {
+                if (it.size != 1 || it.first().toIntOrNull() == null) {
+                    UnknownCommand("Invalid number of arguments or non-integer value for /max-completion-tokens, expected an integer value following the command")
+                } else {
+                    MaxCompletionTokens(userProperties, it.first().toInt())
+                }
+            }
+        )
+
+        registerCommand(
             name = "max-prompt-tokens",
             description = "<number> - Set the max prompt tokens value",
             command = {
