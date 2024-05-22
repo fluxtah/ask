@@ -51,14 +51,14 @@ class UserProperties(private val store: PropertyStore) {
 
     fun setModel(model: String) {
         store.setProperty(MODEL, model)
+    }
+
     fun getMaxCompletionTokens(): Int {
         return store.getProperty(MAX_COMPLETION_TOKENS, "0").toInt()
     }
 
     fun setMaxCompletionTokens(maxCompletionTokens: Int) {
         store.setProperty(MAX_COMPLETION_TOKENS, maxCompletionTokens.toString())
-    }
-
     }
 
     fun getMaxPromptTokens(): Int {

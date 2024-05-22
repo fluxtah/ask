@@ -39,6 +39,7 @@ import com.fluxtah.ask.app.commanding.commands.WhichModel
 import com.fluxtah.ask.app.commanding.commands.WhichThread
 import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.app.commanding.commands.DeleteThread
+import com.fluxtah.ask.app.commanding.commands.MaxCompletionTokens
 import com.fluxtah.ask.app.commanding.commands.MaxPromptTokens
 import com.fluxtah.ask.app.commanding.commands.SwitchThread
 import com.fluxtah.askpluginsdk.logging.AskLogger
@@ -60,10 +61,10 @@ class CommandFactory(
     init {
         registerCommand(
             name = "max-completion-tokens",
-            description = "<maxCompletionTokens> - Set the max completion tokens value",
+            description = "<number> - Set the max completion tokens value",
             command = {
                 if (it.size != 1 || it.first().toIntOrNull() == null) {
-                    UnknownCommand("Invalid number of arguments or non-integer value for /max-completion-tokens, expected an integer value following the command")
+                    UnknownCommand("Current max completion tokens: ${userProperties.getMaxCompletionTokens()}, to set a new value use /max-completion-tokens <number>")
                 } else {
                     MaxCompletionTokens(userProperties, it.first().toInt())
                 }
