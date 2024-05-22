@@ -301,9 +301,9 @@ Homebrew tap is available at [Homebrew Ask](https://github.com/fluxtah/homebrew-
 * [Ask Plugin SDK](https://github.com/fluxtah/ask-plugin-sdk) - SDK dependency for base plugin interface and assistant definitions.
 * [Homebrew ASK](https://github.com/fluxtah/homebrew-ask) - The homebrew tap source.
 * [Plugin Hello World Example](https://github.com/fluxtah/ask-plugin-hello) - Example plugin project.
-
+* [Koder Plugin Source](https://github.com/fluxtah/ask-plugin-koder) - Repository for the koder plugin.
+  
 ## License
-
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 
