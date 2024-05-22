@@ -21,11 +21,10 @@ import com.fluxtah.ask.api.clients.openai.assistants.model.TruncationStrategy
 import com.fluxtah.ask.api.plugins.AskPluginLoader
 import com.fluxtah.ask.api.printers.AskConsoleResponsePrinter
 import com.fluxtah.ask.api.printers.AskResponsePrinter
+import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.ask.api.tools.fn.FunctionInvoker
 import com.fluxtah.ask.app.commanding.CommandFactory
-import com.fluxtah.ask.assistants.FoodOrderingAssistant
-import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.app.commanding.commands.Command
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
