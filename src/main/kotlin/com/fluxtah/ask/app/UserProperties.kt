@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2024 Ian Warwick
  * Released under the MIT license
@@ -19,6 +20,7 @@ class UserProperties(private val store: PropertyStore) {
         const val MAX_PROMPT_TOKENS = "maxPromptTokens"
         const val MAX_COMPLETION_TOKENS = "maxCompletionTokens"
         const val LOG_LEVEL = "logLevel"
+        const val TRUNCATE_LAST_MESSAGES = "truncateLastMessages"
     }
 
     fun getThreadId(): String {
@@ -83,6 +85,14 @@ class UserProperties(private val store: PropertyStore) {
 
     fun setLogLevel(logLevel: LogLevel) {
         store.setProperty(LOG_LEVEL, logLevel.name)
+    }
+
+    fun getTruncateLastMessages(): Int {
+        return store.getProperty(TRUNCATE_LAST_MESSAGES, "0").toInt()
+    }
+
+    fun setTruncateLastMessages(value: Int) {
+        store.setProperty(TRUNCATE_LAST_MESSAGES, value.toString())
     }
 
     fun load() {

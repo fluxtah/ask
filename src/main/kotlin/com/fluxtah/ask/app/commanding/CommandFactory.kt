@@ -42,6 +42,7 @@ import com.fluxtah.ask.app.commanding.commands.DeleteThread
 import com.fluxtah.ask.app.commanding.commands.MaxCompletionTokens
 import com.fluxtah.ask.app.commanding.commands.MaxPromptTokens
 import com.fluxtah.ask.app.commanding.commands.SwitchThread
+import com.fluxtah.ask.app.commanding.commands.TruncateLastMessages
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 
@@ -97,6 +98,21 @@ class CommandFactory(
             description = "Clears the screen",
             command = { Clear() }
         )
+        registerCommand(
+            name = "truncate-last-messages",
+            description = "<number> - Set or get the truncate last messages value",
+            command = {
+                val currentValue = userProperties.getTruncateLastMessages()
+                if (it.size > 1 || (it.size == 1 && it.first().toIntOrNull() == null)) {
+                    UnknownCommand("Current truncate last messages value: $currentValue. Usage: /truncate-last-messages <number>")
+                } else if (it.isEmpty()) {
+                    TruncateLastMessages(userProperties)
+                } else {
+                    TruncateLastMessages(userProperties, it.first().toInt())
+                }
+            }
+        )
+
         registerCommand(
             name = "assistant-install",
             description = "<assistant-id> Installs an assistant",
