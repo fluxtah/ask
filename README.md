@@ -183,6 +183,13 @@ You can rename a thread using the `/thread-rename` command.
 ask@koder ➜ /thread-rename my-kotlin-project
 ```
 
+### Controlling token usage
+To control token usage you can set some limits as provided by the Assistants API:-
+
+* `/max-prompt-tokens <tokens>` - The maximum number of prompt tokens that may be used over the course of a run. The run will make a best effort to use only the number of prompt tokens specified, across multiple turns of the run. If the run exceeds the number of prompt tokens specified, the run will end with status incomplete. See incomplete_details for more info. 
+* `/max-completion-tokens <tokens>` - The maximum number of completion tokens that may be used over the course of the run. The run will make a best effort to use only the number of completion tokens specified, across multiple turns of the run. If the run exceeds the number of completion tokens specified, the run will end with status incomplete. See incomplete_details for more info.
+* `/truncate-last-messages <count>` - The truncation strategy to use for the thread. The default is auto (zero). If set the thread will be truncated to the n most recent messages in the thread. When set to zero, messages in the middle of the thread will be dropped to fit the context length of the model (max-prompt-tokens).
+
 ### Shell fallthrough commands
 You can exit interactive mode any time with `/exit` if you want to run a shell commands though
 ask has a convenient way to run shell commands without exiting the interactive mode by prefixing the command with `:`.
