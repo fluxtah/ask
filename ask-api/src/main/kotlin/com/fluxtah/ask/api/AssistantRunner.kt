@@ -138,34 +138,34 @@ class AssistantRunner(
 
     private suspend fun executeRunSteps(
         assistantDef: AssistantDefinition,
-        currentThreadId: String,
+        threadId: String,
         run: AssistantRun,
         onMessageCreation: (Message) -> Unit
     ): AssistantRun {
-        val steps = assistantsApi.runs.listRunSteps(currentThreadId, run.id)
+        val steps = assistantsApi.runs.listRunSteps(threadId, run.id)
 
         val toolOutputs = mutableListOf<ToolOutput>()
 
-        steps.data.forEach { step ->
-            when (val details = step.stepDetails) {
-                is AssistantRunStepDetails.MessageCreation -> {
-                    val message = assistantsApi.messages.getMessage(step.threadId, details.messageCreation.messageId)
-                    onMessageCreation(message)
-                }
-
-                is AssistantRunStepDetails.ToolCalls -> {
-                    toolOutputs.addAll(executeTools(assistantDef, currentThreadId, run, details))
-                }
+        logger.log(LogLevel.DEBUG, "[Run Steps] ${steps.data.size} steps")
+        steps.data.map { it.stepDetails }.filterIsInstance<AssistantRunStepDetails.MessageCreation>()
+            .forEach { details ->
+                logger.log(LogLevel.DEBUG, "[Message Creation] ${details.messageCreation.messageId}")
+                val message = assistantsApi.messages.getMessage(threadId, details.messageCreation.messageId)
+                onMessageCreation(message)
             }
+
+        steps.data.map { it.stepDetails }.filterIsInstance<AssistantRunStepDetails.ToolCalls>().first() { details ->
+            logger.log(LogLevel.DEBUG, "[Tool Calls] ${details.toolCalls.size} calls")
+            toolOutputs.addAll(executeTools(assistantDef, details))
+            return submitToolOutputs(toolOutputs, threadId, run)
         }
 
-        return submitToolOutputs(toolOutputs, currentThreadId, run)
+
+        return run
     }
 
-    private suspend fun executeTools(
+    private fun executeTools(
         assistant: AssistantDefinition,
-        currentThreadId: String,
-        run: AssistantRun,
         details: AssistantRunStepDetails.ToolCalls
     ): List<ToolOutput> {
         val toolOutputs = mutableListOf<ToolOutput>()
@@ -184,7 +184,7 @@ class AssistantRunner(
                             result
                         )
                     )
-                    logger.log(LogLevel.DEBUG, "[Fun Result] $result")
+                    logger.log(LogLevel.DEBUG, "[Fun Result] ${result.take(200)}...")
                 }
             }
         }
@@ -193,7 +193,7 @@ class AssistantRunner(
     }
 
     private suspend fun submitToolOutputs(
-        toolOutputs: MutableList<ToolOutput>,
+        toolOutputs: List<ToolOutput>,
         currentThreadId: String,
         run: AssistantRun
     ) = if (toolOutputs.isNotEmpty()) {
