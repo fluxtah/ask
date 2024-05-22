@@ -1,6 +1,10 @@
 ## Assistant Kommander (ALPHA)
 **Assistant Kommander** (ASK) is a Kotlin-based application that brings [OpenAI Assistants](https://platform.openai.com/docs/assistants/overview) to the terminal. Users can direct prompts to AI assistants from the terminal targeting which assistant they wish to address with `@`.
 
+A kotlin coding assistant comes out of the box called `@koder` that can help you understand codebases and even contribute (experimental).
+
+**WARNING: Please always ensure the code you wish to modify with @koder is commited to source control and carefully check its changes, this is a highly experimental project**
+
 ```bash
 $ @koder how do I make a basic kotlin hello world function?
 
