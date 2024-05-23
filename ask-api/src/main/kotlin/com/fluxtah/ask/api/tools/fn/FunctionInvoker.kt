@@ -7,6 +7,8 @@
 package com.fluxtah.ask.api.tools.fn
 
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRunStepDetails.ToolCalls.ToolCallDetails.FunctionToolCallDetails
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import kotlinx.serialization.serializer
 import java.lang.reflect.InvocationTargetException
@@ -14,10 +16,12 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.javaConstructor
+import kotlin.reflect.jvm.jvmErasure
 
 class FunctionInvoker {
     fun <T : Any> invokeFunction(targetInstance: T, callDetails: FunctionToolCallDetails): String {
@@ -25,11 +29,18 @@ class FunctionInvoker {
             ?: throw IllegalArgumentException("Function not found: ${callDetails.function.name}")
 
         try {
-            val argsMap =
-                Json.decodeFromString<Map<String, JsonElement>>(callDetails.function.arguments.replace("\\$", "$"))
+            val argsMap = Json.decodeFromString<Map<String, JsonElement>>(callDetails.function.arguments.replace("\\$", "$"))
             val args = prepareArguments(function, argsMap)
             val result = function.call(targetInstance, *args)
-            return result.toString()
+
+            // Check if the result is @Serializable
+            if (result != null && function.returnType.jvmErasure.findAnnotation<Serializable>() != null) {
+                // If the result type is serializable, encode it to JSON string
+                return Json.encodeToString(result)
+            } else {
+                // Otherwise, return the result as a string
+                return result.toString()
+            }
         } catch (e: Exception) {
             println("Error decoding arguments: ${callDetails.function.arguments}")
             throw e
