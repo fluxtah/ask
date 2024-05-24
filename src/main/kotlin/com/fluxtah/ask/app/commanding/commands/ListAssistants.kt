@@ -16,12 +16,25 @@ class ListAssistants(
     override val requiresApiKey: Boolean = true
     override suspend fun execute() {
         val installedAssistants = assistantInstallRepository.getAssistantInstallRecords()
+        println()
+        println(String.format("%-10s %-10s %-16s %-12s %-8s", "ID", "Version", "Name", "Installed", "Upgrade"))
+        println("-----------------------------------------------------------------")
         assistantRegistry.getAssistants().forEach {
             val installedAssistant = installedAssistants.find { record -> record.id == it.id }
             val currentVersion = installedAssistant?.version ?: it.version
             val upgradeAvailable =
-                if (installedAssistant != null && installedAssistant.version != it.version) " (upgrade available v${it.version})" else ""
-            println("@${it.id} - ${it.name} $currentVersion, ${it.model}, installed: ${installedAssistant != null}$upgradeAvailable")
+                if (installedAssistant != null && installedAssistant.version != it.version) "✔ (v${it.version})" else "x"
+            println(
+                String.format(
+                    "%-10s %-10s %-16s %-12s %-8s",
+                    it.id,
+                    currentVersion,
+                    it.name,
+                    if(installedAssistant != null) "✔" else "x",
+                    upgradeAvailable
+                )
+            )
+           // println("@${it.id} - ${it.name} $currentVersion, ${it.model}, installed: ${installedAssistant != null}$upgradeAvailable")
         }
     }
 }
