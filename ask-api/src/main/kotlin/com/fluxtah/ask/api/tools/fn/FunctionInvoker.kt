@@ -7,10 +7,13 @@
 package com.fluxtah.ask.api.tools.fn
 
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRunStepDetails.ToolCalls.ToolCallDetails.FunctionToolCallDetails
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import kotlinx.serialization.serializer
+import kotlinx.serialization.serializerOrNull
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -24,6 +27,7 @@ import kotlin.reflect.jvm.javaConstructor
 import kotlin.reflect.jvm.jvmErasure
 
 class FunctionInvoker {
+    @OptIn(InternalSerializationApi::class)
     fun <T : Any> invokeFunction(targetInstance: T, callDetails: FunctionToolCallDetails): String {
         val function = targetInstance::class.memberFunctions.find { it.name == callDetails.function.name }
             ?: throw IllegalArgumentException("Function not found: ${callDetails.function.name}")
@@ -33,16 +37,16 @@ class FunctionInvoker {
             val args = prepareArguments(function, argsMap)
             val result = function.call(targetInstance, *args)
 
-            return result.toString()
-//            // Check if the result is @Serializable
-//            if (result != null && function.returnType.jvmErasure.findAnnotation<Serializable>() != null) {
-//                // If the result type is serializable, encode it to JSON string
-//                val serializer = Json.serializersModule.serializer(result::class.java)
-//                return Json.encodeToString(serializer, result)
-//            } else {
-//                // Otherwise, return the result as a string
-//                return result.toString()
-//            }
+           // return result.toString()
+            // Check if the result is @Serializable
+            if (result != null && function.returnType.jvmErasure.findAnnotation<Serializable>() != null) {
+                // If the result type is serializable, encode it to JSON string
+                val serializer = result::class.serializerOrNull()
+                return Json.encodeToString(serializer as KSerializer<Any>, result)
+            } else {
+                // Otherwise, return the result as a string
+                return result.toString()
+            }
         } catch (e: Exception) {
             println("Error decoding arguments: ${callDetails.function.arguments}")
             throw e

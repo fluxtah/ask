@@ -105,6 +105,7 @@ class AssistantRunner(
         onMessageCreation: (Message) -> Unit
     ) {
         var currentRun = startRun
+        val messagesSeen = mutableSetOf<String>()
         while (true) {
             currentRun = pollRunStatus(assistantsApi, currentThreadId, currentRun) { status ->
                 onRunStatusChanged(status)
@@ -112,7 +113,7 @@ class AssistantRunner(
 
             when (currentRun.status) {
                 RunStatus.REQUIRES_ACTION -> {
-                    currentRun = executeRunSteps(assistantDef, currentThreadId, currentRun, onMessageCreation)
+                    currentRun = executeRunSteps(assistantDef, currentThreadId, currentRun, onMessageCreation, messagesSeen)
                     onRunStatusChanged(currentRun.status)
                 }
 
@@ -140,7 +141,8 @@ class AssistantRunner(
         assistantDef: AssistantDefinition,
         threadId: String,
         run: AssistantRun,
-        onMessageCreation: (Message) -> Unit
+        onMessageCreation: (Message) -> Unit,
+        messagesSeen: MutableSet<String>
     ): AssistantRun {
         val steps = assistantsApi.runs.listRunSteps(threadId, run.id)
 
@@ -151,7 +153,10 @@ class AssistantRunner(
             .forEach { details ->
                 logger.log(LogLevel.DEBUG, "[Message Creation] ${details.messageCreation.messageId}")
                 val message = assistantsApi.messages.getMessage(threadId, details.messageCreation.messageId)
-                onMessageCreation(message)
+                if(!messagesSeen.contains(message.id)) {
+                    onMessageCreation(message)
+                    messagesSeen.add(message.id)
+                }
             }
 
         steps.data.map { it.stepDetails }.filterIsInstance<AssistantRunStepDetails.ToolCalls>().first() { details ->

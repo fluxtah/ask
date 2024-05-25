@@ -216,7 +216,8 @@ class ConsoleApplication(
                                     }
                                 },
                                 onMessageCreation = { message ->
-                                    responsePrinter.println("QUX:" + message.content.joinToString(" ") { it.text.value })
+                                   // responsePrinter.println("QUX:" + message.content.joinToString(" ") { it.text.value })
+                                    responsePrinter.println(message.content.joinToString(" ") { it.text.value })
                                     responsePrinter.println()
                                     responsePrinter.println()
                                 }
