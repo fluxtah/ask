@@ -33,14 +33,16 @@ class FunctionInvoker {
             val args = prepareArguments(function, argsMap)
             val result = function.call(targetInstance, *args)
 
-            // Check if the result is @Serializable
-            if (result != null && function.returnType.jvmErasure.findAnnotation<Serializable>() != null) {
-                // If the result type is serializable, encode it to JSON string
-                return Json.encodeToString(result)
-            } else {
-                // Otherwise, return the result as a string
-                return result.toString()
-            }
+            return result.toString()
+//            // Check if the result is @Serializable
+//            if (result != null && function.returnType.jvmErasure.findAnnotation<Serializable>() != null) {
+//                // If the result type is serializable, encode it to JSON string
+//                val serializer = Json.serializersModule.serializer(result::class.java)
+//                return Json.encodeToString(serializer, result)
+//            } else {
+//                // Otherwise, return the result as a string
+//                return result.toString()
+//            }
         } catch (e: Exception) {
             println("Error decoding arguments: ${callDetails.function.arguments}")
             throw e
