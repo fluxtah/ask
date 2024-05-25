@@ -57,10 +57,10 @@ class AssistantRunner(
         onMessageCreation: (Message) -> Unit,
     ): RunResult {
         val assistantDef = assistantRegistry.getAssistantById(details.assistantId)
-            ?: return RunResult.Error("Assistant definition not found: $details.assistantId")
+            ?: return RunResult.Error("Assistant definition not found: ${details.assistantId}")
 
         val assistantInstallRecord = assistantInstallRepository.getAssistantInstallRecord(assistantDef.id)
-            ?: return RunResult.Error("Assistant not installed: $details.assistantId, to install use /assistant-install ${details.assistantId}")
+            ?: return RunResult.Error("Assistant not installed: ${details.assistantId}, to install use /assistant-install ${details.assistantId}")
 
         val userMessage = assistantsApi.messages.createUserMessage(details.threadId, details.prompt)
         val createRun = assistantsApi.runs.createRun(
@@ -113,7 +113,8 @@ class AssistantRunner(
 
             when (currentRun.status) {
                 RunStatus.REQUIRES_ACTION -> {
-                    currentRun = executeRunSteps(assistantDef, currentThreadId, currentRun, onMessageCreation, messagesSeen)
+                    currentRun =
+                        executeRunSteps(assistantDef, currentThreadId, currentRun, onMessageCreation, messagesSeen)
                     onRunStatusChanged(currentRun.status)
                 }
 
@@ -151,11 +152,11 @@ class AssistantRunner(
         logger.log(LogLevel.DEBUG, "[Run Steps] ${steps.data.size} steps")
         steps.data.map { it.stepDetails }.filterIsInstance<AssistantRunStepDetails.MessageCreation>()
             .forEach { details ->
-                logger.log(LogLevel.DEBUG, "[Message Creation] ${details.messageCreation.messageId}")
-                val message = assistantsApi.messages.getMessage(threadId, details.messageCreation.messageId)
-                if(!messagesSeen.contains(message.id)) {
+                if (!messagesSeen.contains(details.messageCreation.messageId)) {
+                    logger.log(LogLevel.DEBUG, "[Message Creation] ${details.messageCreation.messageId}")
+                    val message = assistantsApi.messages.getMessage(threadId, details.messageCreation.messageId)
                     onMessageCreation(message)
-                    messagesSeen.add(message.id)
+                    messagesSeen.add(details.messageCreation.messageId)
                 }
             }
 

@@ -6,6 +6,7 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
+import com.fluxtah.ask.api.ansi.cyan
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 
@@ -17,13 +18,13 @@ class ListAssistants(
     override suspend fun execute() {
         val installedAssistants = assistantInstallRepository.getAssistantInstallRecords()
         println()
-        println(String.format("%-10s %-10s %-16s %-12s %-8s", "ID", "Version", "Name", "Installed", "Upgrade"))
+        println(String.format("%-10s %-10s %-16s %-12s %-8s", "ID", "Version", "Name", "Installed", "Update"))
         println("-----------------------------------------------------------------")
         assistantRegistry.getAssistants().forEach {
             val installedAssistant = installedAssistants.find { record -> record.id == it.id }
             val currentVersion = installedAssistant?.version ?: it.version
             val upgradeAvailable =
-                if (installedAssistant != null && installedAssistant.version != it.version) "✔ (v${it.version})" else "x"
+                if (installedAssistant != null && installedAssistant.version != it.version) cyan(it.version) else "x"
             println(
                 String.format(
                     "%-10s %-10s %-16s %-12s %-8s",
@@ -34,7 +35,6 @@ class ListAssistants(
                     upgradeAvailable
                 )
             )
-           // println("@${it.id} - ${it.name} $currentVersion, ${it.model}, installed: ${installedAssistant != null}$upgradeAvailable")
         }
     }
 }

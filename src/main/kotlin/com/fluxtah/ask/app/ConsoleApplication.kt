@@ -196,27 +196,20 @@ class ConsoleApplication(
                                 onRunStatusChanged = { status ->
                                     loadingCharIndex = (loadingCharIndex + 1) % loadingChars.size
 
-                                    when (status) {
+                                    responsePrinter.print("\u001b[1A\u001b[2K")
+                                    val indicator = when (status) {
                                         RunStatus.FAILED,
                                         RunStatus.CANCELLED,
-                                        RunStatus.EXPIRED -> {
-                                            responsePrinter.print("\u001b[1A\u001b[2K")
-                                            responsePrinter.println(" x $status")
-                                        }
+                                        RunStatus.EXPIRED -> "x"
 
-                                        RunStatus.COMPLETED -> {
-                                            responsePrinter.print("\u001b[1A\u001b[2K")
-                                            responsePrinter.println(" ✔ $status")
-                                        }
-
-                                        else -> {
-                                            responsePrinter.print("\u001b[1A\u001b[2K")
-                                            responsePrinter.println(" ${loadingChars[loadingCharIndex]} $status")
-                                        }
+                                        RunStatus.COMPLETED -> "✔"
+                                        else -> loadingChars[loadingCharIndex]
                                     }
+
+                                    responsePrinter.println(" $indicator $status")
                                 },
                                 onMessageCreation = { message ->
-                                   // responsePrinter.println("QUX:" + message.content.joinToString(" ") { it.text.value })
+                                    responsePrinter.print("\u001b[1A\u001b[2K")
                                     responsePrinter.println(message.content.joinToString(" ") { it.text.value })
                                     responsePrinter.println()
                                     responsePrinter.println()
