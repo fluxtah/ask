@@ -12,6 +12,7 @@ import com.fluxtah.ask.Version
 import com.fluxtah.ask.api.AssistantRunner
 import com.fluxtah.ask.api.RunDetails
 import com.fluxtah.ask.api.RunResult
+import com.fluxtah.ask.api.ansi.blue
 import com.fluxtah.ask.api.ansi.green
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
@@ -202,8 +203,8 @@ class ConsoleApplication(
                                         RunStatus.CANCELLED,
                                         RunStatus.EXPIRED -> "x"
 
-                                        RunStatus.COMPLETED -> "✔"
-                                        else -> loadingChars[loadingCharIndex]
+                                        RunStatus.COMPLETED -> green("✔")
+                                        else -> blue(loadingChars[loadingCharIndex])
                                     }
 
                                     responsePrinter.println(" $indicator $status")
@@ -211,6 +212,12 @@ class ConsoleApplication(
                                 onMessageCreation = { message ->
                                     responsePrinter.print("\u001b[1A\u001b[2K")
                                     responsePrinter.println(message.content.joinToString(" ") { it.text.value })
+                                    responsePrinter.println()
+                                    responsePrinter.println()
+                                },
+                                onExecuteTool = { toolCallDetails, message ->
+                                    responsePrinter.print("\u001b[1A\u001b[2K")
+                                    responsePrinter.println(" ${green("==>")} ${blue(toolCallDetails.function.name)}(${toolCallDetails.function.arguments}")
                                     responsePrinter.println()
                                     responsePrinter.println()
                                 }
@@ -222,6 +229,7 @@ class ConsoleApplication(
                                     userProperties.setAssistantId(assistantId)
                                     userProperties.save()
 
+                                    responsePrinter.println()
                                     responsePrinter.println(result.responseText)
                                 }
 

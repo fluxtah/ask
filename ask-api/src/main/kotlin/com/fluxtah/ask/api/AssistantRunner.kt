@@ -55,6 +55,7 @@ class AssistantRunner(
         details: RunDetails,
         onRunStatusChanged: (RunStatus) -> Unit,
         onMessageCreation: (Message) -> Unit,
+        onExecuteTool: (FunctionToolCallDetails, String) -> Unit
     ): RunResult {
         val assistantDef = assistantRegistry.getAssistantById(details.assistantId)
             ?: return RunResult.Error("Assistant definition not found: ${details.assistantId}")
@@ -75,7 +76,7 @@ class AssistantRunner(
             )
         )
 
-        processRun(assistantDef, createRun, details.threadId, onRunStatusChanged, onMessageCreation)
+        processRun(assistantDef, createRun, details.threadId, onRunStatusChanged, onMessageCreation, onExecuteTool)
 
         val responseBuilder = StringBuilder()
 
@@ -102,7 +103,8 @@ class AssistantRunner(
         startRun: AssistantRun,
         currentThreadId: String,
         onRunStatusChanged: (RunStatus) -> Unit,
-        onMessageCreation: (Message) -> Unit
+        onMessageCreation: (Message) -> Unit,
+        onExecuteTool: (FunctionToolCallDetails, String) -> Unit
     ) {
         var currentRun = startRun
         val messagesSeen = mutableSetOf<String>()
@@ -114,7 +116,7 @@ class AssistantRunner(
             when (currentRun.status) {
                 RunStatus.REQUIRES_ACTION -> {
                     currentRun =
-                        executeRunSteps(assistantDef, currentThreadId, currentRun, onMessageCreation, messagesSeen)
+                        executeRunSteps(assistantDef, currentThreadId, currentRun, onMessageCreation, onExecuteTool, messagesSeen)
                     onRunStatusChanged(currentRun.status)
                 }
 
@@ -143,6 +145,7 @@ class AssistantRunner(
         threadId: String,
         run: AssistantRun,
         onMessageCreation: (Message) -> Unit,
+        onExecuteTool: (FunctionToolCallDetails, String) -> Unit,
         messagesSeen: MutableSet<String>
     ): AssistantRun {
         val steps = assistantsApi.runs.listRunSteps(threadId, run.id)
@@ -160,9 +163,9 @@ class AssistantRunner(
                 }
             }
 
-        steps.data.map { it.stepDetails }.filterIsInstance<AssistantRunStepDetails.ToolCalls>().first() { details ->
+        steps.data.map { it.stepDetails }.filterIsInstance<AssistantRunStepDetails.ToolCalls>().first { details ->
             logger.log(LogLevel.DEBUG, "[Tool Calls] ${details.toolCalls.size} calls")
-            toolOutputs.addAll(executeTools(assistantDef, details))
+            toolOutputs.addAll(executeTools(assistantDef, details, onExecuteTool))
             return submitToolOutputs(toolOutputs, threadId, run)
         }
 
@@ -172,7 +175,8 @@ class AssistantRunner(
 
     private fun executeTools(
         assistant: AssistantDefinition,
-        details: AssistantRunStepDetails.ToolCalls
+        details: AssistantRunStepDetails.ToolCalls,
+        onExecuteTool: (FunctionToolCallDetails, String) -> Unit
     ): List<ToolOutput> {
         val toolOutputs = mutableListOf<ToolOutput>()
 
@@ -184,6 +188,7 @@ class AssistantRunner(
                         "[Exec Fun] ${toolCall.function.name}: ${toolCall.function.arguments.take(200)}..."
                     )
                     val result = functionInvoker.invokeFunction(assistant.functions, toolCall)
+                    onExecuteTool(toolCall, result)
                     toolOutputs.add(
                         ToolOutput(
                             toolCall.id,
