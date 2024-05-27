@@ -79,9 +79,6 @@ class ConsoleApplication(
 
         userProperties.load()
 
-        // assistantRegistry.register(FoodOrderingAssistant(logger))
-
-        // Load plugin assistants
         AskPluginLoader(logger).loadPlugins().forEach {
             assistantRegistry.register(it)
         }
@@ -145,108 +142,120 @@ class ConsoleApplication(
                 }
 
                 else -> {
-                    runBlocking {
-                        val currentThreadId = userProperties.getThreadId()
-
-                        if (currentThreadId.isEmpty()) {
-                            responsePrinter.println("You need to create a thread first. Use /thread-new")
-                        }
-
-                        if (!input.startsWith("@") && userProperties.getAssistantId().isEmpty()) {
-                            responsePrinter.println("You need to address an assistant with @assistant-id <prompt>, to see available assistants use /assistant-list")
-                        } else {
-
-                            val assistantId = if (input.startsWith("@")) {
-                                val parts = input.split(" ")
-                                val assistantId = parts[0].substring(1)
-                                parts.drop(1).joinToString(" ")
-                                assistantId
-                            } else {
-                                userProperties.getAssistantId()
-                            }
-
-                            responsePrinter.println()
-                            val loadingChars = listOf("|", "/", "-", "\\")
-                            var loadingCharIndex = 0
-
-                            val truncationStrategy = if (userProperties.getTruncateLastMessages() > 0) {
-                                TruncationStrategy.LastMessages(userProperties.getTruncateLastMessages())
-                            } else {
-                                null
-                            }
-                            val maxPromptTokens = if (userProperties.getMaxPromptTokens() > 0) {
-                                userProperties.getMaxPromptTokens()
-                            } else {
-                                null
-                            }
-                            val maxCompletionTokens = if (userProperties.getMaxCompletionTokens() > 0) {
-                                userProperties.getMaxCompletionTokens()
-                            } else {
-                                null
-                            }
-                            val result = assistantRunner.run(
-                                details = RunDetails(
-                                    assistantId = assistantId,
-                                    threadId = currentThreadId,
-                                    model = userProperties.getModel(),
-                                    prompt = input,
-                                    maxPromptTokens = maxPromptTokens,
-                                    maxCompletionTokens = maxCompletionTokens,
-                                    truncationStrategy = truncationStrategy
-                                ),
-                                onRunStatusChanged = { status ->
-                                    loadingCharIndex = (loadingCharIndex + 1) % loadingChars.size
-
-                                    responsePrinter.print("\u001b[1A\u001b[2K")
-                                    val indicator = when (status) {
-                                        RunStatus.FAILED,
-                                        RunStatus.CANCELLED,
-                                        RunStatus.EXPIRED -> "x"
-
-                                        RunStatus.COMPLETED -> green("✔")
-                                        else -> blue(loadingChars[loadingCharIndex])
-                                    }
-
-                                    responsePrinter.println(" $indicator $status")
-                                },
-                                onMessageCreation = { message ->
-                                    responsePrinter.print("\u001b[1A\u001b[2K")
-                                    responsePrinter.println(message.content.joinToString(" ") { it.text.value })
-                                    responsePrinter.println()
-                                    responsePrinter.println()
-                                },
-                                onExecuteTool = { toolCallDetails, message ->
-                                    responsePrinter.print("\u001b[1A\u001b[2K")
-                                    responsePrinter.println(" ${green("==>")} ${blue(toolCallDetails.function.name)}(${toolCallDetails.function.arguments}")
-                                    responsePrinter.println()
-                                    responsePrinter.println()
-                                }
-                            )
-
-                            when (result) {
-                                is RunResult.Complete -> {
-                                    userProperties.setRunId(result.runId)
-                                    userProperties.setAssistantId(assistantId)
-                                    userProperties.save()
-
-                                    responsePrinter.println()
-                                    responsePrinter.println(result.responseText)
-                                }
-
-                                is RunResult.Error -> {
-                                    responsePrinter.println(result.message)
-                                }
-                            }
-
-
-                        }
-                    }
+                    runAssistantOnThread(input)
                 }
             }
         } catch (e: Exception) {
             responsePrinter.println("Error: ${e.message}, run with /log-level ERROR for more info")
             logger.log(LogLevel.ERROR, "Error: ${e.stackTraceToString()}")
         }
+    }
+
+    private fun runAssistantOnThread(input: String) {
+        val currentThreadId = userProperties.getThreadId()
+
+        if (currentThreadId.isEmpty()) {
+            responsePrinter.println("You need to create a thread first. Use /thread-new")
+            return
+        }
+
+        if (!input.startsWith("@") && userProperties.getAssistantId().isEmpty()) {
+            responsePrinter.println("You need to address an assistant with @assistant-id <prompt>, to see available assistants use /assistant-list")
+            return
+        }
+
+        val assistantId = getNamedAssistantIdOrLast(input)
+        responsePrinter.println()
+
+        val loadingChars = listOf("|", "/", "-", "\\")
+        var loadingCharIndex = 0
+
+        val truncationStrategy = getTruncationStrategyOrNull()
+        val maxPromptTokens = getMaxPromptTokensOrNull()
+        val maxCompletionTokens = getMaxCompletionTokensOrNull()
+
+        runBlocking {
+            val result = assistantRunner.run(
+                details = RunDetails(
+                    assistantId = assistantId,
+                    threadId = currentThreadId,
+                    model = userProperties.getModel(),
+                    prompt = input,
+                    maxPromptTokens = maxPromptTokens,
+                    maxCompletionTokens = maxCompletionTokens,
+                    truncationStrategy = truncationStrategy
+                ),
+                onRunStatusChanged = { status ->
+                    loadingCharIndex = (loadingCharIndex + 1) % loadingChars.size
+
+                    responsePrinter.print("\u001b[1A\u001b[2K")
+                    val indicator = when (status) {
+                        RunStatus.FAILED,
+                        RunStatus.CANCELLED,
+                        RunStatus.EXPIRED -> "x"
+
+                        RunStatus.COMPLETED -> green("✔")
+                        else -> blue(loadingChars[loadingCharIndex])
+                    }
+
+                    responsePrinter.println(" $indicator $status")
+                },
+                onMessageCreation = { message ->
+                    responsePrinter.print("\u001b[1A\u001b[2K")
+                    responsePrinter.println(message.content.joinToString(" ") { it.text.value })
+                    responsePrinter.println()
+                    responsePrinter.println()
+                },
+                onExecuteTool = { toolCallDetails, message ->
+                    responsePrinter.print("\u001b[1A\u001b[2K")
+                    responsePrinter.println(" ${green("==>")} ${blue(toolCallDetails.function.name)}(${toolCallDetails.function.arguments}")
+                    responsePrinter.println()
+                    responsePrinter.println()
+                }
+            )
+
+            when (result) {
+                is RunResult.Complete -> {
+                    userProperties.setRunId(result.runId)
+                    userProperties.setAssistantId(assistantId)
+                    userProperties.save()
+
+                    responsePrinter.println()
+                    responsePrinter.println(result.responseText)
+                }
+
+                is RunResult.Error -> {
+                    responsePrinter.println(result.message)
+                }
+            }
+        }
+    }
+
+    private fun getMaxCompletionTokensOrNull() = if (userProperties.getMaxCompletionTokens() > 0) {
+        userProperties.getMaxCompletionTokens()
+    } else {
+        null
+    }
+
+    private fun getMaxPromptTokensOrNull() = if (userProperties.getMaxPromptTokens() > 0) {
+        userProperties.getMaxPromptTokens()
+    } else {
+        null
+    }
+
+    private fun getTruncationStrategyOrNull() = if (userProperties.getTruncateLastMessages() > 0) {
+        TruncationStrategy.LastMessages(userProperties.getTruncateLastMessages())
+    } else {
+        null
+    }
+
+    private fun getNamedAssistantIdOrLast(input: String) = if (input.startsWith("@")) {
+        val parts = input.split(" ")
+        val assistantId = parts[0].substring(1)
+        parts.drop(1).joinToString(" ")
+        assistantId
+    } else {
+        userProperties.getAssistantId()
     }
 
     private fun runCommand(command: Command): Boolean {

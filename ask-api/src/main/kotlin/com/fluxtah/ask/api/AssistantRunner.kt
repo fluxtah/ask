@@ -6,6 +6,7 @@
 
 package com.fluxtah.ask.api
 
+import com.fluxtah.ask.api.assistants.AssistantInstallRecord
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
@@ -64,20 +65,20 @@ class AssistantRunner(
             ?: return RunResult.Error("Assistant not installed: ${details.assistantId}, to install use /assistant-install ${details.assistantId}")
 
         val userMessage = assistantsApi.messages.createUserMessage(details.threadId, details.prompt)
-        val createRun = assistantsApi.runs.createRun(
-            details.threadId, RunRequest(
-                assistantId = assistantInstallRecord.installId,
-                model = details.model?.ifEmpty {
-                    null
-                },
-                truncationStrategy = details.truncationStrategy,
-                maxCompletionTokens = details.maxCompletionTokens,
-                maxPromptTokens = details.maxPromptTokens
-            )
-        )
 
-        processRun(assistantDef, createRun, details.threadId, onRunStatusChanged, onMessageCreation, onExecuteTool)
+        val run = createRun(details, assistantInstallRecord)
 
+        processRun(assistantDef, run, details.threadId, onRunStatusChanged, onMessageCreation, onExecuteTool)
+
+        val responseBuilder = buildResponseText(details, userMessage)
+
+        return RunResult.Complete(run.id, responseBuilder.toString())
+    }
+
+    private suspend fun buildResponseText(
+        details: RunDetails,
+        userMessage: Message
+    ): StringBuilder {
         val responseBuilder = StringBuilder()
 
         val lastMessage =
@@ -89,14 +90,28 @@ class AssistantRunner(
         if (lastMessage != null) {
             if (userMessage.id != lastMessage.id) {
                 val markdownParser = MarkdownParser(lastMessage.content.first().text.value)
-                val ansiMarkdown = AnsiMarkdownRenderer().render(markdownParser.parse())
+                val renderedMarkdown = AnsiMarkdownRenderer().render(markdownParser.parse())
                 responseBuilder.append("\u001B[0m")
-                responseBuilder.append(ansiMarkdown)
+                responseBuilder.append(renderedMarkdown)
             }
         }
-
-        return RunResult.Complete(createRun.id, responseBuilder.toString())
+        return responseBuilder
     }
+
+    private suspend fun createRun(
+        details: RunDetails,
+        assistantInstallRecord: AssistantInstallRecord
+    ) = assistantsApi.runs.createRun(
+        details.threadId, RunRequest(
+            assistantId = assistantInstallRecord.installId,
+            model = details.model?.ifEmpty {
+                null
+            },
+            truncationStrategy = details.truncationStrategy,
+            maxCompletionTokens = details.maxCompletionTokens,
+            maxPromptTokens = details.maxPromptTokens
+        )
+    )
 
     private suspend fun processRun(
         assistantDef: AssistantDefinition,
@@ -116,7 +131,14 @@ class AssistantRunner(
             when (currentRun.status) {
                 RunStatus.REQUIRES_ACTION -> {
                     currentRun =
-                        executeRunSteps(assistantDef, currentThreadId, currentRun, onMessageCreation, onExecuteTool, messagesSeen)
+                        executeRunSteps(
+                            assistantDef,
+                            currentThreadId,
+                            currentRun,
+                            onMessageCreation,
+                            onExecuteTool,
+                            messagesSeen
+                        )
                     onRunStatusChanged(currentRun.status)
                 }
 
