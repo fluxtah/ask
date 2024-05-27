@@ -3,10 +3,13 @@ package com.fluxtah.ask.app
 import com.fluxtah.ask.api.AssistantRunner
 import com.fluxtah.ask.api.RunDetails
 import com.fluxtah.ask.api.RunResult
+import com.fluxtah.ask.api.RunRetryDetails
 import com.fluxtah.ask.api.ansi.blue
 import com.fluxtah.ask.api.ansi.green
+import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
+import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRunStepDetails
+import com.fluxtah.ask.api.clients.openai.assistants.model.Message
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
-import com.fluxtah.ask.api.clients.openai.assistants.model.TruncationStrategy
 import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.ask.app.commanding.commands.Command
@@ -19,7 +22,8 @@ class InputHandler(
     private val responsePrinter: AskResponsePrinter,
     private val logger: AskLogger,
     private val userProperties: UserProperties,
-    private val assistantRunner: AssistantRunner
+    private val assistantRunner: AssistantRunner,
+    private val assistantsApi: AssistantsApi
 ) {
     fun handleInput(input: String) {
         if (input.isEmpty()) {
@@ -48,6 +52,43 @@ class InputHandler(
         }
     }
 
+//    fun retry() {
+//        val runId = userProperties.getRunId()
+//        if (runId.isEmpty()) {
+//            responsePrinter.println("Nothing to retry")
+//            return
+//        }
+//
+//        val threadId: String = userProperties.getThreadId()
+//        if (threadId.isEmpty()) {
+//            responsePrinter.println("No thread to retry in")
+//            return
+//        }
+//
+//        runBlocking {
+//            val run = assistantsApi.runs.getRun(threadId, runId)
+//
+//            if (run.status == RunStatus.REQUIRES_ACTION) {
+//                assistantRunner.retryRun(
+//                    details = RunRetryDetails(
+//                        assistantId = run.assistantId,
+//                        threadId = threadId,
+//                        runId = runId,
+//                    ),
+//                    onRunStatusChanged = { status ->
+//                        onRunStatusChanged(" ", status)
+//                    },
+//                    onMessageCreation = { message ->
+//                        onMessageCreation(message)
+//                    },
+//                    onExecuteTool = { toolCallDetails, message ->
+//                        onExecuteTool(toolCallDetails)
+//                    }
+//                )
+//            }
+//        }
+//    }
+
     private fun runAssistantOnMessageThread(input: String) {
         val currentThreadId = userProperties.getThreadId()
 
@@ -67,10 +108,6 @@ class InputHandler(
         val loadingChars = listOf("|", "/", "-", "\\")
         var loadingCharIndex = 0
 
-        val truncationStrategy = getTruncationStrategyOrNull()
-        val maxPromptTokens = getMaxPromptTokensOrNull()
-        val maxCompletionTokens = getMaxCompletionTokensOrNull()
-
         runBlocking {
             val result = assistantRunner.run(
                 details = RunDetails(
@@ -78,36 +115,19 @@ class InputHandler(
                     threadId = currentThreadId,
                     model = userProperties.getModel(),
                     prompt = input,
-                    maxPromptTokens = maxPromptTokens,
-                    maxCompletionTokens = maxCompletionTokens,
-                    truncationStrategy = truncationStrategy
+                    maxPromptTokens = userProperties.getMaxPromptTokensOrNull(),
+                    maxCompletionTokens = userProperties.getMaxCompletionTokensOrNull(),
+                    truncationStrategy = userProperties.getTruncationStrategyOrNull()
                 ),
                 onRunStatusChanged = { status ->
                     loadingCharIndex = (loadingCharIndex + 1) % loadingChars.size
-
-                    responsePrinter.print("\u001b[1A\u001b[2K")
-                    val indicator = when (status) {
-                        RunStatus.FAILED,
-                        RunStatus.CANCELLED,
-                        RunStatus.EXPIRED -> "x"
-
-                        RunStatus.COMPLETED -> green("✔")
-                        else -> blue(loadingChars[loadingCharIndex])
-                    }
-
-                    responsePrinter.println(" $indicator $status")
+                    onRunStatusChanged(loadingChars[loadingCharIndex], status)
                 },
                 onMessageCreation = { message ->
-                    responsePrinter.print("\u001b[1A\u001b[2K")
-                    responsePrinter.println(message.content.joinToString(" ") { it.text.value })
-                    responsePrinter.println()
-                    responsePrinter.println()
+                    onMessageCreation(message)
                 },
                 onExecuteTool = { toolCallDetails, message ->
-                    responsePrinter.print("\u001b[1A\u001b[2K")
-                    responsePrinter.println(" ${green("==>")} ${blue(toolCallDetails.function.name)}(${toolCallDetails.function.arguments}")
-                    responsePrinter.println()
-                    responsePrinter.println()
+                    onExecuteTool(toolCallDetails)
                 }
             )
 
@@ -128,22 +148,35 @@ class InputHandler(
         }
     }
 
-    private fun getMaxCompletionTokensOrNull() = if (userProperties.getMaxCompletionTokens() > 0) {
-        userProperties.getMaxCompletionTokens()
-    } else {
-        null
+    private fun onExecuteTool(toolCallDetails: AssistantRunStepDetails.ToolCalls.ToolCallDetails.FunctionToolCallDetails) {
+        responsePrinter.print("\u001b[1A\u001b[2K")
+        responsePrinter.println(" ${green("==>")} ${blue(toolCallDetails.function.name)}(${toolCallDetails.function.arguments}")
+        responsePrinter.println()
+        responsePrinter.println()
     }
 
-    private fun getMaxPromptTokensOrNull() = if (userProperties.getMaxPromptTokens() > 0) {
-        userProperties.getMaxPromptTokens()
-    } else {
-        null
+    private fun onMessageCreation(message: Message) {
+        responsePrinter.print("\u001b[1A\u001b[2K")
+        responsePrinter.println(message.content.joinToString(" ") { it.text.value })
+        responsePrinter.println()
+        responsePrinter.println()
     }
 
-    private fun getTruncationStrategyOrNull() = if (userProperties.getTruncateLastMessages() > 0) {
-        TruncationStrategy.LastMessages(userProperties.getTruncateLastMessages())
-    } else {
-        null
+    private fun onRunStatusChanged(
+        loadingIndicator: String,
+        status: RunStatus
+    ) {
+        responsePrinter.print("\u001b[1A\u001b[2K")
+        val indicator = when (status) {
+            RunStatus.FAILED,
+            RunStatus.CANCELLED,
+            RunStatus.EXPIRED -> "x"
+
+            RunStatus.COMPLETED -> green("✔")
+            else -> blue(loadingIndicator)
+        }
+
+        responsePrinter.println(" $indicator $status")
     }
 
     private fun getNamedAssistantIdOrLast(input: String) = if (input.startsWith("@")) {

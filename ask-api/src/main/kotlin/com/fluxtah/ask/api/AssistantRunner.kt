@@ -36,6 +36,16 @@ data class RunDetails(
     val truncationStrategy: TruncationStrategy? = null
 )
 
+data class RunRetryDetails(
+    val assistantId: String,
+    val model: String? = null,
+    val threadId: String,
+    val runId: String,
+    val maxPromptTokens: Int? = null,
+    val maxCompletionTokens: Int? = null,
+    val truncationStrategy: TruncationStrategy? = null
+)
+
 sealed class RunResult {
     data class Complete(
         val runId: String,
@@ -74,6 +84,23 @@ class AssistantRunner(
 
         return RunResult.Complete(run.id, responseBuilder.toString())
     }
+
+//    suspend fun retryRun(
+//        details: RunRetryDetails,
+//        onRunStatusChanged: (RunStatus) -> Unit,
+//        onMessageCreation: (Message) -> Unit,
+//        onExecuteTool: (FunctionToolCallDetails, String) -> Unit
+//    ): RunResult {
+//        val assistantDef = assistantRegistry.getAssistantById(details.assistantId)
+//            ?: return RunResult.Error("Assistant definition not found: ${details.assistantId}")
+//
+//        val assistantInstallRecord = assistantInstallRepository.getAssistantInstallRecord(assistantDef.id)
+//            ?: return RunResult.Error("Assistant not installed: ${details.assistantId}, to install use /assistant-install ${details.assistantId}")
+//
+//        processRun(assistantDef, AssistantRun(details.runId, RunStatus.REQUIRES_ACTION), details.threadId, onRunStatusChanged, onMessageCreation, onExecuteTool)
+//
+//        return RunResult.Complete(details.runId, "")
+//    }
 
     private suspend fun buildResponseText(
         details: RunDetails,

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2024 Ian Warwick
  * Released under the MIT license
@@ -7,6 +6,7 @@
 
 package com.fluxtah.ask.app
 
+import com.fluxtah.ask.api.clients.openai.assistants.model.TruncationStrategy
 import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.askpluginsdk.logging.LogLevel
 
@@ -93,6 +93,24 @@ class UserProperties(private val store: PropertyStore) {
 
     fun setTruncateLastMessages(value: Int) {
         store.setProperty(TRUNCATE_LAST_MESSAGES, value.toString())
+    }
+
+    fun getMaxCompletionTokensOrNull() = if (getMaxCompletionTokens() > 0) {
+        getMaxCompletionTokens()
+    } else {
+        null
+    }
+
+    fun getMaxPromptTokensOrNull() = if (getMaxPromptTokens() > 0) {
+        getMaxPromptTokens()
+    } else {
+        null
+    }
+
+    fun getTruncationStrategyOrNull() = if (getTruncateLastMessages() > 0) {
+        TruncationStrategy.LastMessages(getTruncateLastMessages())
+    } else {
+        null
     }
 
     fun load() {

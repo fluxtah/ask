@@ -60,7 +60,8 @@ class ConsoleApplication(
         responsePrinter,
         logger,
         userProperties,
-        assistantRunner
+        assistantRunner,
+        assistantsApi
     ),
 ) {
     private val completer = AskCommandCompleter(assistantRegistry, commandFactory, threadRepository)
