@@ -23,7 +23,8 @@ class InputHandler(
     private val logger: AskLogger,
     private val userProperties: UserProperties,
     private val assistantRunner: AssistantRunner,
-    private val assistantsApi: AssistantsApi
+    private val assistantsApi: AssistantsApi,
+    private val workingSpinner: WorkingSpinner = WorkingSpinner()
 ) {
     fun handleInput(input: String) {
         if (input.isEmpty()) {
@@ -52,42 +53,33 @@ class InputHandler(
         }
     }
 
-//    fun retry() {
-//        val runId = userProperties.getRunId()
-//        if (runId.isEmpty()) {
-//            responsePrinter.println("Nothing to retry")
-//            return
-//        }
-//
-//        val threadId: String = userProperties.getThreadId()
-//        if (threadId.isEmpty()) {
-//            responsePrinter.println("No thread to retry in")
-//            return
-//        }
-//
-//        runBlocking {
-//            val run = assistantsApi.runs.getRun(threadId, runId)
-//
-//            if (run.status == RunStatus.REQUIRES_ACTION) {
-//                assistantRunner.retryRun(
-//                    details = RunRetryDetails(
-//                        assistantId = run.assistantId,
-//                        threadId = threadId,
-//                        runId = runId,
-//                    ),
-//                    onRunStatusChanged = { status ->
-//                        onRunStatusChanged(" ", status)
-//                    },
-//                    onMessageCreation = { message ->
-//                        onMessageCreation(message)
-//                    },
-//                    onExecuteTool = { toolCallDetails, message ->
-//                        onExecuteTool(toolCallDetails)
-//                    }
-//                )
-//            }
-//        }
-//    }
+    fun recoverRun() {
+        val runId = userProperties.getRunId()
+        if (runId.isEmpty()) {
+            responsePrinter.println("Nothing to retry")
+            return
+        }
+
+        val threadId: String = userProperties.getThreadId()
+        if (threadId.isEmpty()) {
+            responsePrinter.println("No thread to retry in")
+            return
+        }
+
+        runBlocking {
+            assistantRunner.retryRun(
+                details = RunRetryDetails(
+                    threadId = threadId,
+                    runId = runId,
+                ),
+                onRunStatusChanged = ::onRunStatusChanged,
+                onMessageCreation = ::onMessageCreation,
+                onExecuteTool = { toolCallDetails, message ->
+                    onExecuteTool(toolCallDetails)
+                }
+            )
+        }
+    }
 
     private fun runAssistantOnMessageThread(input: String) {
         val currentThreadId = userProperties.getThreadId()
@@ -105,9 +97,6 @@ class InputHandler(
         val assistantId = getNamedAssistantIdOrLast(input)
         responsePrinter.println()
 
-        val loadingChars = listOf("|", "/", "-", "\\")
-        var loadingCharIndex = 0
-
         runBlocking {
             val result = assistantRunner.run(
                 details = RunDetails(
@@ -119,13 +108,8 @@ class InputHandler(
                     maxCompletionTokens = userProperties.getMaxCompletionTokensOrNull(),
                     truncationStrategy = userProperties.getTruncationStrategyOrNull()
                 ),
-                onRunStatusChanged = { status ->
-                    loadingCharIndex = (loadingCharIndex + 1) % loadingChars.size
-                    onRunStatusChanged(loadingChars[loadingCharIndex], status)
-                },
-                onMessageCreation = { message ->
-                    onMessageCreation(message)
-                },
+                onRunStatusChanged = ::onRunStatusChanged,
+                onMessageCreation = ::onMessageCreation,
                 onExecuteTool = { toolCallDetails, message ->
                     onExecuteTool(toolCallDetails)
                 }
@@ -162,10 +146,7 @@ class InputHandler(
         responsePrinter.println()
     }
 
-    private fun onRunStatusChanged(
-        loadingIndicator: String,
-        status: RunStatus
-    ) {
+    private fun onRunStatusChanged(status: RunStatus) {
         responsePrinter.print("\u001b[1A\u001b[2K")
         val indicator = when (status) {
             RunStatus.FAILED,
@@ -173,7 +154,7 @@ class InputHandler(
             RunStatus.EXPIRED -> "x"
 
             RunStatus.COMPLETED -> green("✔")
-            else -> blue(loadingIndicator)
+            else -> blue(workingSpinner.next())
         }
 
         responsePrinter.println(" $indicator $status")
@@ -199,5 +180,15 @@ class InputHandler(
             command.execute()
         }
         return false
+    }
+}
+
+class WorkingSpinner {
+    private val loadingChars = listOf("|", "/", "-", "\\")
+    private var loadingCharIndex = 0
+
+    fun next(): String {
+        loadingCharIndex = (loadingCharIndex + 1) % loadingChars.size
+        return loadingChars[loadingCharIndex]
     }
 }

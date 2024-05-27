@@ -18,42 +18,12 @@ import com.fluxtah.ask.api.clients.openai.assistants.model.RunRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
 import com.fluxtah.ask.api.clients.openai.assistants.model.SubmitToolOutputsRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.ToolOutput
-import com.fluxtah.ask.api.clients.openai.assistants.model.TruncationStrategy
 import com.fluxtah.ask.api.markdown.AnsiMarkdownRenderer
 import com.fluxtah.ask.api.markdown.MarkdownParser
 import com.fluxtah.ask.api.tools.fn.FunctionInvoker
 import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
-
-data class RunDetails(
-    val assistantId: String,
-    val model: String? = null,
-    val threadId: String,
-    val prompt: String,
-    val maxPromptTokens: Int? = null,
-    val maxCompletionTokens: Int? = null,
-    val truncationStrategy: TruncationStrategy? = null
-)
-
-data class RunRetryDetails(
-    val assistantId: String,
-    val model: String? = null,
-    val threadId: String,
-    val runId: String,
-    val maxPromptTokens: Int? = null,
-    val maxCompletionTokens: Int? = null,
-    val truncationStrategy: TruncationStrategy? = null
-)
-
-sealed class RunResult {
-    data class Complete(
-        val runId: String,
-        val responseText: String
-    ) : RunResult()
-
-    data class Error(val message: String) : RunResult()
-}
 
 class AssistantRunner(
     private val logger: AskLogger,
@@ -80,37 +50,52 @@ class AssistantRunner(
 
         processRun(assistantDef, run, details.threadId, onRunStatusChanged, onMessageCreation, onExecuteTool)
 
-        val responseBuilder = buildResponseText(details, userMessage)
+        val responseBuilder = buildResponseText(details.threadId, userMessage)
 
         return RunResult.Complete(run.id, responseBuilder.toString())
     }
 
-//    suspend fun retryRun(
-//        details: RunRetryDetails,
-//        onRunStatusChanged: (RunStatus) -> Unit,
-//        onMessageCreation: (Message) -> Unit,
-//        onExecuteTool: (FunctionToolCallDetails, String) -> Unit
-//    ): RunResult {
-//        val assistantDef = assistantRegistry.getAssistantById(details.assistantId)
-//            ?: return RunResult.Error("Assistant definition not found: ${details.assistantId}")
-//
-//        val assistantInstallRecord = assistantInstallRepository.getAssistantInstallRecord(assistantDef.id)
-//            ?: return RunResult.Error("Assistant not installed: ${details.assistantId}, to install use /assistant-install ${details.assistantId}")
-//
-//        processRun(assistantDef, AssistantRun(details.runId, RunStatus.REQUIRES_ACTION), details.threadId, onRunStatusChanged, onMessageCreation, onExecuteTool)
-//
-//        return RunResult.Complete(details.runId, "")
-//    }
+    suspend fun retryRun(
+        details: RunRetryDetails,
+        onRunStatusChanged: (RunStatus) -> Unit,
+        onMessageCreation: (Message) -> Unit,
+        onExecuteTool: (FunctionToolCallDetails, String) -> Unit
+    ): RunResult {
+        val run = assistantsApi.runs.getRun(details.threadId, details.runId)
+
+        if (run.status != RunStatus.REQUIRES_ACTION) {
+            return RunResult.Error("Retry is only supported for runs in status REQUIRES_ACTION")
+        }
+
+        val assistantDef = assistantRegistry.getAssistantById(run.assistantId)
+            ?: return RunResult.Error("Assistant definition not found: ${run.assistantId}")
+
+        processRun(assistantDef, run, details.threadId, onRunStatusChanged, onMessageCreation, onExecuteTool)
+
+        // TODO we need to get the last user message
+        val lastMessage =
+            assistantsApi.messages.listMessages(
+                threadId = details.threadId,
+            ).data.firstOrNull { it.role == "user" }
+
+        if (lastMessage == null) {
+            return RunResult.Error("No user message found in thread")
+        }
+
+        val responseBuilder = buildResponseText(details.threadId, lastMessage)
+
+        return RunResult.Complete(run.id, responseBuilder.toString())
+    }
 
     private suspend fun buildResponseText(
-        details: RunDetails,
+        threadId: String,
         userMessage: Message
     ): StringBuilder {
         val responseBuilder = StringBuilder()
 
         val lastMessage =
             assistantsApi.messages.listMessages(
-                threadId = details.threadId,
+                threadId = threadId,
                 beforeId = userMessage.id
             ).data.firstOrNull()
 
