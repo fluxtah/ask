@@ -64,7 +64,7 @@ class AssistantRunner(
         val run = assistantsApi.runs.getRun(details.threadId, details.runId)
 
         if (run.status != RunStatus.REQUIRES_ACTION) {
-            return RunResult.Error("Retry is only supported for runs in status REQUIRES_ACTION")
+            return RunResult.Error("Retry is only supported for runs in status REQUIRES_ACTION, last run was in status ${run.status}")
         }
 
         val assistantDef = assistantRegistry.getAssistantById(run.assistantId)

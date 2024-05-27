@@ -6,7 +6,6 @@ import com.fluxtah.ask.api.RunResult
 import com.fluxtah.ask.api.RunRetryDetails
 import com.fluxtah.ask.api.ansi.blue
 import com.fluxtah.ask.api.ansi.green
-import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRunStepDetails
 import com.fluxtah.ask.api.clients.openai.assistants.model.Message
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
@@ -22,9 +21,7 @@ class InputHandler(
     private val responsePrinter: AskResponsePrinter,
     private val logger: AskLogger,
     private val userProperties: UserProperties,
-    private val assistantRunner: AssistantRunner,
-    private val assistantsApi: AssistantsApi,
-    private val workingSpinner: WorkingSpinner = WorkingSpinner()
+    private val assistantRunManager: AssistantRunManager,
 ) {
     fun handleInput(input: String) {
         if (input.isEmpty()) {
@@ -44,7 +41,7 @@ class InputHandler(
                 }
 
                 else -> {
-                    runAssistantOnMessageThread(input)
+                    assistantRunManager.runAssistant(input)
                 }
             }
         } catch (e: Exception) {
@@ -53,35 +50,27 @@ class InputHandler(
         }
     }
 
-    fun recoverRun() {
-        val runId = userProperties.getRunId()
-        if (runId.isEmpty()) {
-            responsePrinter.println("Nothing to retry")
-            return
+    private fun runCommand(command: Command): Boolean {
+        if (command.requiresApiKey) {
+            if (userProperties.getOpenaiApiKey().isEmpty()) {
+                responsePrinter.println("You need to set an OpenAI API key first! with /set-key <api-key>")
+                return true
+            }
         }
-
-        val threadId: String = userProperties.getThreadId()
-        if (threadId.isEmpty()) {
-            responsePrinter.println("No thread to retry in")
-            return
-        }
-
         runBlocking {
-            assistantRunner.retryRun(
-                details = RunRetryDetails(
-                    threadId = threadId,
-                    runId = runId,
-                ),
-                onRunStatusChanged = ::onRunStatusChanged,
-                onMessageCreation = ::onMessageCreation,
-                onExecuteTool = { toolCallDetails, message ->
-                    onExecuteTool(toolCallDetails)
-                }
-            )
+            command.execute()
         }
+        return false
     }
+}
 
-    private fun runAssistantOnMessageThread(input: String) {
+class AssistantRunManager(
+    private val assistantRunner: AssistantRunner,
+    private val userProperties: UserProperties,
+    private val responsePrinter: AskResponsePrinter,
+    private val workingSpinner: WorkingSpinner = WorkingSpinner()
+) {
+    fun runAssistant(input: String) {
         val currentThreadId = userProperties.getThreadId()
 
         if (currentThreadId.isEmpty()) {
@@ -115,21 +104,54 @@ class InputHandler(
                 }
             )
 
-            when (result) {
-                is RunResult.Complete -> {
-                    userProperties.setRunId(result.runId)
-                    userProperties.setAssistantId(assistantId)
-                    userProperties.save()
+            handleRunResult(result, assistantId)
+        }
+    }
 
-                    responsePrinter.println()
-                    responsePrinter.println(result.responseText)
-                }
+    private fun handleRunResult(result: RunResult, assistantId: String) {
+        when (result) {
+            is RunResult.Complete -> {
+                userProperties.setRunId(result.runId)
+                userProperties.setAssistantId(assistantId)
+                userProperties.save()
 
-                is RunResult.Error -> {
-                    responsePrinter.println(result.message)
-                }
+                responsePrinter.println()
+                responsePrinter.println(result.responseText)
+            }
+
+            is RunResult.Error -> {
+                responsePrinter.println(result.message)
             }
         }
+    }
+
+    fun recoverRun() {
+        val runId = userProperties.getRunId()
+        if (runId.isEmpty()) {
+            responsePrinter.println("Nothing to retry")
+            return
+        }
+
+        val threadId: String = userProperties.getThreadId()
+        if (threadId.isEmpty()) {
+            responsePrinter.println("No thread to retry in")
+            return
+        }
+
+        val result = runBlocking {
+            assistantRunner.retryRun(
+                details = RunRetryDetails(
+                    threadId = threadId,
+                    runId = runId,
+                ),
+                onRunStatusChanged = ::onRunStatusChanged,
+                onMessageCreation = ::onMessageCreation,
+                onExecuteTool = { toolCallDetails, message ->
+                    onExecuteTool(toolCallDetails)
+                }
+            )
+        }
+        handleRunResult(result, userProperties.getAssistantId())
     }
 
     private fun onExecuteTool(toolCallDetails: AssistantRunStepDetails.ToolCalls.ToolCallDetails.FunctionToolCallDetails) {
@@ -168,20 +190,8 @@ class InputHandler(
     } else {
         userProperties.getAssistantId()
     }
-
-    private fun runCommand(command: Command): Boolean {
-        if (command.requiresApiKey) {
-            if (userProperties.getOpenaiApiKey().isEmpty()) {
-                responsePrinter.println("You need to set an OpenAI API key first! with /set-key <api-key>")
-                return true
-            }
-        }
-        runBlocking {
-            command.execute()
-        }
-        return false
-    }
 }
+
 
 class WorkingSpinner {
     private val loadingChars = listOf("|", "/", "-", "\\")

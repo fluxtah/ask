@@ -9,12 +9,14 @@ package com.fluxtah.ask.app.commanding
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
-import com.fluxtah.ask.app.UserProperties
 import com.fluxtah.ask.api.printers.AskResponsePrinter
+import com.fluxtah.ask.api.repository.ThreadRepository
+import com.fluxtah.ask.app.AssistantRunManager
+import com.fluxtah.ask.app.UserProperties
 import com.fluxtah.ask.app.commanding.commands.Clear
 import com.fluxtah.ask.app.commanding.commands.ClearModel
 import com.fluxtah.ask.app.commanding.commands.Command
-import com.fluxtah.ask.app.commanding.commands.ThreadNew
+import com.fluxtah.ask.app.commanding.commands.DeleteThread
 import com.fluxtah.ask.app.commanding.commands.Exit
 import com.fluxtah.ask.app.commanding.commands.GetAssistant
 import com.fluxtah.ask.app.commanding.commands.GetThread
@@ -25,24 +27,24 @@ import com.fluxtah.ask.app.commanding.commands.ListMessages
 import com.fluxtah.ask.app.commanding.commands.ListRunSteps
 import com.fluxtah.ask.app.commanding.commands.ListRuns
 import com.fluxtah.ask.app.commanding.commands.ListThreads
+import com.fluxtah.ask.app.commanding.commands.MaxCompletionTokens
+import com.fluxtah.ask.app.commanding.commands.MaxPromptTokens
+import com.fluxtah.ask.app.commanding.commands.RecoverRun
 import com.fluxtah.ask.app.commanding.commands.SetLogLevel
 import com.fluxtah.ask.app.commanding.commands.SetModel
 import com.fluxtah.ask.app.commanding.commands.SetOpenAiApiKey
 import com.fluxtah.ask.app.commanding.commands.ShellExec
 import com.fluxtah.ask.app.commanding.commands.ShowHttpLog
+import com.fluxtah.ask.app.commanding.commands.SwitchThread
+import com.fluxtah.ask.app.commanding.commands.ThreadNew
 import com.fluxtah.ask.app.commanding.commands.ThreadRecall
 import com.fluxtah.ask.app.commanding.commands.ThreadRename
+import com.fluxtah.ask.app.commanding.commands.TruncateLastMessages
 import com.fluxtah.ask.app.commanding.commands.UnInstallAssistant
 import com.fluxtah.ask.app.commanding.commands.UnknownCommand
 import com.fluxtah.ask.app.commanding.commands.WhichAssistant
 import com.fluxtah.ask.app.commanding.commands.WhichModel
 import com.fluxtah.ask.app.commanding.commands.WhichThread
-import com.fluxtah.ask.api.repository.ThreadRepository
-import com.fluxtah.ask.app.commanding.commands.DeleteThread
-import com.fluxtah.ask.app.commanding.commands.MaxCompletionTokens
-import com.fluxtah.ask.app.commanding.commands.MaxPromptTokens
-import com.fluxtah.ask.app.commanding.commands.SwitchThread
-import com.fluxtah.ask.app.commanding.commands.TruncateLastMessages
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 
@@ -56,6 +58,7 @@ class CommandFactory(
     private val assistantInstallRepository: AssistantInstallRepository,
     private val userProperties: UserProperties,
     private val threadRepository: ThreadRepository,
+    private val assistantRunManager: AssistantRunManager
 ) {
     private val commands = mutableMapOf<String, CommandEntry>()
 
@@ -257,6 +260,12 @@ class CommandFactory(
             name = "run-step-list",
             description = "Lists all run steps in the current assistant thread",
             command = { ListRunSteps(assistantsApi, userProperties) })
+
+        registerCommand(
+            name = "run-recover",
+            description = "Recovers the last run in the current assistant thread",
+            command = { RecoverRun(assistantRunManager) }
+        )
         registerCommand(
             name = "http-log",
             description = "Displays the last 10 HTTP requests",

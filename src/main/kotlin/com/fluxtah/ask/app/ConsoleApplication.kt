@@ -40,6 +40,17 @@ class ConsoleApplication(
     private val assistantInstallRepository: AssistantInstallRepository = AssistantInstallRepository(assistantsApi),
     private val responsePrinter: AskResponsePrinter = AskConsoleResponsePrinter(),
     private val threadRepository: ThreadRepository = ThreadRepository(),
+    private val assistantRunner: AssistantRunner = AssistantRunner(
+        logger = logger,
+        assistantsApi = assistantsApi,
+        assistantRegistry = assistantRegistry,
+        assistantInstallRepository = assistantInstallRepository,
+    ),
+    private val assistantRunManager: AssistantRunManager = AssistantRunManager(
+        assistantRunner,
+        userProperties,
+        responsePrinter,
+    ),
     private val commandFactory: CommandFactory = CommandFactory(
         logger,
         responsePrinter,
@@ -47,21 +58,15 @@ class ConsoleApplication(
         assistantRegistry,
         assistantInstallRepository,
         userProperties,
-        threadRepository
-    ),
-    private val assistantRunner: AssistantRunner = AssistantRunner(
-        logger = logger,
-        assistantsApi = assistantsApi,
-        assistantRegistry = assistantRegistry,
-        assistantInstallRepository = assistantInstallRepository,
+        threadRepository,
+        assistantRunManager,
     ),
     private val inputHandler: InputHandler = InputHandler(
         commandFactory,
         responsePrinter,
         logger,
         userProperties,
-        assistantRunner,
-        assistantsApi
+        assistantRunManager
     ),
 ) {
     private val completer = AskCommandCompleter(assistantRegistry, commandFactory, threadRepository)
