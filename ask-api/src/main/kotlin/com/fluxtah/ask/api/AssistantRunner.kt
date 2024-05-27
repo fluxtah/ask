@@ -50,7 +50,7 @@ class AssistantRunner(
     private val assistantsApi: AssistantsApi,
     private val assistantRegistry: AssistantRegistry,
     private val assistantInstallRepository: AssistantInstallRepository,
-    private val functionInvoker: FunctionInvoker,
+    private val functionInvoker: FunctionInvoker = FunctionInvoker(),
 ) {
     suspend fun run(
         details: RunDetails,
