@@ -134,6 +134,9 @@ run_4pcZ0l1eG4CKYJDhykFKSA89 EXPIRED      4914       545
 run_aR20yctKE2zJZ1ioK76dDckA EXPIRED      1300       15        
 ```
 
+##### Recovering from failed runs
+You can use `/run-recover` to recover a run in the `REQUIRES_ACTION` state which can happen if a function call fails.
+
 #### Switching Threads
 You can switch between threads using the `/thread-switch` command.
 
