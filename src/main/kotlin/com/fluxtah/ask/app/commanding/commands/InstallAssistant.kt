@@ -14,9 +14,6 @@ class InstallAssistant(
     private val assistantInstallRepository: AssistantInstallRepository,
     val assistantId: String
 ) : Command() {
-    companion object {
-        const val NAME = "/assistant-install"
-    }
     override val requiresApiKey: Boolean = true
     override suspend fun execute() {
         val def = assistantRegistry.getAssistantById(assistantId)

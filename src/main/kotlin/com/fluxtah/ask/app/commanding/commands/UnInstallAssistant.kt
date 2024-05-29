@@ -14,9 +14,6 @@ class UnInstallAssistant(
     private val assistantInstallRepository: AssistantInstallRepository,
     val assistantId: String
 ) : Command() {
-    companion object {
-        const val NAME = "/assistant-uninstall"
-    }
     override val requiresApiKey: Boolean = true
     override suspend fun execute() {
         val def = assistantRegistry.getAssistantById(assistantId)
@@ -34,9 +31,9 @@ class UnInstallAssistant(
         }
 
         if (assistantInstallRepository.uninstall(assistantInstallRecord)) {
-            println("Uninstalled assistant: @${def.id} ${def.version} as ${assistantInstallRecord.installId}")
+            println("Uninstalled assistant: @${def.id} ${assistantInstallRecord.version} ${assistantInstallRecord.installId}")
         } else {
-            println("Failed to uninstall assistant: @${def.id} ${def.version} as ${assistantInstallRecord.installId}")
+            println("Failed to uninstall assistant: @${def.id} ${assistantInstallRecord.version} ${assistantInstallRecord.installId}")
         }
     }
 

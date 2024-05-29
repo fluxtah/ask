@@ -30,6 +30,7 @@ import com.fluxtah.ask.app.commanding.commands.ListThreads
 import com.fluxtah.ask.app.commanding.commands.MaxCompletionTokens
 import com.fluxtah.ask.app.commanding.commands.MaxPromptTokens
 import com.fluxtah.ask.app.commanding.commands.RecoverRun
+import com.fluxtah.ask.app.commanding.commands.ReinstallAssistant
 import com.fluxtah.ask.app.commanding.commands.SetLogLevel
 import com.fluxtah.ask.app.commanding.commands.SetModel
 import com.fluxtah.ask.app.commanding.commands.SetOpenAiApiKey
@@ -306,8 +307,18 @@ class CommandFactory(
                 }
             }
         )
+        registerCommand(
+            name = "assistant-reinstall",
+            description = "<assistant-id> Reinstall an assistant",
+            command = {
+                if (it.size != 1) {
+                    UnknownCommand("Invalid number of arguments for /assistant-reinstall, expected an assistant ID following the command")
+                } else {
+                    ReinstallAssistant(assistantRegistry, assistantInstallRepository, it.first())
+                }
+            }
+        )
     }
-
 
     fun registerCommand(name: String, description: String, command: (List<String>) -> Command) {
         commands[name] = CommandEntry(name, description, command)
