@@ -6,6 +6,7 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
+import com.fluxtah.ask.VersionUtils
 import com.fluxtah.ask.api.ansi.cyan
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
@@ -24,7 +25,7 @@ class ListAssistants(
             val installedAssistant = installedAssistants.find { record -> record.id == it.id }
             val currentVersion = installedAssistant?.version ?: it.version
             val upgradeAvailable =
-                if (installedAssistant != null && installedAssistant.version != it.version) cyan(it.version) else "x"
+                if (installedAssistant != null && VersionUtils.isVersionGreater(it.version, installedAssistant.version)) cyan(it.version) else "x"
             println(
                 String.format(
                     "%-10s %-10s %-16s %-12s %-8s",
