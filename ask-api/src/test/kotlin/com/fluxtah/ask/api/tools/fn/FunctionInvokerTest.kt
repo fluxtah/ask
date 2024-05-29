@@ -18,6 +18,10 @@ class FunctionInvokerTest {
             return "param1: $param1, param2: $param2"
         }
 
+        fun testFunction2(param1: String, param2: String): String {
+            return "param1: $param1, param2: $param2"
+        }
+
         @Serializable
         data class TestTargetData(val param1: String, val param2: Int)
 
@@ -46,6 +50,37 @@ class FunctionInvokerTest {
         val result = functionInvoker.invokeFunction(target, callDetails)
         assertEquals("param1: test, param2: 42", result)
     }
+
+    @Test
+    fun `test invokeFunction missing arg`() {
+        val target = TestTarget()
+        val callDetails = FunctionToolCallDetails(
+            function = FunctionToolCallDetails.FunctionSpec(
+                name = "testFunction",
+                arguments = "{\"param1\":\"test\"}"
+            ),
+            id = "testId"
+        )
+
+        val result = functionInvoker.invokeFunction(target, callDetails)
+        assertEquals("param1: test, param2: 0", result)
+    }
+
+    @Test
+    fun `test invokeFunction2 missing arg`() {
+        val target = TestTarget()
+        val callDetails = FunctionToolCallDetails(
+            function = FunctionToolCallDetails.FunctionSpec(
+                name = "testFunction2",
+                arguments = "{\"param1\":\"test\"}"
+            ),
+            id = "testId"
+        )
+
+        val result = functionInvoker.invokeFunction(target, callDetails)
+        assertEquals("param1: test, param2: ", result)
+    }
+
 
     @Test
     fun `test invokeFunction with data class`() {

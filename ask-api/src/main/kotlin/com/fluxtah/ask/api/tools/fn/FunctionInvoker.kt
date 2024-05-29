@@ -58,7 +58,7 @@ class FunctionInvoker {
             val paramName =
                 parameter.name ?: throw IllegalArgumentException("Unnamed parameter in function: ${function.name}")
             val jsonElement =
-                argsMap[paramName] ?: throw IllegalArgumentException("Argument not found for parameter: $paramName")
+                argsMap[paramName] ?: JsonNull
             deserializeArgument(jsonElement, parameter.type, parameter)
         }.toTypedArray()
     }
