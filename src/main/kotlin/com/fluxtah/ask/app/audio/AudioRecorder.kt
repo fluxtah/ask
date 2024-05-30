@@ -1,5 +1,6 @@
 package com.fluxtah.ask.app.audio
 
+import com.fluxtah.askpluginsdk.io.getUserConfigDirectory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -15,7 +16,7 @@ import javax.sound.sampled.TargetDataLine
 class AudioRecorder {
     private var line: TargetDataLine? = null
     private val fileType = AudioFileFormat.Type.WAVE
-    private val wavFile = File("RecordAudio.wav")
+    private val wavFile = File(getUserConfigDirectory(),"input.wav")
 
     fun getAudioFile(): File = wavFile
     suspend fun start() = withContext(Dispatchers.IO) {
