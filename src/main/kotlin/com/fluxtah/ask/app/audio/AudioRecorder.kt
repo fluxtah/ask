@@ -17,6 +17,7 @@ class AudioRecorder {
     private val fileType = AudioFileFormat.Type.WAVE
     private val wavFile = File("RecordAudio.wav")
 
+    fun getAudioFile(): File = wavFile
     suspend fun start() = withContext(Dispatchers.IO) {
         try {
             val format = getAudioFormat()

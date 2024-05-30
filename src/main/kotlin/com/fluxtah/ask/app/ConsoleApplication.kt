@@ -14,6 +14,8 @@ import com.fluxtah.ask.api.ansi.red
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
+import com.fluxtah.ask.api.clients.openai.audio.AudioApi
+import com.fluxtah.ask.api.clients.openai.audio.CreateTranscriptionRequest
 import com.fluxtah.ask.api.plugins.AskPluginLoader
 import com.fluxtah.ask.api.printers.AskConsoleResponsePrinter
 import com.fluxtah.ask.api.printers.AskResponsePrinter
@@ -39,6 +41,9 @@ class ConsoleApplication(
     private val logger: AskLogger = AskLogger(),
     private val userProperties: UserProperties = UserProperties(PropertyStore("user.properties")),
     private val assistantsApi: AssistantsApi = AssistantsApi(
+        apiKeyProvider = { userProperties.getOpenaiApiKey() }
+    ),
+    private val audioApi: AudioApi = AudioApi(
         apiKeyProvider = { userProperties.getOpenaiApiKey() }
     ),
     private val assistantRegistry: AssistantRegistry = AssistantRegistry(),
@@ -74,6 +79,7 @@ class ConsoleApplication(
         assistantRunManager
     ),
 ) {
+    private var transcribedText: String = ""
     private val completer = AskCommandCompleter(assistantRegistry, commandFactory, threadRepository)
     private val terminal: Terminal = TerminalBuilder.builder()
         .system(true)
@@ -113,9 +119,17 @@ class ConsoleApplication(
 
             try {
                 val input = commandPromptReadLine()
+                transcribedText = ""
 
                 if (audioRecorder.isRecording()) {
                     endAudioRecording()
+                    runBlocking {
+                        val response = audioApi.createTranscription(
+                            CreateTranscriptionRequest(audioRecorder.getAudioFile())
+                        )
+
+                        transcribedText = response.text
+                    }
                     continue
                 }
 
@@ -168,17 +182,30 @@ class ConsoleApplication(
     }
 
     private fun commandPromptReadLine(): String {
+        val prompt = promptText()
+
+        return when {
+            audioRecorder.isRecording() -> {
+                lineReader.readLine(red("[Recording... Press ENTER to stop]"))
+            }
+
+            else -> {
+                if (transcribedText.isNotEmpty()) {
+                    lineReader.readLine("${green(prompt)} ", null, transcribedText)
+                } else {
+                    lineReader.readLine(green(prompt) + " ")
+                }
+            }
+        }
+    }
+
+    private fun promptText(): String {
         val prompt = if (userProperties.getAssistantId().isEmpty()) {
             "ask ➜"
         } else {
             "ask@${userProperties.getAssistantId()} ➜"
         }
-
-        if (audioRecorder.isRecording()) {
-            return lineReader.readLine(red("[Recording... Press ENTER to stop]"))
-        } else {
-            return lineReader.readLine("${green(prompt)} ")
-        }
+        return prompt
     }
 
     fun debugPlugin(pluginFile: File) {
