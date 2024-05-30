@@ -3,7 +3,6 @@
  * Released under the MIT license
  * https://opensource.org/licenses/MIT
  */
-
 package com.fluxtah.ask.app
 
 import ch.qos.logback.classic.Level
@@ -19,6 +18,7 @@ import com.fluxtah.ask.api.printers.AskConsoleResponsePrinter
 import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.api.store.PropertyStore
+import com.fluxtah.ask.app.audio.AudioRecorder
 import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
@@ -89,14 +89,11 @@ class ConsoleApplication(
         }
     }
 
-    fun runOneShotCommand(command: String) {
-        inputHandler.handleInput(command)
-        exitProcess(0)
-    }
-
     fun run() {
         printWelcomeMessage()
-        initLogger()
+        initLogLevelAndPrint()
+
+        val recorder = AudioRecorder()
 
         while (true) {
             println()
@@ -109,7 +106,12 @@ class ConsoleApplication(
         }
     }
 
-    private fun initLogger() {
+    fun runOneShotCommand(command: String) {
+        inputHandler.handleInput(command)
+        exitProcess(0)
+    }
+
+    private fun initLogLevelAndPrint() {
         val logLevel = userProperties.getLogLevel()
         if (logLevel != LogLevel.OFF) {
             logger.log(LogLevel.DEBUG, "Log level: $logLevel")
