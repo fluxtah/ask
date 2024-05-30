@@ -10,6 +10,7 @@ import ch.qos.logback.classic.Logger
 import com.fluxtah.ask.Version
 import com.fluxtah.ask.api.AssistantRunner
 import com.fluxtah.ask.api.ansi.green
+import com.fluxtah.ask.api.ansi.red
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
@@ -22,6 +23,10 @@ import com.fluxtah.ask.app.audio.AudioRecorder
 import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
@@ -78,6 +83,10 @@ class ConsoleApplication(
         .completer(completer)
         .build()
 
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
+
+    private val audioRecorder = AudioRecorder()
+
     init {
         val exposedLogger = org.jetbrains.exposed.sql.exposedLogger as Logger
         exposedLogger.level = Level.OFF
@@ -93,17 +102,55 @@ class ConsoleApplication(
         printWelcomeMessage()
         initLogLevelAndPrint()
 
-        val recorder = AudioRecorder()
+        Runtime.getRuntime().addShutdownHook(Thread {
+            coroutineScope.launch {
+                audioRecorder.stop()
+            }
+        })
 
         while (true) {
             println()
 
             try {
-                inputHandler.handleInput(commandPromptReadLine())
+                val input = commandPromptReadLine()
+
+                if (audioRecorder.isRecording()) {
+                    endAudioRecording()
+                    continue
+                }
+
+                if (input == "/r") {
+                    beginAudioRecording()
+                    continue
+                }
+
+                inputHandler.handleInput(input)
             } catch (e: Exception) {
                 logger.log(LogLevel.ERROR, "Error: ${e.message}")
             }
         }
+    }
+
+    private fun endAudioRecording() {
+        coroutineScope.launch {
+            audioRecorder.stop()
+        }
+        responsePrinter.print("\u001b[1A\u001b[2K")
+        responsePrinter.print("\u001b[1A\u001b[2K")
+        Thread.sleep(200)
+    }
+
+    private fun beginAudioRecording() {
+        coroutineScope.launch {
+            if (audioRecorder.isRecording()) {
+                audioRecorder.stop()
+            } else {
+                audioRecorder.start()
+            }
+        }
+        responsePrinter.print("\u001b[1A\u001b[2K")
+        responsePrinter.print("\u001b[1A\u001b[2K")
+        Thread.sleep(200)
     }
 
     fun runOneShotCommand(command: String) {
@@ -122,11 +169,16 @@ class ConsoleApplication(
 
     private fun commandPromptReadLine(): String {
         val prompt = if (userProperties.getAssistantId().isEmpty()) {
-            green("ask ➜")
+            "ask ➜"
         } else {
-            green("ask@${userProperties.getAssistantId()} ➜")
+            "ask@${userProperties.getAssistantId()} ➜"
         }
-        return lineReader.readLine("$prompt ")
+
+        if (audioRecorder.isRecording()) {
+            return lineReader.readLine(red("[Recording... Press ENTER to stop]"))
+        } else {
+            return lineReader.readLine("${green(prompt)} ")
+        }
     }
 
     fun debugPlugin(pluginFile: File) {
@@ -153,6 +205,6 @@ class ConsoleApplication(
             commandFactory.create("/assistant-list").execute()
         }
         responsePrinter.println()
-        responsePrinter.println("Type /help for a list of commands")
+        responsePrinter.println("Type /help for a list of commands, to quit press Ctrl+C or type /exit")
     }
 }

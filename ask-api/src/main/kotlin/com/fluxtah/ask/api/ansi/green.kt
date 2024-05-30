@@ -4,6 +4,10 @@ fun green(text: String = "") : String {
     return "\u001b[32m$text\u001B[0m"
 }
 
+fun red(text: String = "") : String {
+    return "\u001b[31m$text\u001B[0m"
+}
+
 fun blue(text: String = "") : String {
     return "\u001b[34m$text\u001B[0m"
 }

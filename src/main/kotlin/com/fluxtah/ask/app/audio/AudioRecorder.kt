@@ -31,8 +31,6 @@ class AudioRecorder {
             line!!.open(format)
             line!!.start()
 
-            println("Recording started...")
-
             val ais = AudioInputStream(line)
             AudioSystem.write(ais, fileType, wavFile)
         } catch (ex: LineUnavailableException) {
@@ -46,7 +44,10 @@ class AudioRecorder {
         line?.stop()
         line?.close()
         line = null
-        println("Recording stopped")
+    }
+
+    fun isRecording(): Boolean {
+        return line != null
     }
 
     private fun getAudioFormat(): AudioFormat {

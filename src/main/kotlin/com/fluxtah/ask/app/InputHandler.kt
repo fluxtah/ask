@@ -99,7 +99,7 @@ class AssistantRunManager(
                 ),
                 onRunStatusChanged = ::onRunStatusChanged,
                 onMessageCreation = ::onMessageCreation,
-                onExecuteTool = { toolCallDetails, message ->
+                onExecuteTool = { toolCallDetails ->
                     onExecuteTool(toolCallDetails)
                 }
             )
@@ -146,7 +146,7 @@ class AssistantRunManager(
                 ),
                 onRunStatusChanged = ::onRunStatusChanged,
                 onMessageCreation = ::onMessageCreation,
-                onExecuteTool = { toolCallDetails, message ->
+                onExecuteTool = { toolCallDetails ->
                     onExecuteTool(toolCallDetails)
                 }
             )
