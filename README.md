@@ -207,6 +207,11 @@ ask has a convenient way to run shell commands without exiting the interactive m
 ask@koder ➜ :ls
 ```
 
+### Speech to Text
+The command `/r` will begin recording audio from your microphone, you can stop recording by pressing `Enter`.
+
+Once stopped you should see your transcribed text in the prompt, you can then send the text to the assistant by pressing `Enter`.
+
 ### Writing Assistant Plugins
 Assistant plugins are written in Kotlin and should be compiled to a jar file. The jar file should be placed in the `{USER_HOME}/.ask/plugins` directory.
 
