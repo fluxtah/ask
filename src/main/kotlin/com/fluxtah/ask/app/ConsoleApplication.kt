@@ -124,6 +124,8 @@ class ConsoleApplication(
                     endAudioRecording()
                     transcribeAudioRecording()
                     if(userProperties.getAutoSendVoice()) {
+                        println()
+                        responsePrinter.println("${green(promptText())} $transcribedText")
                         inputHandler.handleInput(transcribedText)
                         transcribedText = ""
                     }
