@@ -6,7 +6,7 @@ import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.app.AssistantRunManager
-import com.fluxtah.ask.app.UserProperties
+import com.fluxtah.ask.api.store.user.UserProperties
 import com.fluxtah.ask.app.commanding.commands.*
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel

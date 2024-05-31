@@ -21,6 +21,7 @@ import com.fluxtah.ask.api.printers.AskConsoleResponsePrinter
 import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.api.store.PropertyStore
+import com.fluxtah.ask.api.store.user.UserProperties
 import com.fluxtah.ask.app.audio.AudioRecorder
 import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.askpluginsdk.logging.AskLogger

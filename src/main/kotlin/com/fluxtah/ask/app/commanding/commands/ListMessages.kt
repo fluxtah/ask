@@ -7,9 +7,7 @@
 package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
-import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantMessageList
-import com.fluxtah.ask.app.UserProperties
-import kotlinx.serialization.encodeToString
+import com.fluxtah.ask.api.store.user.UserProperties
 
 class ListMessages(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties) :
     Command() {

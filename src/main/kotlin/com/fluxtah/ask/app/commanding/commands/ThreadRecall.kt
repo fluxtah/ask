@@ -4,7 +4,7 @@ import com.fluxtah.ask.api.ansi.green
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.markdown.AnsiMarkdownRenderer
 import com.fluxtah.ask.api.markdown.MarkdownParser
-import com.fluxtah.ask.app.UserProperties
+import com.fluxtah.ask.api.store.user.UserProperties
 
 class ThreadRecall(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties) :
     Command() {

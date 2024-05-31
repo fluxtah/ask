@@ -1,4 +1,4 @@
-package com.fluxtah.ask
+package com.fluxtah.ask.api.version
 
 object VersionUtils {
     fun isVersionGreater(version1: String, version2: String): Boolean {

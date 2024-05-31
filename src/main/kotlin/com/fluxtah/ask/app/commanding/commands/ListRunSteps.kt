@@ -8,7 +8,7 @@ package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRunStepList
-import com.fluxtah.ask.app.UserProperties
+import com.fluxtah.ask.api.store.user.UserProperties
 import kotlinx.serialization.encodeToString
 
 class ListRunSteps(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties) :

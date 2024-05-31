@@ -6,7 +6,7 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
-import com.fluxtah.ask.VersionUtils
+import com.fluxtah.ask.api.version.VersionUtils
 import com.fluxtah.ask.api.ansi.cyan
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry

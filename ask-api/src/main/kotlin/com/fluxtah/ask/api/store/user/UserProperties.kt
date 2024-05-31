@@ -4,7 +4,7 @@
  * https://opensource.org/licenses/MIT
  */
 
-package com.fluxtah.ask.app
+package com.fluxtah.ask.api.store.user
 
 import com.fluxtah.ask.api.clients.openai.assistants.model.TruncationStrategy
 import com.fluxtah.ask.api.store.PropertyStore

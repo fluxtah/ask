@@ -8,7 +8,7 @@ package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantThread
-import com.fluxtah.ask.app.UserProperties
+import com.fluxtah.ask.api.store.user.UserProperties
 import kotlinx.serialization.encodeToString
 
 class GetThread(
@@ -21,7 +21,7 @@ class GetThread(
         val actualThread = threadId ?: userProperties.getThreadId().ifEmpty { null }
 
         if (actualThread == null) {
-            println("You need to create a thread first. Use /thread-new or pass a thread as the first argument")
+            println("You need to create a thread first. Use /thread-new or pass a thread id as the first argument")
             return
         }
         println(JSON.encodeToString<AssistantThread>(assistantsApi.threads.getThread(actualThread)))

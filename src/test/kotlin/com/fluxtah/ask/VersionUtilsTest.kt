@@ -1,5 +1,6 @@
 package com.fluxtah.ask
 
+import com.fluxtah.ask.api.version.VersionUtils
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 

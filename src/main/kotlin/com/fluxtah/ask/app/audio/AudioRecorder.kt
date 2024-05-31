@@ -60,12 +60,4 @@ class AudioRecorder {
         val bigEndian = true
         return AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian)
     }
-
-    suspend fun startStop() {
-        if (line == null) {
-            start()
-        } else {
-            stop()
-        }
-    }
 }
