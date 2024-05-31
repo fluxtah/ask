@@ -123,6 +123,10 @@ class ConsoleApplication(
                 if (audioRecorder.isRecording()) {
                     endAudioRecording()
                     transcribeAudioRecording()
+                    if(userProperties.getAutoSendVoice()) {
+                        inputHandler.handleInput(transcribedText)
+                        transcribedText = ""
+                    }
                     continue
                 }
 

@@ -1,9 +1,3 @@
-/*
- * Copyright (c) 2024 Ian Warwick
- * Released under the MIT license
- * https://opensource.org/licenses/MIT
- */
-
 package com.fluxtah.ask.app.commanding
 
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
@@ -13,41 +7,10 @@ import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.app.AssistantRunManager
 import com.fluxtah.ask.app.UserProperties
-import com.fluxtah.ask.app.commanding.commands.Clear
-import com.fluxtah.ask.app.commanding.commands.ClearModel
-import com.fluxtah.ask.app.commanding.commands.Command
-import com.fluxtah.ask.app.commanding.commands.DeleteThread
-import com.fluxtah.ask.app.commanding.commands.Exit
-import com.fluxtah.ask.app.commanding.commands.GetAssistant
-import com.fluxtah.ask.app.commanding.commands.GetThread
-import com.fluxtah.ask.app.commanding.commands.Help
-import com.fluxtah.ask.app.commanding.commands.InstallAssistant
-import com.fluxtah.ask.app.commanding.commands.ListAssistants
-import com.fluxtah.ask.app.commanding.commands.ListMessages
-import com.fluxtah.ask.app.commanding.commands.ListRunSteps
-import com.fluxtah.ask.app.commanding.commands.ListRuns
-import com.fluxtah.ask.app.commanding.commands.ListThreads
-import com.fluxtah.ask.app.commanding.commands.MaxCompletionTokens
-import com.fluxtah.ask.app.commanding.commands.MaxPromptTokens
-import com.fluxtah.ask.app.commanding.commands.RecoverRun
-import com.fluxtah.ask.app.commanding.commands.ReinstallAssistant
-import com.fluxtah.ask.app.commanding.commands.SetLogLevel
-import com.fluxtah.ask.app.commanding.commands.SetModel
-import com.fluxtah.ask.app.commanding.commands.SetOpenAiApiKey
-import com.fluxtah.ask.app.commanding.commands.ShellExec
-import com.fluxtah.ask.app.commanding.commands.ShowHttpLog
-import com.fluxtah.ask.app.commanding.commands.SwitchThread
-import com.fluxtah.ask.app.commanding.commands.ThreadNew
-import com.fluxtah.ask.app.commanding.commands.ThreadRecall
-import com.fluxtah.ask.app.commanding.commands.ThreadRename
-import com.fluxtah.ask.app.commanding.commands.TruncateLastMessages
-import com.fluxtah.ask.app.commanding.commands.UnInstallAssistant
-import com.fluxtah.ask.app.commanding.commands.UnknownCommand
-import com.fluxtah.ask.app.commanding.commands.WhichAssistant
-import com.fluxtah.ask.app.commanding.commands.WhichModel
-import com.fluxtah.ask.app.commanding.commands.WhichThread
+import com.fluxtah.ask.app.commanding.commands.*
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
+
 
 data class CommandEntry(val name: String, val description: String, val command: (List<String>) -> Command)
 
@@ -317,6 +280,12 @@ class CommandFactory(
                     ReinstallAssistant(assistantRegistry, assistantInstallRepository, it.first())
                 }
             }
+        )
+
+        registerCommand(
+            name = "voice-auto-send",
+            description = "Toggles auto-send mode for voice commands",
+            command = { VoiceAutoSendCommand(userProperties, responsePrinter) }
         )
     }
 
