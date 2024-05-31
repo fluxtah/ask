@@ -152,7 +152,7 @@ class ConsoleApplication(
         coroutineScope.launch {
             audioRecorder.stop()
         }
-        cursorBackAndWait()
+        clearLinesAndSleep()
     }
 
     private fun beginAudioRecording() {
@@ -163,10 +163,10 @@ class ConsoleApplication(
                 audioRecorder.start()
             }
         }
-        cursorBackAndWait()
+        clearLinesAndSleep()
     }
 
-    private fun cursorBackAndWait(backTimes: Int = 2, waitTime: Long = 200) {
+    private fun clearLinesAndSleep(backTimes: Int = 2, waitTime: Long = 200) {
         for (i in 1..backTimes) {
             responsePrinter.print("\u001b[1A\u001b[2K")
         }

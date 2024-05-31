@@ -156,7 +156,7 @@ class AssistantRunManager(
 
     private fun onExecuteTool(toolCallDetails: AssistantRunStepDetails.ToolCalls.ToolCallDetails.FunctionToolCallDetails) {
         responsePrinter.print("\u001b[1A\u001b[2K")
-        responsePrinter.println(" ${green("==>")} ${blue(toolCallDetails.function.name)}(${toolCallDetails.function.arguments}")
+        responsePrinter.println(" ${green("==>")} ${blue(toolCallDetails.function.name)} (${toolCallDetails.function.arguments})")
         responsePrinter.println()
         responsePrinter.println()
     }
