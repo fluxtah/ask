@@ -27,7 +27,6 @@ import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jline.reader.LineReader
@@ -123,13 +122,7 @@ class ConsoleApplication(
 
                 if (audioRecorder.isRecording()) {
                     endAudioRecording()
-                    runBlocking {
-                        val response = audioApi.createTranscription(
-                            CreateTranscriptionRequest(audioRecorder.getAudioFile())
-                        )
-
-                        transcribedText = response.text
-                    }
+                    transcribeAudioRecording()
                     continue
                 }
 
@@ -145,13 +138,21 @@ class ConsoleApplication(
         }
     }
 
+    private fun transcribeAudioRecording() {
+        runBlocking {
+            val response = audioApi.createTranscription(
+                CreateTranscriptionRequest(audioRecorder.getAudioFile())
+            )
+
+            transcribedText = response.text
+        }
+    }
+
     private fun endAudioRecording() {
         coroutineScope.launch {
             audioRecorder.stop()
         }
-        responsePrinter.print("\u001b[1A\u001b[2K")
-        responsePrinter.print("\u001b[1A\u001b[2K")
-        Thread.sleep(200)
+        cursorBackAndWait()
     }
 
     private fun beginAudioRecording() {
@@ -162,9 +163,14 @@ class ConsoleApplication(
                 audioRecorder.start()
             }
         }
-        responsePrinter.print("\u001b[1A\u001b[2K")
-        responsePrinter.print("\u001b[1A\u001b[2K")
-        Thread.sleep(200)
+        cursorBackAndWait()
+    }
+
+    private fun cursorBackAndWait(backTimes: Int = 2, waitTime: Long = 200) {
+        for (i in 1..backTimes) {
+            responsePrinter.print("\u001b[1A\u001b[2K")
+        }
+        Thread.sleep(waitTime)
     }
 
     fun runOneShotCommand(command: String) {
