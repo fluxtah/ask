@@ -66,6 +66,8 @@ $ /set-key <api-key>
 - `/model <model>` - Set model override affecting all assistants (gpt-3.5-turbo-16k, gpt-4-turbo, etc.)
 - `/thread-new` - Creates a new assistant thread.
 - `/log-level <level>` - Sets the log level (ERROR, DEBUG, INFO, OFF).
+- `/r` - Begins recording audio from your microphone.
+- `/voice-auto-send` - Toggles auto-send mode for voice commands.
  
 To see a list of all  commands run ask and use `/help`.
 
@@ -212,6 +214,8 @@ The command `/r` will begin recording audio from your microphone, you can stop r
 
 Once stopped you should see your transcribed text in the prompt, you can then send the text to the assistant by pressing `Enter`.
 
+The command `/voice-auto-send` will toggle the auto-send mode for voice commands. When enabled, voice commands will be automatically sent as soon as they are transcribed.
+
 ### Writing Assistant Plugins
 Assistant plugins are written in Kotlin and should be compiled to a jar file. The jar file should be placed in the `{USER_HOME}/.ask/plugins` directory.
 
@@ -326,5 +330,3 @@ Homebrew tap is available at [Homebrew Ask](https://github.com/fluxtah/homebrew-
   
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
