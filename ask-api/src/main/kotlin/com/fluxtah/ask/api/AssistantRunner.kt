@@ -18,8 +18,6 @@ import com.fluxtah.ask.api.clients.openai.assistants.model.RunRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
 import com.fluxtah.ask.api.clients.openai.assistants.model.SubmitToolOutputsRequest
 import com.fluxtah.ask.api.clients.openai.assistants.model.ToolOutput
-import com.fluxtah.ask.api.markdown.AnsiMarkdownRenderer
-import com.fluxtah.ask.api.markdown.MarkdownParser
 import com.fluxtah.ask.api.tools.fn.FunctionInvoker
 import com.fluxtah.askpluginsdk.AssistantDefinition
 import com.fluxtah.askpluginsdk.logging.AskLogger
@@ -50,9 +48,9 @@ class AssistantRunner(
 
         processRun(assistantDef, run, details.threadId, onRunStatusChanged, onMessageCreation, onExecuteTool)
 
-        val responseBuilder = buildResponseText(details.threadId, userMessage)
+        val text = getResponseText(details.threadId, userMessage)
 
-        return RunResult.Complete(run.id, responseBuilder.toString())
+        return RunResult.Complete(run.id, text)
     }
 
     suspend fun retryRun(
@@ -82,32 +80,22 @@ class AssistantRunner(
             return RunResult.Error("No user message found in thread")
         }
 
-        val responseBuilder = buildResponseText(details.threadId, lastMessage)
+        val text = getResponseText(details.threadId, lastMessage)
 
-        return RunResult.Complete(run.id, responseBuilder.toString())
+        return RunResult.Complete(run.id, text)
     }
 
-    private suspend fun buildResponseText(
+    private suspend fun getResponseText(
         threadId: String,
         userMessage: Message
-    ): StringBuilder {
-        val responseBuilder = StringBuilder()
-
+    ): String {
         val lastMessage =
             assistantsApi.messages.listMessages(
                 threadId = threadId,
                 beforeId = userMessage.id
             ).data.firstOrNull()
 
-        if (lastMessage != null) {
-            if (userMessage.id != lastMessage.id) {
-                val markdownParser = MarkdownParser(lastMessage.content.first().text.value)
-                val renderedMarkdown = AnsiMarkdownRenderer().render(markdownParser.parse())
-                responseBuilder.append("\u001B[0m")
-                responseBuilder.append(renderedMarkdown)
-            }
-        }
-        return responseBuilder
+        return lastMessage?.content?.firstOrNull()?.text?.value ?: "[NO RESPONSE]"
     }
 
     private suspend fun createRun(

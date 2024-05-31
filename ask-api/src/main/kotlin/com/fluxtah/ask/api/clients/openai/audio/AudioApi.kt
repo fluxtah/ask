@@ -70,7 +70,7 @@ class AudioApi(
         val response = client.post("$baseUri/$version/audio/speech") {
             header("Authorization", "Bearer ${apiKeyProvider.invoke()}")
             contentType(ContentType.Application.Json)
-            setBody(request)
+            setBody<CreateSpeechRequest>(request)
         }
 
         when (response.status) {
@@ -88,6 +88,7 @@ data class CreateSpeechRequest(
     /**
      * One of the available TTS models: tts-1 or tts-1-hd
      */
+    @SerialName("model")
     val model: SpeechModel,
     /**
      * The text to generate audio for. The maximum length is 4096 characters.
@@ -111,27 +112,41 @@ data class CreateSpeechRequest(
 )
 
 @Serializable
-enum class SpeechModel(val value: String) {
-    TTS_1("tts-1"),
-    TTS_1_HD("tts-1-hd")
+enum class SpeechModel {
+    @SerialName("tts-1")
+    TTS_1,
+    @SerialName("tts-1-hd")
+    TTS_1_HD
 }
 
 @Serializable
-enum class SpeechVoice(val value: String) {
-    ALLOY("alloy"),
-    ECHO("echo"),
-    FABLE("fable"),
-    ONYX("onyx"),
-    NOVA("nova"),
-    SHIMMER("shimmer")
+enum class SpeechVoice {
+    @SerialName("alloy")
+    ALLOY,
+    @SerialName("echo")
+    ECHO,
+    @SerialName("fable")
+    FABLE,
+    @SerialName("onyx")
+    ONYX,
+    @SerialName("nova")
+    NOVA,
+    @SerialName("shimmer")
+    SHIMMER
 }
 
 @Serializable
-enum class ResponseFormat(val value: String) {
-    MP3("mp3"),
-    OPUS("opus"),
-    AAC("aac"),
-    FLAC("flac"),
-    WAV("wav"),
-    PCM("pcm")
+enum class ResponseFormat {
+    @SerialName("mp3")
+    MP3,
+    @SerialName("opus")
+    OPUS,
+    @SerialName("aac")
+    AAC,
+    @SerialName("flac")
+    FLAC,
+    @SerialName("wav")
+    WAV,
+    @SerialName("pcm")
+    PCM
 }

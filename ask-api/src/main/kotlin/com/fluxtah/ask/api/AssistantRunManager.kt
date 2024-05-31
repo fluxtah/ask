@@ -1,39 +1,43 @@
-package com.fluxtah.ask.app
+package com.fluxtah.ask.api
 
-import com.fluxtah.ask.api.AssistantRunner
-import com.fluxtah.ask.api.RunDetails
-import com.fluxtah.ask.api.RunResult
-import com.fluxtah.ask.api.RunRetryDetails
-import com.fluxtah.ask.api.ansi.blue
-import com.fluxtah.ask.api.ansi.green
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRunStepDetails
 import com.fluxtah.ask.api.clients.openai.assistants.model.Message
 import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
-import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.store.user.UserProperties
 import kotlinx.coroutines.runBlocking
 
 class AssistantRunManager(
     private val assistantRunner: AssistantRunner,
-    private val userProperties: UserProperties,
-    private val responsePrinter: AskResponsePrinter,
-    private val workingSpinner: WorkingSpinner = WorkingSpinner()
+    private val userProperties: UserProperties
 ) {
+    var onStatusChanged: ((RunManagerStatus) -> Unit)? = null
+
     fun runAssistant(input: String) {
         val currentThreadId = userProperties.getThreadId()
 
         if (currentThreadId.isEmpty()) {
-            responsePrinter.println("You need to create a thread first. Use /thread-new")
+            onStatusChanged?.invoke(
+                RunManagerStatus.Error(
+                    "You need to create a thread first. Use /thread-new",
+                    RunManagerStatus.ErrorType.ThreadNotSet
+                )
+            )
             return
         }
 
         if (!input.startsWith("@") && userProperties.getAssistantId().isEmpty()) {
-            responsePrinter.println("You need to address an assistant with @assistant-id <prompt>, to see available assistants use /assistant-list")
+            onStatusChanged?.invoke(
+                RunManagerStatus.Error(
+                    "You need to address an assistant with @assistant-id <prompt>, to see available assistants use /assistant-list",
+                    RunManagerStatus.ErrorType.TargetAssistantNotSet
+                )
+            )
             return
         }
 
         val assistantId = getNamedAssistantIdOrLast(input)
-        responsePrinter.println()
+
+        onStatusChanged?.invoke(RunManagerStatus.BeforeBeginRun)
 
         runBlocking {
             val result = assistantRunner.run(
@@ -64,12 +68,11 @@ class AssistantRunManager(
                 userProperties.setAssistantId(assistantId)
                 userProperties.save()
 
-                responsePrinter.println()
-                responsePrinter.println(result.responseText)
+                onStatusChanged?.invoke(RunManagerStatus.Response(result.responseText))
             }
 
             is RunResult.Error -> {
-                responsePrinter.println(result.message)
+                onStatusChanged?.invoke(RunManagerStatus.Error(result.message, RunManagerStatus.ErrorType.Unknown))
             }
         }
     }
@@ -77,13 +80,23 @@ class AssistantRunManager(
     fun recoverRun() {
         val runId = userProperties.getRunId()
         if (runId.isEmpty()) {
-            responsePrinter.println("Nothing to retry")
+            onStatusChanged?.invoke(
+                RunManagerStatus.Error(
+                    "No run to recover",
+                    RunManagerStatus.ErrorType.NoRunToRecover
+                )
+            )
             return
         }
 
         val threadId: String = userProperties.getThreadId()
         if (threadId.isEmpty()) {
-            responsePrinter.println("No thread to retry in")
+            onStatusChanged?.invoke(
+                RunManagerStatus.Error(
+                    "No thread to recover in",
+                    RunManagerStatus.ErrorType.NoThreadToRecoverIn
+                )
+            )
             return
         }
 
@@ -104,31 +117,15 @@ class AssistantRunManager(
     }
 
     private fun onExecuteTool(toolCallDetails: AssistantRunStepDetails.ToolCalls.ToolCallDetails.FunctionToolCallDetails) {
-        responsePrinter.print("\u001b[1A\u001b[2K")
-        responsePrinter.println(" ${green("==>")} ${blue(toolCallDetails.function.name)} (${toolCallDetails.function.arguments})")
-        responsePrinter.println()
-        responsePrinter.println()
+        onStatusChanged?.invoke(RunManagerStatus.ToolCall(toolCallDetails))
     }
 
     private fun onMessageCreation(message: Message) {
-        responsePrinter.print("\u001b[1A\u001b[2K")
-        responsePrinter.println(message.content.joinToString(" ") { it.text.value })
-        responsePrinter.println()
-        responsePrinter.println()
+        onStatusChanged?.invoke(RunManagerStatus.MessageCreated(message))
     }
 
     private fun onRunStatusChanged(status: RunStatus) {
-        responsePrinter.print("\u001b[1A\u001b[2K")
-        val indicator = when (status) {
-            RunStatus.FAILED,
-            RunStatus.CANCELLED,
-            RunStatus.EXPIRED -> "x"
-
-            RunStatus.COMPLETED -> green("✔")
-            else -> blue(workingSpinner.next())
-        }
-
-        responsePrinter.println(" $indicator $status")
+        onStatusChanged?.invoke(RunManagerStatus.RunStatusChanged(status))
     }
 
     private fun getNamedAssistantIdOrLast(input: String) = if (input.startsWith("@")) {

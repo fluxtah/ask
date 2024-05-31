@@ -5,17 +5,24 @@
  */
 package com.fluxtah.ask.app
 
+import AudioPlayer
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.fluxtah.ask.Version
+import com.fluxtah.ask.api.AssistantRunManager
 import com.fluxtah.ask.api.AssistantRunner
+import com.fluxtah.ask.api.RunManagerStatus
+import com.fluxtah.ask.api.ansi.blue
 import com.fluxtah.ask.api.ansi.green
 import com.fluxtah.ask.api.ansi.red
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
+import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
 import com.fluxtah.ask.api.clients.openai.audio.AudioApi
 import com.fluxtah.ask.api.clients.openai.audio.model.CreateTranscriptionRequest
+import com.fluxtah.ask.api.markdown.AnsiMarkdownRenderer
+import com.fluxtah.ask.api.markdown.MarkdownParser
 import com.fluxtah.ask.api.plugins.AskPluginLoader
 import com.fluxtah.ask.api.printers.AskConsoleResponsePrinter
 import com.fluxtah.ask.api.printers.AskResponsePrinter
@@ -23,6 +30,7 @@ import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.ask.api.store.user.UserProperties
 import com.fluxtah.ask.app.audio.AudioRecorder
+import com.fluxtah.ask.app.audio.TextToSpeechPlayer
 import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
@@ -39,6 +47,7 @@ import kotlin.system.exitProcess
 
 class ConsoleApplication(
     private val logger: AskLogger = AskLogger(),
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     private val userProperties: UserProperties = UserProperties(PropertyStore("user.properties")),
     private val assistantsApi: AssistantsApi = AssistantsApi(
         apiKeyProvider = { userProperties.getOpenaiApiKey() }
@@ -59,7 +68,6 @@ class ConsoleApplication(
     private val assistantRunManager: AssistantRunManager = AssistantRunManager(
         assistantRunner,
         userProperties,
-        responsePrinter,
     ),
     private val commandFactory: CommandFactory = CommandFactory(
         logger,
@@ -78,6 +86,12 @@ class ConsoleApplication(
         userProperties,
         assistantRunManager
     ),
+    private val tts: TextToSpeechPlayer = TextToSpeechPlayer(
+        audioApi,
+        AudioPlayer(),
+        coroutineScope
+    ),
+    private val workingSpinner: WorkingSpinner = WorkingSpinner(),
 ) {
     private var transcribedText: String = ""
     private val completer = AskCommandCompleter(assistantRegistry, commandFactory, threadRepository)
@@ -89,8 +103,6 @@ class ConsoleApplication(
         .completer(completer)
         .build()
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Default)
-
     private val audioRecorder = AudioRecorder()
 
     init {
@@ -101,6 +113,62 @@ class ConsoleApplication(
 
         AskPluginLoader(logger).loadPlugins().forEach {
             assistantRegistry.register(it)
+        }
+
+        assistantRunManager.onStatusChanged = ::onAssistantStatusChanged
+    }
+
+    private fun onAssistantStatusChanged(status: RunManagerStatus) {
+        when (status) {
+            is RunManagerStatus.Response -> {
+                val markdownParser = MarkdownParser(status.response)
+                val renderedMarkdown = AnsiMarkdownRenderer().render(markdownParser.parse())
+                responsePrinter.println()
+                responsePrinter.println(renderedMarkdown)
+
+                tts.playText(status.response)
+            }
+
+            is RunManagerStatus.ToolCall -> {
+                responsePrinter.print("\u001b[1A\u001b[2K")
+                responsePrinter.println(" ${green("==>")} ${blue(status.details.function.name)} (${status.details.function.arguments})")
+                responsePrinter.println()
+                responsePrinter.println()
+            }
+
+            is RunManagerStatus.MessageCreated -> {
+                responsePrinter.print("\u001b[1A\u001b[2K")
+                responsePrinter.println(status.message.content.joinToString(" ") { it.text.value })
+                responsePrinter.println()
+                responsePrinter.println()
+
+                tts.playText(status.message.content.firstOrNull()?.text?.value ?: "")
+            }
+
+            is RunManagerStatus.Error -> {
+                responsePrinter.println()
+                responsePrinter.println(status.message)
+
+                tts.playText(status.message)
+            }
+
+            is RunManagerStatus.RunStatusChanged -> {
+                responsePrinter.print("\u001b[1A\u001b[2K")
+                val indicator = when (status.runStatus) {
+                    RunStatus.FAILED,
+                    RunStatus.CANCELLED,
+                    RunStatus.EXPIRED -> "x"
+
+                    RunStatus.COMPLETED -> green("✔")
+                    else -> blue(workingSpinner.next())
+                }
+
+                responsePrinter.println(" $indicator ${status.runStatus}")
+            }
+
+            RunManagerStatus.BeforeBeginRun -> {
+                responsePrinter.println()
+            }
         }
     }
 
@@ -124,7 +192,7 @@ class ConsoleApplication(
                 if (audioRecorder.isRecording()) {
                     endAudioRecording()
                     transcribeAudioRecording()
-                    if(userProperties.getAutoSendVoice()) {
+                    if (userProperties.getAutoSendVoice()) {
                         println()
                         responsePrinter.println("${green(promptText())} $transcribedText")
                         inputHandler.handleInput(transcribedText)

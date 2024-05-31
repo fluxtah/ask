@@ -1,5 +1,6 @@
 package com.fluxtah.ask.app
 
+import com.fluxtah.ask.api.AssistantRunManager
 import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.store.user.UserProperties
 import com.fluxtah.ask.app.commanding.CommandFactory

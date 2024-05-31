@@ -6,7 +6,7 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
-import com.fluxtah.ask.app.AssistantRunManager
+import com.fluxtah.ask.api.AssistantRunManager
 
 class RecoverRun(private val assistantRunManager: AssistantRunManager) : Command() {
     override val requiresApiKey: Boolean = true
