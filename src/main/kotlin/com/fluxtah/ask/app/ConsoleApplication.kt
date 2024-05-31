@@ -198,7 +198,7 @@ class ConsoleApplication(
 
         return when {
             audioRecorder.isRecording() -> {
-                lineReader.readLine(red("[Recording... Press ENTER to stop]"))
+                lineReader.readLine(red("[Recording \uD83C\uDFA4 - ENTER to stop]"))
             }
 
             else -> {
