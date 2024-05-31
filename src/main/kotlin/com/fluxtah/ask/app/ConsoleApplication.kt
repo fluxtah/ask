@@ -15,7 +15,7 @@ import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.audio.AudioApi
-import com.fluxtah.ask.api.clients.openai.audio.CreateTranscriptionRequest
+import com.fluxtah.ask.api.clients.openai.audio.model.CreateTranscriptionRequest
 import com.fluxtah.ask.api.plugins.AskPluginLoader
 import com.fluxtah.ask.api.printers.AskConsoleResponsePrinter
 import com.fluxtah.ask.api.printers.AskResponsePrinter

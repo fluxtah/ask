@@ -6,42 +6,16 @@
 package com.fluxtah.ask.api.clients.openai.audio
 
 import com.fluxtah.ask.api.clients.httpClient
+import com.fluxtah.ask.api.clients.openai.audio.model.CreateTranscriptionRequest
+import com.fluxtah.ask.api.clients.openai.audio.model.CreateTranscriptionResponse
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.io.File
-
-data class CreateTranscriptionRequest(
-    val audioFile: File,
-    val model: String = "whisper-1",
-    /**
-     * The language of the input audio. Supplying the input language in ISO-639-1 format will improve accuracy and latency.
-     */
-    val language: String? = null,
-    /**
-     * An optional text to guide the model's style or continue a previous audio segment. The prompt should match the audio language.
-     */
-    val prompt: String? = null,
-
-    /**
-     * Defaults to json. The format of the transcript output, in one of these options: json, text, srt, verbose_json, or vtt.
-     */
-    val responseFormat: String? = null,
-
-    /**
-     * The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2
-     * will make it more focused and deterministic. If set to 0, the model will use log probability to
-     * automatically increase the temperature until certain thresholds are hit.
-     */
-    val temperature: Double? = null,
-)
-
-@Serializable
-data class CreateTranscriptionResponse(val text: String)
 
 class AudioApi(
     private val client: HttpClient = httpClient,
@@ -88,4 +62,76 @@ class AudioApi(
             else -> throw IllegalStateException(response.bodyAsText())
         }
     }
+
+    /**
+     * Generates audio from the input text.
+     */
+    suspend fun createSpeech(request: CreateSpeechRequest): ByteArray {
+        val response = client.post("$baseUri/$version/audio/speech") {
+            header("Authorization", "Bearer ${apiKeyProvider.invoke()}")
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
+
+        when (response.status) {
+            HttpStatusCode.OK -> {
+                return response.body()
+            }
+
+            else -> throw IllegalStateException(response.bodyAsText())
+        }
+    }
+}
+
+@Serializable
+data class CreateSpeechRequest(
+    /**
+     * One of the available TTS models: tts-1 or tts-1-hd
+     */
+    val model: SpeechModel,
+    /**
+     * The text to generate audio for. The maximum length is 4096 characters.
+     */
+    val input: String,
+    /**
+     * The voice to use when generating the audio. Supported voices are alloy, echo, fable, onyx, nova, and shimmer.
+     * Previews of the voices are available in the Text to speech guide https://docs.openai.com/text-to-speech/overview/
+     */
+    val voice: SpeechVoice,
+
+    /**
+     * The format to audio in. Supported formats are mp3, opus, aac, flac, wav, and pcm.
+     */
+    @SerialName("response_format")
+    val responseFormat: ResponseFormat? = null,
+    /**
+     * The speed of the generated audio. Select a value from 0.25 to 4.0. 1.0 is the default.
+     */
+    val speed: Double? = null
+)
+
+@Serializable
+enum class SpeechModel(val value: String) {
+    TTS_1("tts-1"),
+    TTS_1_HD("tts-1-hd")
+}
+
+@Serializable
+enum class SpeechVoice(val value: String) {
+    ALLOY("alloy"),
+    ECHO("echo"),
+    FABLE("fable"),
+    ONYX("onyx"),
+    NOVA("nova"),
+    SHIMMER("shimmer")
+}
+
+@Serializable
+enum class ResponseFormat(val value: String) {
+    MP3("mp3"),
+    OPUS("opus"),
+    AAC("aac"),
+    FLAC("flac"),
+    WAV("wav"),
+    PCM("pcm")
 }
