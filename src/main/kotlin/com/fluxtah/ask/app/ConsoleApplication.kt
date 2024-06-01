@@ -8,21 +8,16 @@ package com.fluxtah.ask.app
 import AudioPlayer
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import com.fluxtah.ask.Version
 import com.fluxtah.ask.api.AssistantRunManager
 import com.fluxtah.ask.api.AssistantRunner
 import com.fluxtah.ask.api.RunManagerStatus
-import com.fluxtah.ask.api.ansi.blue
 import com.fluxtah.ask.api.ansi.green
 import com.fluxtah.ask.api.ansi.red
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
-import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
 import com.fluxtah.ask.api.clients.openai.audio.AudioApi
 import com.fluxtah.ask.api.clients.openai.audio.model.CreateTranscriptionRequest
-import com.fluxtah.ask.api.markdown.AnsiMarkdownRenderer
-import com.fluxtah.ask.api.markdown.MarkdownParser
 import com.fluxtah.ask.api.plugins.AskPluginLoader
 import com.fluxtah.ask.api.printers.AskConsoleResponsePrinter
 import com.fluxtah.ask.api.printers.AskResponsePrinter
@@ -91,7 +86,10 @@ class ConsoleApplication(
         AudioPlayer(),
         coroutineScope
     ),
-    private val workingSpinner: WorkingSpinner = WorkingSpinner(),
+    private val consoleOutputRenderer: ConsoleOutputRenderer = ConsoleOutputRenderer(
+        responsePrinter,
+        commandFactory
+    )
 ) {
     private var transcribedText: String = ""
     private val completer = AskCommandCompleter(assistantRegistry, commandFactory, threadRepository)
@@ -118,62 +116,13 @@ class ConsoleApplication(
         assistantRunManager.onStatusChanged = ::onAssistantStatusChanged
     }
 
-    private fun onAssistantStatusChanged(status: RunManagerStatus) {
-        when (status) {
-            is RunManagerStatus.Response -> {
-                val markdownParser = MarkdownParser(status.response)
-                val renderedMarkdown = AnsiMarkdownRenderer().render(markdownParser.parse())
-                responsePrinter.println()
-                responsePrinter.println(renderedMarkdown)
-
-                tts.playText(status.response)
-            }
-
-            is RunManagerStatus.ToolCall -> {
-                responsePrinter.print("\u001b[1A\u001b[2K")
-                responsePrinter.println(" ${green("==>")} ${blue(status.details.function.name)} (${status.details.function.arguments})")
-                responsePrinter.println()
-                responsePrinter.println()
-            }
-
-            is RunManagerStatus.MessageCreated -> {
-                responsePrinter.print("\u001b[1A\u001b[2K")
-                responsePrinter.println(status.message.content.joinToString(" ") { it.text.value })
-                responsePrinter.println()
-                responsePrinter.println()
-
-                tts.playText(status.message.content.firstOrNull()?.text?.value ?: "")
-            }
-
-            is RunManagerStatus.Error -> {
-                responsePrinter.println()
-                responsePrinter.println(status.message)
-
-                tts.playText(status.message)
-            }
-
-            is RunManagerStatus.RunStatusChanged -> {
-                responsePrinter.print("\u001b[1A\u001b[2K")
-                val indicator = when (status.runStatus) {
-                    RunStatus.FAILED,
-                    RunStatus.CANCELLED,
-                    RunStatus.EXPIRED -> "x"
-
-                    RunStatus.COMPLETED -> green("✔")
-                    else -> blue(workingSpinner.next())
-                }
-
-                responsePrinter.println(" $indicator ${status.runStatus}")
-            }
-
-            RunManagerStatus.BeforeBeginRun -> {
-                responsePrinter.println()
-            }
-        }
+    fun runOneShotCommand(command: String) {
+        inputHandler.handleInput(command)
+        exitProcess(0)
     }
 
     fun run() {
-        printWelcomeMessage()
+        consoleOutputRenderer.renderWelcomeMessage()
         initLogLevelAndPrint()
 
         Runtime.getRuntime().addShutdownHook(Thread {
@@ -213,6 +162,43 @@ class ConsoleApplication(
         }
     }
 
+    fun debugPlugin(pluginFile: File) {
+        assistantRegistry.register(AskPluginLoader(logger).loadPlugin(pluginFile))
+
+        run()
+    }
+
+    private fun onAssistantStatusChanged(status: RunManagerStatus) {
+        when (status) {
+            is RunManagerStatus.Response -> {
+                consoleOutputRenderer.renderAssistantResponse(status.response)
+                tts.playText(status.response)
+            }
+
+            is RunManagerStatus.ToolCall -> {
+                consoleOutputRenderer.renderAssistantToolCall(status.details)
+            }
+
+            is RunManagerStatus.MessageCreated -> {
+                consoleOutputRenderer.renderAssistantMessage(status.message)
+                tts.playText(status.message.content.firstOrNull()?.text?.value ?: "")
+            }
+
+            is RunManagerStatus.Error -> {
+                consoleOutputRenderer.renderAssistantError(status)
+                tts.playText(status.message)
+            }
+
+            is RunManagerStatus.RunStatusChanged -> {
+                consoleOutputRenderer.renderAssistantRunStatusChanged(status.runStatus)
+            }
+
+            RunManagerStatus.BeforeBeginRun -> {
+                responsePrinter.println()
+            }
+        }
+    }
+
     private fun transcribeAudioRecording() {
         runBlocking {
             val response = audioApi.createTranscription(
@@ -246,11 +232,6 @@ class ConsoleApplication(
             responsePrinter.print("\u001b[1A\u001b[2K")
         }
         Thread.sleep(waitTime)
-    }
-
-    fun runOneShotCommand(command: String) {
-        inputHandler.handleInput(command)
-        exitProcess(0)
     }
 
     private fun initLogLevelAndPrint() {
@@ -288,31 +269,5 @@ class ConsoleApplication(
         }
         return prompt
     }
-
-    fun debugPlugin(pluginFile: File) {
-        assistantRegistry.register(AskPluginLoader(logger).loadPlugin(pluginFile))
-
-        run()
-    }
-
-    private fun printWelcomeMessage() {
-        responsePrinter.println()
-        responsePrinter.println(
-            """
-             ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░
-            ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░
-            ░▒▓████████▓▒░░▒▓██████▓▒░░▒▓██████▓▒░
-            ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░
-            ░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░             
-        """.trimIndent()
-        )
-        responsePrinter.println("░▒▓█▓░ ASSISTANT KOMMANDER v${Version.APP_VERSION} ░▓█▓▒░")
-        responsePrinter.println()
-        responsePrinter.println("Assistants available:")
-        runBlocking {
-            commandFactory.create("/assistant-list").execute()
-        }
-        responsePrinter.println()
-        responsePrinter.println("Type /help for a list of commands, to quit press Ctrl+C or type /exit")
-    }
 }
+
