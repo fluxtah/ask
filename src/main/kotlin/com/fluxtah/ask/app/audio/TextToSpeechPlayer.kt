@@ -16,9 +16,14 @@ class TextToSpeechPlayer(
     private val audioPlayer: AudioPlayer,
     private val coroutineScope: CoroutineScope,
 ) {
-    val ttsSegments = mutableListOf<TtsSegment>()
+    private val ttsSegments = mutableListOf<TtsSegment>()
+
+    var enabled: Boolean = true
 
     fun queue(text: String) {
+        if (!enabled) {
+            return
+        }
         val markdownParser = MarkdownParser(text)
         val tokens = markdownParser.parse()
         val builder = StringBuilder()
@@ -98,6 +103,11 @@ class TextToSpeechPlayer(
 
     fun playNext() {
         audioPlayer.stop()
+
+        if (!enabled) {
+            return
+        }
+
         ttsSegments.firstOrNull()?.let { segment ->
             when (segment) {
                 is TtsSegment.Text -> playText(segment.content, onComplete = {
@@ -118,7 +128,6 @@ class TextToSpeechPlayer(
 
     private fun playText(text: String, onComplete: () -> Unit = {}) {
         coroutineScope.launch {
-            audioPlayer.stop()
             val audio = audioApi.createSpeech(
                 CreateSpeechRequest(
                     model = SpeechModel.TTS_1,

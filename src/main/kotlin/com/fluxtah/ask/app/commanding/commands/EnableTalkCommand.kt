@@ -12,10 +12,11 @@ class EnableTalkCommand(
     override val requiresApiKey: Boolean = false
 
     override suspend fun execute() {
-        val enabled = userProperties.getTalkEnabled()
-        userProperties.setTalkEnabled(enabled)
-        responsePrinter.println("Talk mode is now ${if (!enabled) "enabled" else "disabled"}.")
-        if(enabled) {
+        val enable = !userProperties.getTalkEnabled()
+        userProperties.setTalkEnabled(enable)
+        textToSpeechPlayer.enabled = enable
+        responsePrinter.println("Talk mode is now ${if (enable) "enabled" else "disabled"}.")
+        if (!enable) {
             textToSpeechPlayer.stop()
         }
     }

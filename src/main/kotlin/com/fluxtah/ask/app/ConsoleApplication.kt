@@ -114,6 +114,8 @@ class ConsoleApplication(
             assistantRegistry.register(it)
         }
 
+        tts.enabled = userProperties.getTalkEnabled()
+
         assistantRunManager.onStatusChanged = ::onAssistantStatusChanged
     }
 
