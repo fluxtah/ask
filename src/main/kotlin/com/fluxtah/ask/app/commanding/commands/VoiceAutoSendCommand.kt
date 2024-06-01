@@ -21,3 +21,4 @@ class VoiceAutoSendCommand(
         responsePrinter.println("Voice auto-send mode is now ${if (!enabled) "enabled" else "disabled"}.")
     }
 }
+

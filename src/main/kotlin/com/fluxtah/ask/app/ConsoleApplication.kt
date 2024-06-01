@@ -64,6 +64,11 @@ class ConsoleApplication(
         assistantRunner,
         userProperties,
     ),
+    private val tts: TextToSpeechPlayer = TextToSpeechPlayer(
+        audioApi,
+        AudioPlayer(),
+        coroutineScope
+    ),
     private val commandFactory: CommandFactory = CommandFactory(
         logger,
         responsePrinter,
@@ -73,6 +78,7 @@ class ConsoleApplication(
         userProperties,
         threadRepository,
         assistantRunManager,
+        tts
     ),
     private val inputHandler: InputHandler = InputHandler(
         commandFactory,
@@ -80,11 +86,6 @@ class ConsoleApplication(
         logger,
         userProperties,
         assistantRunManager
-    ),
-    private val tts: TextToSpeechPlayer = TextToSpeechPlayer(
-        audioApi,
-        AudioPlayer(),
-        coroutineScope
     ),
     private val consoleOutputRenderer: ConsoleOutputRenderer = ConsoleOutputRenderer(
         responsePrinter,
@@ -172,7 +173,8 @@ class ConsoleApplication(
         when (status) {
             is RunManagerStatus.Response -> {
                 consoleOutputRenderer.renderAssistantResponse(status.response)
-                tts.playText(status.response)
+                tts.queue(status.response)
+                tts.playNext()
             }
 
             is RunManagerStatus.ToolCall -> {
@@ -181,12 +183,14 @@ class ConsoleApplication(
 
             is RunManagerStatus.MessageCreated -> {
                 consoleOutputRenderer.renderAssistantMessage(status.message)
-                tts.playText(status.message.content.firstOrNull()?.text?.value ?: "")
+                tts.queue(status.message.content.firstOrNull()?.text?.value ?: "")
+                tts.playNext()
             }
 
             is RunManagerStatus.Error -> {
                 consoleOutputRenderer.renderAssistantError(status)
-                tts.playText(status.message)
+                tts.queue(status.message)
+                tts.playNext()
             }
 
             is RunManagerStatus.RunStatusChanged -> {
@@ -195,6 +199,8 @@ class ConsoleApplication(
 
             RunManagerStatus.BeforeBeginRun -> {
                 responsePrinter.println()
+                tts.stop()
+                tts.clear()
             }
         }
     }

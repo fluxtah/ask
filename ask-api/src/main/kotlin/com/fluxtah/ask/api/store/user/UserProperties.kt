@@ -22,6 +22,7 @@ class UserProperties(private val store: PropertyStore) {
         const val LOG_LEVEL = "logLevel"
         const val TRUNCATE_LAST_MESSAGES = "truncateLastMessages"
         const val AUTO_SEND_VOICE = "autoSendVoice"
+        const val TALK_ENABLED = "talkEnabled"
     }
 
     fun getThreadId(): String {
@@ -120,6 +121,14 @@ class UserProperties(private val store: PropertyStore) {
 
     fun setAutoSendVoice(autoSendVoice: Boolean) {
         store.setProperty(AUTO_SEND_VOICE, autoSendVoice.toString())
+    }
+
+    fun getTalkEnabled(): Boolean {
+        return store.getProperty(TALK_ENABLED, "false").toBoolean()
+    }
+
+    fun setTalkEnabled(talkEnabled: Boolean) {
+        store.setProperty(TALK_ENABLED, talkEnabled.toString())
     }
 
     fun load() {

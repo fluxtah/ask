@@ -10,7 +10,10 @@ class AudioPlayer {
 
     private var line: SourceDataLine? = null
 
-    suspend fun play(audioData: ByteArray) = withContext(Dispatchers.IO) {
+    suspend fun play(audioData: ByteArray, onComplete: () -> Unit = {}) = withContext(Dispatchers.IO) {
+        if (line != null) {
+            stop()
+        }
         try {
             val bais = ByteArrayInputStream(audioData)
             val audioStream: AudioInputStream = AudioSystem.getAudioInputStream(bais)
@@ -23,19 +26,24 @@ class AudioPlayer {
             }
 
             line = AudioSystem.getLine(info) as SourceDataLine
-            line!!.open(format)
-            line!!.start()
+            line?.open(format)
+            line?.start()
 
             // Gradually ramp up the volume at the start
             val buffer = ByteArray(4096)
             var bytesRead = audioStream.read(buffer, 0, buffer.size)
             while (bytesRead != -1) {
-                line!!.write(buffer, 0, bytesRead)
+                line?.write(buffer, 0, bytesRead)
+                if (line == null) {
+                    break
+                }
                 bytesRead = audioStream.read(buffer, 0, buffer.size)
             }
 
-            line!!.drain()
-            line!!.close()
+            line?.drain()
+            line?.close()
+            line = null
+            onComplete()
         } catch (ex: Exception) {
             ex.printStackTrace()
         }

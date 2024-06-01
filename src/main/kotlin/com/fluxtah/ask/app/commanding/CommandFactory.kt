@@ -7,6 +7,7 @@ import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.api.AssistantRunManager
 import com.fluxtah.ask.api.store.user.UserProperties
+import com.fluxtah.ask.app.audio.TextToSpeechPlayer
 import com.fluxtah.ask.app.commanding.commands.*
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
@@ -22,7 +23,8 @@ class CommandFactory(
     private val assistantInstallRepository: AssistantInstallRepository,
     private val userProperties: UserProperties,
     private val threadRepository: ThreadRepository,
-    private val assistantRunManager: AssistantRunManager
+    private val assistantRunManager: AssistantRunManager,
+    private val textToSpeechPlayer: TextToSpeechPlayer
 ) {
     private val commands = mutableMapOf<String, CommandEntry>()
 
@@ -286,6 +288,21 @@ class CommandFactory(
             name = "voice-auto-send",
             description = "Toggles auto-send mode for voice commands",
             command = { VoiceAutoSendCommand(userProperties, responsePrinter) }
+        )
+        registerCommand(
+            name = "s",
+            description = "Skip the current text-to-speech segment",
+            command = { SkipTalk(textToSpeechPlayer) }
+        )
+        registerCommand(
+            name = "p",
+            description = "Play the current text-to-speech segment",
+            command = { PlayTalk(textToSpeechPlayer) }
+        )
+        registerCommand(
+            name = "talk",
+            description = "Stop the current text-to-speech segment",
+            command = { EnableTalkCommand(userProperties, responsePrinter, textToSpeechPlayer) }
         )
     }
 
