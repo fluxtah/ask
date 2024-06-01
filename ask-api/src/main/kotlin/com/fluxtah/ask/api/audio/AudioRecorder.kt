@@ -1,4 +1,4 @@
-package com.fluxtah.ask.app.audio
+package com.fluxtah.ask.api.audio
 
 import com.fluxtah.askpluginsdk.io.getUserConfigDirectory
 import kotlinx.coroutines.Dispatchers

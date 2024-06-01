@@ -1,4 +1,4 @@
-package com.fluxtah.ask.app.audio
+package com.fluxtah.ask.api.audio
 
 import AudioPlayer
 import com.fluxtah.ask.api.clients.openai.audio.AudioApi

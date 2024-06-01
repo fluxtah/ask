@@ -24,8 +24,8 @@ import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.ask.api.store.user.UserProperties
-import com.fluxtah.ask.app.audio.AudioRecorder
-import com.fluxtah.ask.app.audio.TextToSpeechPlayer
+import com.fluxtah.ask.api.audio.AudioRecorder
+import com.fluxtah.ask.api.audio.TextToSpeechPlayer
 import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
@@ -69,6 +69,7 @@ class ConsoleApplication(
         AudioPlayer(),
         coroutineScope
     ),
+    private val audioRecorder: AudioRecorder = AudioRecorder(),
     private val commandFactory: CommandFactory = CommandFactory(
         logger,
         responsePrinter,
@@ -78,7 +79,9 @@ class ConsoleApplication(
         userProperties,
         threadRepository,
         assistantRunManager,
-        tts
+        tts,
+        coroutineScope,
+        audioRecorder
     ),
     private val inputHandler: InputHandler = InputHandler(
         commandFactory,
@@ -101,8 +104,6 @@ class ConsoleApplication(
         .terminal(terminal)
         .completer(completer)
         .build()
-
-    private val audioRecorder = AudioRecorder()
 
     init {
         val exposedLogger = org.jetbrains.exposed.sql.exposedLogger as Logger
@@ -150,11 +151,6 @@ class ConsoleApplication(
                         inputHandler.handleInput(transcribedText)
                         transcribedText = ""
                     }
-                    continue
-                }
-
-                if (input == "/r") {
-                    beginAudioRecording()
                     continue
                 }
 
@@ -220,17 +216,6 @@ class ConsoleApplication(
     private fun endAudioRecording() {
         coroutineScope.launch {
             audioRecorder.stop()
-        }
-        clearLinesAndSleep()
-    }
-
-    private fun beginAudioRecording() {
-        coroutineScope.launch {
-            if (audioRecorder.isRecording()) {
-                audioRecorder.stop()
-            } else {
-                audioRecorder.start()
-            }
         }
         clearLinesAndSleep()
     }

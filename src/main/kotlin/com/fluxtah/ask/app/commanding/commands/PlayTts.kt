@@ -1,8 +1,8 @@
 package com.fluxtah.ask.app.commanding.commands
 
-import com.fluxtah.ask.app.audio.TextToSpeechPlayer
+import com.fluxtah.ask.api.audio.TextToSpeechPlayer
 
-class PlayTalk(private val player: TextToSpeechPlayer) : Command() {
+class PlayTts(private val player: TextToSpeechPlayer) : Command() {
     override suspend fun execute() {
         player.playNext()
     }

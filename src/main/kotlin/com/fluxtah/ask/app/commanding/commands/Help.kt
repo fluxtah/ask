@@ -17,7 +17,6 @@ class Help(val commandFactory: CommandFactory, val printer: AskResponsePrinter) 
         commandFactory.getCommands().forEach {
             printer.println(String.format("%-20s %-30s", it.name, it.description))
         }
-        printer.println(String.format("%-20s %-30s", "r", "Begin recording audio for transcription"))
     }
 }
 

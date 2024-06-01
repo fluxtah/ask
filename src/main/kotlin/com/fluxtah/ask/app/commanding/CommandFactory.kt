@@ -6,11 +6,13 @@ import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.api.AssistantRunManager
+import com.fluxtah.ask.api.audio.AudioRecorder
 import com.fluxtah.ask.api.store.user.UserProperties
-import com.fluxtah.ask.app.audio.TextToSpeechPlayer
+import com.fluxtah.ask.api.audio.TextToSpeechPlayer
 import com.fluxtah.ask.app.commanding.commands.*
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
+import kotlinx.coroutines.CoroutineScope
 
 
 data class CommandEntry(val name: String, val description: String, val command: (List<String>) -> Command)
@@ -24,7 +26,9 @@ class CommandFactory(
     private val userProperties: UserProperties,
     private val threadRepository: ThreadRepository,
     private val assistantRunManager: AssistantRunManager,
-    private val textToSpeechPlayer: TextToSpeechPlayer
+    private val textToSpeechPlayer: TextToSpeechPlayer,
+    private val coroutineScope: CoroutineScope,
+    private val audioRecorder: AudioRecorder
 ) {
     private val commands = mutableMapOf<String, CommandEntry>()
 
@@ -290,14 +294,19 @@ class CommandFactory(
             command = { VoiceAutoSendCommand(userProperties, responsePrinter) }
         )
         registerCommand(
+            name = "r",
+            description = "Start recording audio",
+            command = { RecordVoice(coroutineScope, audioRecorder, responsePrinter) }
+        )
+        registerCommand(
             name = "s",
             description = "Skip the current text-to-speech segment",
-            command = { SkipTalk(textToSpeechPlayer) }
+            command = { SkipTts(textToSpeechPlayer) }
         )
         registerCommand(
             name = "p",
             description = "Play the current text-to-speech segment",
-            command = { PlayTalk(textToSpeechPlayer) }
+            command = { PlayTts(textToSpeechPlayer) }
         )
         registerCommand(
             name = "talk",

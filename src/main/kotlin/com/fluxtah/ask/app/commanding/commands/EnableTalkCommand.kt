@@ -2,7 +2,7 @@ package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.store.user.UserProperties
-import com.fluxtah.ask.app.audio.TextToSpeechPlayer
+import com.fluxtah.ask.api.audio.TextToSpeechPlayer
 
 class EnableTalkCommand(
     private val userProperties: UserProperties,
