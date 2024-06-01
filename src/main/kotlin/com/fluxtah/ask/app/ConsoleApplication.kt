@@ -143,14 +143,7 @@ class ConsoleApplication(
                 transcribedText = ""
 
                 if (audioRecorder.isRecording()) {
-                    endAudioRecording()
-                    transcribeAudioRecording()
-                    if (userProperties.getAutoSendVoice()) {
-                        println()
-                        responsePrinter.println("${green(promptText())} $transcribedText")
-                        inputHandler.handleInput(transcribedText)
-                        transcribedText = ""
-                    }
+                    handleRecordingComplete()
                     continue
                 }
 
@@ -158,6 +151,17 @@ class ConsoleApplication(
             } catch (e: Exception) {
                 logger.log(LogLevel.ERROR, "Error: ${e.message}")
             }
+        }
+    }
+
+    private fun handleRecordingComplete() {
+        endAudioRecording()
+        transcribeAudioRecording()
+        if (userProperties.getAutoSendVoice()) {
+            println()
+            responsePrinter.println("${green(promptText())} $transcribedText")
+            inputHandler.handleInput(transcribedText)
+            transcribedText = ""
         }
     }
 
