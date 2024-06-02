@@ -61,11 +61,11 @@ class AssistantRunner(
     ): RunResult {
         val run = assistantsApi.runs.listRuns(details.threadId).data.first()
 
-        if (run.status != RunStatus.REQUIRES_ACTION) {
+        if (run.status != RunStatus.REQUIRES_ACTION && run.status != RunStatus.QUEUED) {
             return RunResult.Error("Retry is only supported for runs in status REQUIRES_ACTION, last run was in status ${run.status}")
         }
 
-        val assistantDef = assistantRegistry.getAssistantById(run.assistantId)
+        val assistantDef = assistantRegistry.getAssistantById("koder")
             ?: return RunResult.Error("Assistant definition not found: ${run.assistantId}")
 
         processRun(assistantDef, run, details.threadId, onRunStatusChanged, onMessageCreation, onExecuteTool)

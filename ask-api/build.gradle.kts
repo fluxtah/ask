@@ -40,11 +40,21 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-java-time:0.37.3")
 
     testImplementation(kotlin("test"))
+
+    // MockK for mocking
+    testImplementation("io.mockk:mockk:1.12.0")
+
+    // Coroutine Testing
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2")
+
+    // JUnit
+    testImplementation("junit:junit:4.13.2")
 }
 
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
     jvmToolchain(17)
 }

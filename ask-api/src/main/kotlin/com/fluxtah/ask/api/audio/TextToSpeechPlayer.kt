@@ -9,14 +9,22 @@ import com.fluxtah.ask.api.clients.openai.audio.SpeechVoice
 import com.fluxtah.ask.api.markdown.MarkdownParser
 import com.fluxtah.ask.api.markdown.Token
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+const val ADVICE_PLAY_OR_SKIP_CODE = "Type SLASH P to play the code block or SLASH S to skip it."
 
 class TextToSpeechPlayer(
     private val audioApi: AudioApi,
     private val audioPlayer: AudioPlayer,
     private val coroutineScope: CoroutineScope,
 ) {
-    private val ttsSegments = mutableListOf<TtsSegment>()
+    // Backing property, mutable and private
+    private val _ttsSegments = mutableListOf<TtsSegment>()
+
+    // Public property, immutable view
+    val ttsSegments: List<TtsSegment>
+        get() = _ttsSegments
 
     var enabled: Boolean = true
 
@@ -32,7 +40,7 @@ class TextToSpeechPlayer(
         tokens.forEach { token ->
             when (token) {
                 is Token.CodeBlock -> {
-                    appendBlock(builder, newSegments, "Type SLASH P to play the code block or SLASH S to skip it.")
+                    appendBlock(builder, newSegments, ADVICE_PLAY_OR_SKIP_CODE)
                     if (builder.isNotEmpty()) {
                         newSegments.add(TtsSegment.Text(builder.toString()))
                         builder.clear()
@@ -74,7 +82,7 @@ class TextToSpeechPlayer(
             }
         }
 
-        ttsSegments.addAll(newSegments)
+        _ttsSegments.addAll(newSegments)
     }
 
     private fun appendBlock(builder: StringBuilder, segments: MutableList<TtsSegment>, content: String) {
@@ -97,7 +105,7 @@ class TextToSpeechPlayer(
 
     fun skipNext() {
         ttsSegments.firstOrNull()?.let {
-            ttsSegments.removeAt(0)
+            _ttsSegments.removeAt(0)
         }
     }
 
@@ -125,8 +133,8 @@ class TextToSpeechPlayer(
                     }
                 })
             }
-            if(ttsSegments.size > 0) {
-                ttsSegments.removeAt(0)
+            if(ttsSegments.isNotEmpty()) {
+                _ttsSegments.removeAt(0)
             }
         }
     }
@@ -151,7 +159,7 @@ class TextToSpeechPlayer(
     }
 
     fun clear() {
-        ttsSegments.clear()
+        _ttsSegments.clear()
     }
 
     sealed class TtsSegment {
