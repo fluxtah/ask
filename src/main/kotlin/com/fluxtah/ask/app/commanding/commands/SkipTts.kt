@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 
 class SkipTts(private val player: TextToSpeechPlayer) : Command() {
     override suspend fun execute() {
+        player.stop()
         player.skipNext()
         player.playNext()
     }

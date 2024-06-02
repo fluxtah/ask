@@ -4,6 +4,7 @@ import com.fluxtah.ask.api.audio.TextToSpeechPlayer
 
 class PlayTts(private val player: TextToSpeechPlayer) : Command() {
     override suspend fun execute() {
+        player.stop()
         player.playNext()
     }
 
