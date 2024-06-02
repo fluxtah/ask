@@ -101,8 +101,8 @@ class AssistantRunManager(
         }
 
         val result = runBlocking {
-            assistantRunner.retryRun(
-                details = RunRetryDetails(
+            assistantRunner.recoverRun(
+                details = RecoverRunDetails(
                     threadId = threadId,
                     runId = runId,
                 ),

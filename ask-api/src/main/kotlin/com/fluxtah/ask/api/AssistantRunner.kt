@@ -53,16 +53,16 @@ class AssistantRunner(
         return RunResult.Complete(run.id, text)
     }
 
-    suspend fun retryRun(
-        details: RunRetryDetails,
+    suspend fun recoverRun(
+        details: RecoverRunDetails,
         onRunStatusChanged: (RunStatus) -> Unit,
         onMessageCreation: (Message) -> Unit,
         onExecuteTool: (FunctionToolCallDetails) -> Unit
     ): RunResult {
         val run = assistantsApi.runs.listRuns(details.threadId).data.first()
 
-        if (run.status != RunStatus.REQUIRES_ACTION && run.status != RunStatus.QUEUED) {
-            return RunResult.Error("Retry is only supported for runs in status REQUIRES_ACTION, last run was in status ${run.status}")
+        if (run.status != RunStatus.REQUIRES_ACTION && run.status != RunStatus.QUEUED && run.status != RunStatus.IN_PROGRESS) {
+            return RunResult.Error("Recover is only supported for runs in status REQUIRES_ACTION, QUEUED or IN_PROGRESS, last run was in status ${run.status}")
         }
 
         val assistantDef = assistantRegistry.getAssistantById("koder")

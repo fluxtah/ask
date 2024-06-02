@@ -1,6 +1,6 @@
 package com.fluxtah.ask.api
 
-data class RunRetryDetails(
+data class RecoverRunDetails(
     val threadId: String,
     val runId: String,
 )

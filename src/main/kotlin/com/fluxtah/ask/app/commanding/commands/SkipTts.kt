@@ -29,14 +29,12 @@ class RecordVoice(
 ) : Command() {
     override suspend fun execute() {
         coroutineScope.launch {
-            if (audioRecorder.isRecording()) {
-                audioRecorder.stop()
-            } else {
-                audioRecorder.start()
-            }
+            audioRecorder.stop()
+            audioRecorder.start()
         }
         responsePrinter.print("\u001b[1A\u001b[2K")
-        Thread.sleep(100)
+        // Unfortunate hack to allow the audio recorder to start/stop prevents a race condition
+        Thread.sleep(250)
     }
 
     override val requiresApiKey: Boolean = false
