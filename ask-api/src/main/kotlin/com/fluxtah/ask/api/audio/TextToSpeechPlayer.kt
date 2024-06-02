@@ -102,9 +102,12 @@ class TextToSpeechPlayer(
     }
 
     fun playNext() {
-        audioPlayer.stop()
-
         if (!enabled) {
+            return
+        }
+
+        // Don't play if already playing
+        if(audioPlayer.isPlaying()) {
             return
         }
 
@@ -122,7 +125,9 @@ class TextToSpeechPlayer(
                     }
                 })
             }
-            ttsSegments.removeAt(0)
+            if(ttsSegments.size > 0) {
+                ttsSegments.removeAt(0)
+            }
         }
     }
 
