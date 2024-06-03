@@ -296,7 +296,7 @@ class CommandFactory(
         registerCommand(
             name = "r",
             description = "Start recording audio",
-            command = { RecordVoice(coroutineScope, audioRecorder, responsePrinter) }
+            command = { RecordVoice(coroutineScope, audioRecorder, responsePrinter, textToSpeechPlayer) }
         )
         registerCommand(
             name = "s",
