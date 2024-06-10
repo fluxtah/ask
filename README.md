@@ -6,18 +6,29 @@ A kotlin coding assistant comes out of the box called `@koder` that can help you
 **WARNING: Please always ensure the code you wish to modify with @koder is commited to source control and carefully check its changes, this is a highly experimental project**
 
 ```bash
-$ @koder how do I make a basic kotlin hello world function?
+ask@koder ➜ @koder make me a basic hello world project in C and run it please
+ ==> createDirectory ({"directoryName": "hello_c_project"})
 
-[Exec Fun] createDirectory: {"directoryName":"KotlinHelloWorld"}...
-Creating directory: /ask/KotlinHelloWorld
-[Fun Result] {"created":"true"}
-[Exec Fun] createFile: {"fileName":"KotlinHelloWorld/Main.kt"}...
-Creating file: /ask/KotlinHelloWorld/Main.kt
-[Fun Result] {"created":"true"}
-[Exec Fun] writeFile: {"fileName":"KotlinHelloWorld/Main.kt","fileContents":"fun main() {\n    println(\"Hello, World!\")\n}"}...
-Writing to file: /ask/KotlinHelloWorld/Main.kt
-[Fun Result] {"written":"true"}
-The Kotlin "Hello World" function has been created in the file `Main.kt` within the `KotlinHelloWorld` project.
+ ==> createFile ({"fileName": "hello_c_project/Makefile"})
+
+ ==> createFile ({"fileName": "hello_c_project/main.c"})
+
+ ==> writeFile ({"fileName":"hello_c_project/Makefile","fileContents":"all:\n\tgcc -o main main.c\n\nclean:\n\trm -f main"})
+
+ ==> writeFile ({"fileName":"hello_c_project/main.c","fileContents":"#include <stdio.h>\n\nint main() {\n    printf(\"Hello, World!\\n\");\n    return 0;\n}"})
+
+ ==> execMake ({"projectDir":"hello_c_project","makeTarget":"all"})
+
+ ==> execShellCommand ({"projectDir":"hello_c_project","shellCommand":"./main"})
+
+ ✔ COMPLETED
+
+Your basic "Hello, World!" C project has been created and run successfully! The output was:
+
+Hello, World!
+
+
+ask@koder ➜ 
 ```
 
 Assistants can be created and installed as plugins allowing developers to share and create their own assistants.
