@@ -9,7 +9,6 @@ import com.fluxtah.ask.api.clients.openai.audio.SpeechVoice
 import com.fluxtah.ask.api.markdown.MarkdownParser
 import com.fluxtah.ask.api.markdown.Token
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 const val ADVICE_PLAY_OR_SKIP_CODE = "Type SLASH P to play the code block or SLASH S to skip it."

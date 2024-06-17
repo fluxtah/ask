@@ -37,11 +37,13 @@ dependencies {
     implementation("org.gradle:gradle-tooling-api:8.4")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.7.0")
 
-    implementation("org.jline:jline:3.20.0")
+    implementation("org.jline:jline:3.25.0")
 
     implementation("org.jetbrains.exposed:exposed-dao:0.37.3")
 
-    implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("ch.qos.logback:logback-classic:1.4.12")
+
+    implementation("io.insert-koin:koin-core:3.5.6")
 
     testImplementation(kotlin("test"))
 }

@@ -6,6 +6,9 @@
 
 import com.fluxtah.ask.Version
 import com.fluxtah.ask.app.ConsoleApplication
+import com.fluxtah.ask.app.di.appModule
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.startKoin
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -35,7 +38,11 @@ fun main(args: Array<String>) {
         }
     }
 
-    val consoleApplication = ConsoleApplication()
+    startKoin {
+        modules(appModule)
+    }
+
+    val consoleApplication: ConsoleApplication = GlobalContext.get().get()
 
     if (testing) {
         val testPluginArgIndexLong = args.indexOf("--test-plugin")

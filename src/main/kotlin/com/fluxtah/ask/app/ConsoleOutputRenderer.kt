@@ -16,7 +16,7 @@ import kotlinx.coroutines.runBlocking
 class ConsoleOutputRenderer(
     private val responsePrinter: AskResponsePrinter,
     private val commandFactory: CommandFactory,
-    private val workingSpinner: WorkingSpinner = WorkingSpinner(),
+    private val workingSpinner: WorkingSpinner,
 ) {
     fun renderWelcomeMessage() {
         responsePrinter.println()

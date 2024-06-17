@@ -5,105 +5,44 @@
  */
 package com.fluxtah.ask.app
 
-import AudioPlayer
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.fluxtah.ask.api.AssistantRunManager
-import com.fluxtah.ask.api.AssistantRunner
 import com.fluxtah.ask.api.RunManagerStatus
 import com.fluxtah.ask.api.ansi.green
 import com.fluxtah.ask.api.ansi.red
-import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
-import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
+import com.fluxtah.ask.api.audio.AudioRecorder
+import com.fluxtah.ask.api.audio.TextToSpeechPlayer
 import com.fluxtah.ask.api.clients.openai.audio.AudioApi
 import com.fluxtah.ask.api.clients.openai.audio.model.CreateTranscriptionRequest
 import com.fluxtah.ask.api.plugins.AskPluginLoader
-import com.fluxtah.ask.api.printers.AskConsoleResponsePrinter
 import com.fluxtah.ask.api.printers.AskResponsePrinter
-import com.fluxtah.ask.api.repository.ThreadRepository
-import com.fluxtah.ask.api.store.PropertyStore
 import com.fluxtah.ask.api.store.user.UserProperties
-import com.fluxtah.ask.api.audio.AudioRecorder
-import com.fluxtah.ask.api.audio.TextToSpeechPlayer
-import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jline.reader.LineReader
-import org.jline.reader.LineReaderBuilder
-import org.jline.terminal.Terminal
-import org.jline.terminal.TerminalBuilder
 import java.io.File
 import kotlin.system.exitProcess
 
 class ConsoleApplication(
-    private val logger: AskLogger = AskLogger(),
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
-    private val userProperties: UserProperties = UserProperties(PropertyStore("user.properties")),
-    private val assistantsApi: AssistantsApi = AssistantsApi(
-        apiKeyProvider = { userProperties.getOpenaiApiKey() }
-    ),
-    private val audioApi: AudioApi = AudioApi(
-        apiKeyProvider = { userProperties.getOpenaiApiKey() }
-    ),
-    private val assistantRegistry: AssistantRegistry = AssistantRegistry(),
-    private val assistantInstallRepository: AssistantInstallRepository = AssistantInstallRepository(assistantsApi),
-    private val responsePrinter: AskResponsePrinter = AskConsoleResponsePrinter(),
-    private val threadRepository: ThreadRepository = ThreadRepository(),
-    private val assistantRunner: AssistantRunner = AssistantRunner(
-        logger = logger,
-        assistantsApi = assistantsApi,
-        assistantRegistry = assistantRegistry,
-        assistantInstallRepository = assistantInstallRepository,
-    ),
-    private val assistantRunManager: AssistantRunManager = AssistantRunManager(
-        assistantRunner,
-        userProperties,
-    ),
-    private val tts: TextToSpeechPlayer = TextToSpeechPlayer(
-        audioApi,
-        AudioPlayer(),
-        coroutineScope
-    ),
-    private val audioRecorder: AudioRecorder = AudioRecorder(),
-    private val commandFactory: CommandFactory = CommandFactory(
-        logger,
-        responsePrinter,
-        assistantsApi,
-        assistantRegistry,
-        assistantInstallRepository,
-        userProperties,
-        threadRepository,
-        assistantRunManager,
-        tts,
-        coroutineScope,
-        audioRecorder
-    ),
-    private val inputHandler: InputHandler = InputHandler(
-        commandFactory,
-        responsePrinter,
-        logger,
-        userProperties,
-        assistantRunManager
-    ),
-    private val consoleOutputRenderer: ConsoleOutputRenderer = ConsoleOutputRenderer(
-        responsePrinter,
-        commandFactory
-    )
+    private val logger: AskLogger,
+    private val coroutineScope: CoroutineScope,
+    private val userProperties: UserProperties,
+    private val audioApi: AudioApi,
+    private val assistantRegistry: AssistantRegistry,
+    private val responsePrinter: AskResponsePrinter,
+    assistantRunManager: AssistantRunManager,
+    private val tts: TextToSpeechPlayer,
+    private val audioRecorder: AudioRecorder,
+    private val inputHandler: InputHandler,
+    private val consoleOutputRenderer: ConsoleOutputRenderer,
+    private val lineReader: LineReader
 ) {
     private var transcribedText: String = ""
-    private val completer = AskCommandCompleter(assistantRegistry, commandFactory, threadRepository)
-    private val terminal: Terminal = TerminalBuilder.builder()
-        .system(true)
-        .build()
-    private val lineReader: LineReader = LineReaderBuilder.builder()
-        .terminal(terminal)
-        .completer(completer)
-        .build()
 
     init {
         val exposedLogger = org.jetbrains.exposed.sql.exposedLogger as Logger
@@ -267,4 +206,3 @@ class ConsoleApplication(
         return prompt
     }
 }
-
