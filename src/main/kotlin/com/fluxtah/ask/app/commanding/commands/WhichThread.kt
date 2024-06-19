@@ -6,11 +6,15 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
+import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.store.user.UserProperties
 
-class WhichThread(private val userProperties: UserProperties) : Command() {
+class WhichThread(
+    private val userProperties: UserProperties,
+    private val printer: AskResponsePrinter
+) : Command() {
     override val requiresApiKey: Boolean = false
     override suspend fun execute() {
-        println("Current thread: ${userProperties.getThreadId().ifEmpty { "None" }}")
+        printer.println("Current thread: ${userProperties.getThreadId().ifEmpty { "None" }}")
     }
 }

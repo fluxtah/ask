@@ -9,11 +9,12 @@ package com.fluxtah.ask.app.commanding.commands
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
+import com.fluxtah.ask.api.printers.AskResponsePrinter
 
 class GetAssistant(
     private val assistantRegistry: AssistantRegistry,
     private val assistantInstallRepository: AssistantInstallRepository,
-    private val assistantsApi: AssistantsApi,
+    private val responsePrinter: AskResponsePrinter,
     private val assistantId: String
 ) :
     Command() {
@@ -21,7 +22,7 @@ class GetAssistant(
     override suspend fun execute() {
         val assistantDef = assistantRegistry.getAssistantById(assistantId)
         if (assistantDef == null) {
-            println("Assistant not found")
+            responsePrinter.println("Assistant not found")
             return
         }
 
@@ -29,8 +30,6 @@ class GetAssistant(
 
         val installed = assistantInstallRecord != null
 
-        println("@${assistantDef.id} - ${assistantDef.name} ${assistantDef.version}, ${assistantDef.model}, installed: $installed")
-
-        //println(JSON.encodeToString<Assistant>(assistantsApi.assistants.getAssistant(installedAssistants.installId)))
+        responsePrinter.println("@${assistantDef.id} - ${assistantDef.name} ${assistantDef.version}, ${assistantDef.model}, installed: $installed")
     }
 }

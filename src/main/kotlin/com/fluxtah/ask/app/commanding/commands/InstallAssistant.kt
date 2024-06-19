@@ -8,10 +8,12 @@ package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
+import com.fluxtah.ask.api.printers.AskResponsePrinter
 
 class InstallAssistant(
     private val assistantRegistry: AssistantRegistry,
     private val assistantInstallRepository: AssistantInstallRepository,
+    private val printer: AskResponsePrinter,
     val assistantId: String
 ) : Command() {
     override val requiresApiKey: Boolean = true
@@ -19,12 +21,12 @@ class InstallAssistant(
         val def = assistantRegistry.getAssistantById(assistantId)
 
         if (def == null) {
-            println("Assistant not found: $assistantId")
+            printer.println("Assistant not found: $assistantId")
             return
         }
 
         val assistantInstallRecord = assistantInstallRepository.install(def)
 
-        println("Installed assistant: @${def.id} ${def.version} as ${assistantInstallRecord.installId}")
+        printer.println("Installed assistant: @${def.id} ${def.version} as ${assistantInstallRecord.installId}")
     }
 }

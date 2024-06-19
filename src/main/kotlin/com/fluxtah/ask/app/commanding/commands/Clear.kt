@@ -6,9 +6,11 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
-class Clear : Command() {
+import com.fluxtah.ask.api.printers.AskResponsePrinter
+
+class Clear(private val printer: AskResponsePrinter) : Command() {
     override suspend fun execute() {
-        println("\u001b[H\u001b[2J")
+        printer.println("\u001b[H\u001b[2J")
     }
 
     override val requiresApiKey: Boolean = false

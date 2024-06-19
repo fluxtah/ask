@@ -6,14 +6,14 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
-import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
-import com.fluxtah.ask.api.store.user.UserProperties
+import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.repository.ThreadRepository
+import com.fluxtah.ask.api.store.user.UserProperties
 
 class SwitchThread(
-    private val assistantsApi: AssistantsApi,
     private val userProperties: UserProperties,
     private val threadRepository: ThreadRepository,
+    private val printer: AskResponsePrinter,
     private val threadId: String
 ) : Command() {
     override val requiresApiKey: Boolean = true
@@ -22,9 +22,9 @@ class SwitchThread(
         if (thread != null) {
             userProperties.setThreadId(threadId)
             userProperties.save()
-            println("Switched to thread: $threadId")
+            printer.println("Switched to thread: $threadId")
         } else {
-            println("Thread with ID $threadId not found")
+            printer.println("Thread with ID $threadId not found")
         }
     }
 }

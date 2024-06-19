@@ -6,9 +6,14 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
-class UnknownCommand(private val message: String) : Command() {
+import com.fluxtah.ask.api.printers.AskResponsePrinter
+
+class UnknownCommand(
+    private val printer: AskResponsePrinter,
+    private val message: String
+) : Command() {
     override val requiresApiKey: Boolean = false
     override suspend fun execute() {
-        println(message)
+        printer.println(message)
     }
 }

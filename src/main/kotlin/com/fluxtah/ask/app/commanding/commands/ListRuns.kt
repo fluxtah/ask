@@ -7,21 +7,35 @@
 package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
+import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.store.user.UserProperties
 
-class ListRuns(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties) : Command() {
+class ListRuns(
+    private val assistantsApi: AssistantsApi,
+    private val userProperties: UserProperties,
+    private val printer: AskResponsePrinter
+) : Command() {
     override val requiresApiKey: Boolean = true
     override suspend fun execute() {
         val threadId = userProperties.getThreadId()
         if (threadId.isEmpty()) {
-            println("You need to create a thread first. Use /thread-new")
+            printer.println("You need to create a thread first. Use /thread-new")
             return
         }
-        println()
-        println(String.format("%-19s %-28s %-12s %-10s %-10s", "Created", "ID", "Status", "In", "Out"))
-        println("------------------------------------------------------------------------------------")
+        printer.println()
+        printer.println(String.format("%-19s %-28s %-12s %-10s %-10s", "Created", "ID", "Status", "In", "Out"))
+        printer.println("------------------------------------------------------------------------------------")
         assistantsApi.runs.listRuns(threadId).data.forEach {
-            println(String.format("%-19s %-28s %-12s %-10s %-10s", it.createdAt.toShortDateTimeString(), it.id, it.status, it.usage?.promptTokens, it.usage?.completionTokens))
+            printer.println(
+                String.format(
+                    "%-19s %-28s %-12s %-10s %-10s",
+                    it.createdAt.toShortDateTimeString(),
+                    it.id,
+                    it.status,
+                    it.usage?.promptTokens,
+                    it.usage?.completionTokens
+                )
+            )
         }
     }
 }

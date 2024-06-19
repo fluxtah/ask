@@ -8,24 +8,29 @@ package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.clients.openai.assistants.model.AssistantRunStepList
+import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.store.user.UserProperties
 import kotlinx.serialization.encodeToString
 
-class ListRunSteps(private val assistantsApi: AssistantsApi, private val userProperties: UserProperties) :
+class ListRunSteps(
+    private val assistantsApi: AssistantsApi,
+    private val userProperties: UserProperties,
+    private val printer: AskResponsePrinter
+) :
     Command() {
     override val requiresApiKey: Boolean = true
     override suspend fun execute() {
         val threadId = userProperties.getThreadId()
         if (threadId.isEmpty()) {
-            println("You need to create a thread first. Use /thread-new")
+            printer.println("You need to create a thread first. Use /thread-new")
             return
         }
         val runId = userProperties.getRunId()
         if (runId.isEmpty()) {
-            println("No last run")
+            printer.println("No last run")
             return
         }
 
-        println(JSON.encodeToString<AssistantRunStepList>(assistantsApi.runs.listRunSteps(threadId, runId)))
+        printer.println(JSON.encodeToString<AssistantRunStepList>(assistantsApi.runs.listRunSteps(threadId, runId)))
     }
 }

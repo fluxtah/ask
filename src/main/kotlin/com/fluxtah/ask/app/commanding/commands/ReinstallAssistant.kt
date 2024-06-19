@@ -2,10 +2,12 @@ package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
+import com.fluxtah.ask.api.printers.AskResponsePrinter
 
 class ReinstallAssistant(
     private val assistantRegistry: AssistantRegistry,
     private val assistantInstallRepository: AssistantInstallRepository,
+    private val printer: AskResponsePrinter,
     val assistantId: String
 ) : Command() {
     override val requiresApiKey: Boolean = true
@@ -13,7 +15,7 @@ class ReinstallAssistant(
         val def = assistantRegistry.getAssistantById(assistantId)
 
         if (def == null) {
-            println("Assistant not found: $assistantId")
+            printer.println("Assistant not found: $assistantId")
             return
         }
 
@@ -21,14 +23,14 @@ class ReinstallAssistant(
 
         if (assistantInstallRecord != null) {
             if (assistantInstallRepository.uninstall(assistantInstallRecord)) {
-                println("Uninstalled assistant: @${def.id} ${assistantInstallRecord.version} ${assistantInstallRecord.installId}")
+                printer.println("Uninstalled assistant: @${def.id} ${assistantInstallRecord.version} ${assistantInstallRecord.installId}")
             } else {
-                println("Failed to uninstall assistant: @${def.id} ${assistantInstallRecord.version} ${assistantInstallRecord.installId}")
+                printer.println("Failed to uninstall assistant: @${def.id} ${assistantInstallRecord.version} ${assistantInstallRecord.installId}")
                 return
             }
         }
 
         val newAssistantInstallRecord = assistantInstallRepository.install(def)
-        println("Installed assistant: @${def.id} ${def.version} ${newAssistantInstallRecord.installId}")
+        printer.println("Installed assistant: @${def.id} ${def.version} ${newAssistantInstallRecord.installId}")
     }
 }

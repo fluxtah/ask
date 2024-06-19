@@ -6,12 +6,13 @@
 
 package com.fluxtah.ask.app.commanding.commands
 
+import com.fluxtah.ask.api.printers.AskResponsePrinter
 import kotlin.system.exitProcess
 
-class Exit : Command() {
+class Exit(private val printer: AskResponsePrinter) : Command() {
     override val requiresApiKey: Boolean = false
     override suspend fun execute() {
-        println("Exiting the application...")
+        printer.println("Exiting the application...")
         exitProcess(0)
     }
 }

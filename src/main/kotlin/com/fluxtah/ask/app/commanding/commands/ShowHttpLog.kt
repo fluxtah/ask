@@ -7,12 +7,13 @@
 package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.clients.openai.assistants.HTTP_LOG
+import com.fluxtah.ask.api.printers.AskResponsePrinter
 
-data object ShowHttpLog : Command() {
+class ShowHttpLog(private val printer: AskResponsePrinter) : Command() {
     override val requiresApiKey: Boolean = false
     override suspend fun execute() {
         HTTP_LOG.forEach {
-            println(it)
+            printer.println(it)
         }
     }
 }
