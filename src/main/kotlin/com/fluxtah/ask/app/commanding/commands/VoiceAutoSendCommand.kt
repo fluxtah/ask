@@ -15,7 +15,7 @@ class VoiceAutoSendCommand(
 ) : Command() {
     override val requiresApiKey: Boolean = false
 
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
         val enabled = userProperties.getAutoSendVoice()
         userProperties.setAutoSendVoice(!enabled)
         responsePrinter.println("Voice auto-send mode is now ${if (!enabled) "enabled" else "disabled"}.")

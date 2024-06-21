@@ -12,7 +12,7 @@ class RecordVoice(
     private val responsePrinter: AskResponsePrinter,
     private val player: TextToSpeechPlayer
 ) : Command() {
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
         coroutineScope.launch {
             player.stop()
             audioRecorder.start()

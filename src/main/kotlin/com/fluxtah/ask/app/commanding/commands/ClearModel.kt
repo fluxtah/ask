@@ -14,7 +14,7 @@ class ClearModel(
     private val printer: AskResponsePrinter
 ) : Command() {
     override val requiresApiKey: Boolean = false
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
         userProperties.setModel("")
         userProperties.save()
         printer.println("Model cleared, all targeted assistants will use their default model")

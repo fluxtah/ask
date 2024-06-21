@@ -16,7 +16,7 @@ class ListRuns(
     private val printer: AskResponsePrinter
 ) : Command() {
     override val requiresApiKey: Boolean = true
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
         val threadId = userProperties.getThreadId()
         if (threadId.isEmpty()) {
             printer.println("You need to create a thread first. Use /thread-new")

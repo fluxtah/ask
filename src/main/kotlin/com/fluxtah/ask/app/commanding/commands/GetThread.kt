@@ -15,11 +15,12 @@ import kotlinx.serialization.encodeToString
 class GetThread(
     private val assistantsApi: AssistantsApi,
     private val userProperties: UserProperties,
-    private val printer: AskResponsePrinter,
-    private val threadId: String? = null
+    private val printer: AskResponsePrinter
 ) : Command() {
     override val requiresApiKey: Boolean = true
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
+        val threadId = if (args.isEmpty()) null else args.first()
+
         val actualThread = threadId ?: userProperties.getThreadId().ifEmpty { null }
 
         if (actualThread == null) {

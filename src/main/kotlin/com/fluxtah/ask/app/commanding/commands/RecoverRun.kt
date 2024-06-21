@@ -10,7 +10,7 @@ import com.fluxtah.ask.api.AssistantRunManager
 
 class RecoverRun(private val assistantRunManager: AssistantRunManager) : Command() {
     override val requiresApiKey: Boolean = true
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
         assistantRunManager.recoverRun()
     }
 }

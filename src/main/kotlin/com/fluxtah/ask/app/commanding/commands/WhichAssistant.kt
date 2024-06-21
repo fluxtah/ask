@@ -18,7 +18,7 @@ class WhichAssistant(
     private val printer: AskResponsePrinter,
 ) : Command() {
     override val requiresApiKey: Boolean = false
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
         val assistantId = userProperties.getAssistantId()
         if (assistantId.isEmpty()) {
             printer.println("You need to select an assistant first. Use /assistant-list to see available assistants")

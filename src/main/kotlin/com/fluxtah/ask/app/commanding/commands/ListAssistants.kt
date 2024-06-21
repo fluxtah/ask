@@ -18,7 +18,7 @@ class ListAssistants(
     private val printer: AskResponsePrinter
 ) : Command() {
     override val requiresApiKey: Boolean = true
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
         val installedAssistants = assistantInstallRepository.getAssistantInstallRecords()
         printer.println()
         printer.println(String.format("%-10s %-10s %-16s %-12s %-8s", "ID", "Version", "Name", "Installed", "Update"))

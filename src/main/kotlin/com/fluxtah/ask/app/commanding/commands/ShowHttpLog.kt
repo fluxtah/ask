@@ -11,7 +11,7 @@ import com.fluxtah.ask.api.printers.AskResponsePrinter
 
 class ShowHttpLog(private val printer: AskResponsePrinter) : Command() {
     override val requiresApiKey: Boolean = false
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
         HTTP_LOG.forEach {
             printer.println(it)
         }

@@ -16,7 +16,7 @@ class ListThreads(
     private val printer: AskResponsePrinter
 ) : Command() {
     override val requiresApiKey: Boolean = true
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
         val threads = threadRepository.listThreads()
         printer.println()
         printer.println(String.format("%-36s %-30s", "Thread", "Title"))

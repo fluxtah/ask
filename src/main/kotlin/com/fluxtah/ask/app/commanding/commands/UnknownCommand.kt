@@ -13,7 +13,7 @@ class UnknownCommand(
     private val message: String
 ) : Command() {
     override val requiresApiKey: Boolean = false
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
         printer.println(message)
     }
 }

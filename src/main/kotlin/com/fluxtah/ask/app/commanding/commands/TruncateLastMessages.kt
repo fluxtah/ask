@@ -11,16 +11,19 @@ import com.fluxtah.ask.api.store.user.UserProperties
 
 class TruncateLastMessages(
     private val userProperties: UserProperties,
-    private val printer: AskResponsePrinter,
-    private val number: Int? = null
+    private val printer: AskResponsePrinter
 ) : Command() {
     override val requiresApiKey: Boolean = false
 
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
+        val number = args.firstOrNull()?.toIntOrNull()
         if (number == null) {
             val currentValue = userProperties.getTruncateLastMessages()
-            printer.println("Current truncate last messages value: $currentValue. To set a new value, use /truncate-last-messages <number>")
-        } else if (number < 0) {
+            printer.println("Current truncate last messages value: $currentValue. Usage: /truncate-last-messages <number>")
+            return
+        }
+
+        if (number < 0) {
             printer.println("Invalid number. Please provide a number between 0 and a positive integer.")
         } else {
             userProperties.setTruncateLastMessages(number)

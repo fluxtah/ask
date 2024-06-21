@@ -106,7 +106,7 @@ class AskCommandCompleter(
             }
 
             wordIndex == 0 -> {
-                commandFactory.getCommands().map { "/${it.name}" }.filter { it.startsWith(currentWord) }
+                commandFactory.getCommandsSortedByName().map { "/${it.name}" }.filter { it.startsWith(currentWord) }
                     .forEach { candidates.add(Candidate(it)) }
             }
         }

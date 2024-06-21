@@ -11,7 +11,7 @@ class EnableTalkCommand(
 ) : Command() {
     override val requiresApiKey: Boolean = false
 
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
         val enable = !userProperties.getTalkEnabled()
         userProperties.setTalkEnabled(enable)
         textToSpeechPlayer.enabled = enable

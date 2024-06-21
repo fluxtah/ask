@@ -13,11 +13,18 @@ import com.fluxtah.ask.api.printers.AskResponsePrinter
 class UnInstallAssistant(
     private val assistantRegistry: AssistantRegistry,
     private val assistantInstallRepository: AssistantInstallRepository,
-    private val printer: AskResponsePrinter,
-    private val assistantId: String
+    private val printer: AskResponsePrinter
 ) : Command() {
     override val requiresApiKey: Boolean = true
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
+
+        if (args.size != 1) {
+            printer.println("Invalid number of arguments for /assistant-uninstall, expected an assistant ID following the command")
+            return
+        }
+
+        val assistantId = args.first()
+
         val def = assistantRegistry.getAssistantById(assistantId)
 
         if (def == null) {

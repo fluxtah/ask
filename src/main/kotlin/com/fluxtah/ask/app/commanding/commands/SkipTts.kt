@@ -9,7 +9,7 @@ package com.fluxtah.ask.app.commanding.commands
 import com.fluxtah.ask.api.audio.TextToSpeechPlayer
 
 class SkipTts(private val player: TextToSpeechPlayer) : Command() {
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
         player.stop()
         player.skipNext()
         player.playNext()

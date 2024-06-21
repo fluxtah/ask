@@ -16,12 +16,13 @@ class ThreadNew(
     private val assistantsApi: AssistantsApi,
     private val userProperties: UserProperties,
     private val threadRepository: ThreadRepository,
-    private val printer: AskResponsePrinter,
-    private val title: String? = null
+    private val printer: AskResponsePrinter
 ) :
     Command() {
     override val requiresApiKey: Boolean = true
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
+        val title = if (args.isNotEmpty()) args.joinToString(" ") else null
+
         val thread = assistantsApi.threads.createThread()
         printer.println("Created thread: ${thread.id} at ${Date(thread.createdAt)}")
         userProperties.setThreadId(thread.id)

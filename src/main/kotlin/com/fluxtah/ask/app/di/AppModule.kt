@@ -25,7 +25,6 @@ import com.fluxtah.ask.app.ConsoleApplication
 import com.fluxtah.ask.app.ConsoleOutputRenderer
 import com.fluxtah.ask.app.InputHandler
 import com.fluxtah.ask.app.WorkingSpinner
-import com.fluxtah.ask.app.commanding.CommandFactory
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +57,6 @@ val appModule = module {
     singleOf(::AudioPlayer)
     singleOf(::TextToSpeechPlayer)
     singleOf(::AudioRecorder)
-    singleOf(::CommandFactory)
     singleOf(::InputHandler)
     singleOf(::ConsoleOutputRenderer)
     singleOf(::AskCommandCompleter)

@@ -10,9 +10,15 @@ import com.fluxtah.ask.api.printers.AskResponsePrinter
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-class ShellExec(private val responsePrinter: AskResponsePrinter, private val command: String) : Command() {
+class ShellExec(private val responsePrinter: AskResponsePrinter) : Command() {
     override val requiresApiKey: Boolean = false
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
+        if (args.isEmpty()) {
+            responsePrinter.println("Invalid number of arguments for /exec, expected a shell command following the command")
+            return
+        }
+
+        val command = args.joinToString(" ")
         executeShellCommand(command)
     }
 

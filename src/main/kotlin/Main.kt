@@ -7,6 +7,8 @@
 import com.fluxtah.ask.Version
 import com.fluxtah.ask.app.ConsoleApplication
 import com.fluxtah.ask.app.di.appModule
+import com.fluxtah.ask.app.di.commandFactoryModule
+import com.fluxtah.ask.app.di.commandsModule
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import java.io.File
@@ -39,7 +41,7 @@ fun main(args: Array<String>) {
     }
 
     startKoin {
-        modules(appModule)
+        modules(commandsModule, commandFactoryModule, appModule)
     }
 
     val consoleApplication: ConsoleApplication = GlobalContext.get().get()

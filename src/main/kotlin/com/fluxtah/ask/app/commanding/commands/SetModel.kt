@@ -11,11 +11,16 @@ import com.fluxtah.ask.api.store.user.UserProperties
 
 class SetModel(
     private val userProperties: UserProperties,
-    private val printer: AskResponsePrinter,
-    private val modelId: String
+    private val printer: AskResponsePrinter
 ) : Command() {
     override val requiresApiKey: Boolean = false
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
+        if (args.size != 1) {
+            printer.println("Invalid number of arguments for /model, expected a model ID following the command")
+            return
+        }
+
+        val modelId = args.first()
         userProperties.setModel(modelId)
         userProperties.save()
         printer.println("Model set to $modelId, all targeted assistants will use this model until you /model-clear")

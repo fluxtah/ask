@@ -8,18 +8,23 @@ package com.fluxtah.ask.app.commanding.commands
 
 import com.fluxtah.ask.api.assistants.AssistantInstallRepository
 import com.fluxtah.ask.api.assistants.AssistantRegistry
-import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.printers.AskResponsePrinter
 
 class GetAssistant(
     private val assistantRegistry: AssistantRegistry,
     private val assistantInstallRepository: AssistantInstallRepository,
     private val responsePrinter: AskResponsePrinter,
-    private val assistantId: String
 ) :
     Command() {
     override val requiresApiKey: Boolean = true
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
+        if (args.size != 1) {
+            responsePrinter.println("Invalid number of arguments for /assistant-info, expected a assistant ID following the command")
+            return
+        }
+
+        val assistantId = args.first()
+
         val assistantDef = assistantRegistry.getAssistantById(assistantId)
         if (assistantDef == null) {
             responsePrinter.println("Assistant not found")

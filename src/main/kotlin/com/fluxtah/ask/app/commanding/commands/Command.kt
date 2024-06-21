@@ -8,5 +8,5 @@ package com.fluxtah.ask.app.commanding.commands
 
 sealed class Command {
     abstract val requiresApiKey: Boolean
-    abstract suspend fun execute()
+    abstract suspend fun execute(args: List<String>)
 }

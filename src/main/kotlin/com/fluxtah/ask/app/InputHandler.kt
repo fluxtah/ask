@@ -4,10 +4,8 @@ import com.fluxtah.ask.api.AssistantRunManager
 import com.fluxtah.ask.api.printers.AskResponsePrinter
 import com.fluxtah.ask.api.store.user.UserProperties
 import com.fluxtah.ask.app.commanding.CommandFactory
-import com.fluxtah.ask.app.commanding.commands.Command
 import com.fluxtah.askpluginsdk.logging.AskLogger
 import com.fluxtah.askpluginsdk.logging.LogLevel
-import kotlinx.coroutines.runBlocking
 
 class InputHandler(
     private val commandFactory: CommandFactory,
@@ -24,13 +22,11 @@ class InputHandler(
         try {
             when {
                 input.startsWith("/") -> {
-                    val command = commandFactory.create(input)
-                    if (runCommand(command)) return
+                    commandFactory.executeCommand(input)
                 }
 
                 input.startsWith(":") -> { // Alias for /exec
-                    val command = commandFactory.create("/exec ${input.drop(1)}")
-                    if (runCommand(command)) return
+                    commandFactory.executeCommand("/exec ${input.drop(1)}")
                 }
 
                 else -> {
@@ -43,16 +39,4 @@ class InputHandler(
         }
     }
 
-    private fun runCommand(command: Command): Boolean {
-        if (command.requiresApiKey) {
-            if (userProperties.getOpenaiApiKey().isEmpty()) {
-                responsePrinter.println("You need to set an OpenAI API key first! with /set-key <api-key>")
-                return true
-            }
-        }
-        runBlocking {
-            command.execute()
-        }
-        return false
-    }
 }

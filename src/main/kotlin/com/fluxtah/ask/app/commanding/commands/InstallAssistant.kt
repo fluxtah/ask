@@ -14,10 +14,16 @@ class InstallAssistant(
     private val assistantRegistry: AssistantRegistry,
     private val assistantInstallRepository: AssistantInstallRepository,
     private val printer: AskResponsePrinter,
-    val assistantId: String
 ) : Command() {
     override val requiresApiKey: Boolean = true
-    override suspend fun execute() {
+    override suspend fun execute(args: List<String>) {
+        if (args.size != 1) {
+            printer.println("Invalid number of arguments for /assistant-install, expected an assistant ID following the command")
+            return
+        }
+
+        val assistantId = args.first()
+
         val def = assistantRegistry.getAssistantById(assistantId)
 
         if (def == null) {

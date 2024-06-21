@@ -33,7 +33,7 @@ class ConsoleOutputRenderer(
         responsePrinter.println()
         responsePrinter.println("Assistants available:")
         runBlocking {
-            commandFactory.create("/assistant-list").execute()
+            commandFactory.executeCommand("/assistant-list")
         }
         responsePrinter.println()
         responsePrinter.println("Type /help for a list of commands, to quit press Ctrl+C or type /exit")

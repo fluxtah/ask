@@ -6,419 +6,46 @@
 
 package com.fluxtah.ask.app.commanding
 
-import com.fluxtah.ask.api.AssistantRunManager
-import com.fluxtah.ask.api.assistants.AssistantInstallRepository
-import com.fluxtah.ask.api.assistants.AssistantRegistry
-import com.fluxtah.ask.api.audio.AudioRecorder
-import com.fluxtah.ask.api.audio.TextToSpeechPlayer
-import com.fluxtah.ask.api.clients.openai.assistants.AssistantsApi
 import com.fluxtah.ask.api.printers.AskResponsePrinter
-import com.fluxtah.ask.api.repository.ThreadRepository
 import com.fluxtah.ask.api.store.user.UserProperties
-import com.fluxtah.ask.app.commanding.commands.Clear
-import com.fluxtah.ask.app.commanding.commands.ClearModel
 import com.fluxtah.ask.app.commanding.commands.Command
-import com.fluxtah.ask.app.commanding.commands.DeleteThread
-import com.fluxtah.ask.app.commanding.commands.EnableTalkCommand
-import com.fluxtah.ask.app.commanding.commands.Exit
-import com.fluxtah.ask.app.commanding.commands.GetAssistant
-import com.fluxtah.ask.app.commanding.commands.GetThread
-import com.fluxtah.ask.app.commanding.commands.Help
-import com.fluxtah.ask.app.commanding.commands.InstallAssistant
-import com.fluxtah.ask.app.commanding.commands.ListAssistants
-import com.fluxtah.ask.app.commanding.commands.ListMessages
-import com.fluxtah.ask.app.commanding.commands.ListRunSteps
-import com.fluxtah.ask.app.commanding.commands.ListRuns
-import com.fluxtah.ask.app.commanding.commands.ListThreads
-import com.fluxtah.ask.app.commanding.commands.MaxCompletionTokens
-import com.fluxtah.ask.app.commanding.commands.MaxPromptTokens
-import com.fluxtah.ask.app.commanding.commands.PlayTts
-import com.fluxtah.ask.app.commanding.commands.RecordVoice
-import com.fluxtah.ask.app.commanding.commands.RecoverRun
-import com.fluxtah.ask.app.commanding.commands.ReinstallAssistant
-import com.fluxtah.ask.app.commanding.commands.SetLogLevel
-import com.fluxtah.ask.app.commanding.commands.SetModel
-import com.fluxtah.ask.app.commanding.commands.SetOpenAiApiKey
-import com.fluxtah.ask.app.commanding.commands.ShellExec
-import com.fluxtah.ask.app.commanding.commands.ShowHttpLog
-import com.fluxtah.ask.app.commanding.commands.SkipTts
-import com.fluxtah.ask.app.commanding.commands.SwitchThread
-import com.fluxtah.ask.app.commanding.commands.ThreadNew
-import com.fluxtah.ask.app.commanding.commands.ThreadRecall
-import com.fluxtah.ask.app.commanding.commands.ThreadRename
-import com.fluxtah.ask.app.commanding.commands.TruncateLastMessages
-import com.fluxtah.ask.app.commanding.commands.UnInstallAssistant
-import com.fluxtah.ask.app.commanding.commands.UnknownCommand
-import com.fluxtah.ask.app.commanding.commands.VoiceAutoSendCommand
-import com.fluxtah.ask.app.commanding.commands.WhichAssistant
-import com.fluxtah.ask.app.commanding.commands.WhichModel
-import com.fluxtah.ask.app.commanding.commands.WhichThread
-import com.fluxtah.askpluginsdk.logging.AskLogger
-import com.fluxtah.askpluginsdk.logging.LogLevel
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
-
-data class CommandEntry(val name: String, val description: String, val command: (List<String>) -> Command)
+data class CommandEntry(val name: String, val description: String, val command: () -> Command)
 
 class CommandFactory(
-    private val askLogger: AskLogger,
     private val responsePrinter: AskResponsePrinter,
-    private val assistantsApi: AssistantsApi,
-    private val assistantRegistry: AssistantRegistry,
-    private val assistantInstallRepository: AssistantInstallRepository,
     private val userProperties: UserProperties,
-    private val threadRepository: ThreadRepository,
-    private val assistantRunManager: AssistantRunManager,
-    private val textToSpeechPlayer: TextToSpeechPlayer,
-    private val coroutineScope: CoroutineScope,
-    private val audioRecorder: AudioRecorder
-) {
-    private val commands = mutableMapOf<String, CommandEntry>()
+) : KoinComponent {
+    val commands = mutableMapOf<String, CommandEntry>()
 
-    init {
-        registerCommand(
-            name = "max-completion-tokens",
-            description = "<number> - Set the max completion tokens value",
-            command = {
-                if (it.size != 1 || it.first().toIntOrNull() == null) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Current max completion tokens: ${userProperties.getMaxCompletionTokens()}, to set a new value use /max-completion-tokens <number>"
-                    )
-                } else {
-                    MaxCompletionTokens(userProperties, it.first().toInt())
-                }
-            }
-        )
-
-        registerCommand(
-            name = "max-prompt-tokens",
-            description = "<number> - Set the max prompt tokens value",
-            command = {
-                if (it.size != 1 || it.first().toIntOrNull() == null) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Current max prompt tokens: ${userProperties.getMaxPromptTokens()}, to set a new value use /max-prompt-tokens <number>"
-                    )
-                } else {
-                    MaxPromptTokens(userProperties, it.first().toInt())
-                }
-            }
-        )
-
-        registerCommand(
-            name = "help",
-            description = "Show this help",
-            command = { Help(this, responsePrinter) }
-        )
-        registerCommand(
-            name = "exit",
-            description = "Exits ask",
-            command = { Exit(responsePrinter) })
-        registerCommand(
-            name = "clear",
-            description = "Clears the screen",
-            command = { Clear(responsePrinter) }
-        )
-        registerCommand(
-            name = "truncate-last-messages",
-            description = "<number> - Set or get the truncate last messages value",
-            command = {
-                val currentValue = userProperties.getTruncateLastMessages()
-                if (it.size > 1 || (it.size == 1 && it.first().toIntOrNull() == null)) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Current truncate last messages value: $currentValue. Usage: /truncate-last-messages <number>"
-                    )
-                } else if (it.isEmpty()) {
-                    TruncateLastMessages(userProperties, responsePrinter)
-                } else {
-                    TruncateLastMessages(userProperties, responsePrinter, it.first().toInt())
-                }
-            }
-        )
-
-        registerCommand(
-            name = "assistant-install",
-            description = "<assistant-id> Installs an assistant",
-            command = {
-                if (it.size != 1) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Invalid number of arguments for /assistant-install, expected an assistant ID following the command"
-                    )
-                } else {
-                    InstallAssistant(assistantRegistry, assistantInstallRepository, responsePrinter, it.first())
-                }
-            }
-        )
-        registerCommand(
-            name = "assistant-uninstall",
-            description = "<assistant-id> Uninstalls an assistant", command = {
-                if (it.size != 1) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Invalid number of arguments for /assistant-uninstall, expected an assistant ID following the command"
-                    )
-                } else {
-                    UnInstallAssistant(assistantRegistry, assistantInstallRepository, responsePrinter, it.first())
-                }
-            }
-        )
-        registerCommand(
-            name = "assistant-list",
-            description = "Displays all available assistants",
-            command = { ListAssistants(assistantRegistry, assistantInstallRepository, responsePrinter) }
-        )
-        registerCommand(
-            name = "assistant-which",
-            description = "Displays the current assistant thread",
-            command = {
-                WhichAssistant(
-                    userProperties,
-                    assistantRegistry,
-                    assistantInstallRepository,
-                    responsePrinter
-                )
-            }
-        )
-        registerCommand(
-            name = "assistant-info",
-            description = "<assistant-id> Displays info for the assistant",
-            command = {
-                if (it.size != 1) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Invalid number of arguments for /assistant-info, expected a assistant ID following the command"
-                    )
-                } else {
-                    GetAssistant(
-                        assistantRegistry,
-                        assistantInstallRepository,
-                        responsePrinter,
-                        it.first()
-                    )
-                }
-            })
-        registerCommand(
-            name = "model",
-            description = "<model-id> Set model override affecting all assistants (gpt-3.5-turbo-16k, gpt-4-turbo, etc.)",
-            command = {
-                if (it.size != 1) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Invalid number of arguments for /model, expected a model ID following the command"
-                    )
-                } else {
-                    SetModel(userProperties, responsePrinter, it.first())
-                }
-            })
-        registerCommand(
-            name = "model-clear",
-            description = "Clears the current model override",
-            command = { ClearModel(userProperties, responsePrinter) })
-        registerCommand(
-            name = "model-which",
-            description = "Displays the current model override",
-            command = { WhichModel(userProperties, responsePrinter) })
-        registerCommand(
-            name = "thread-new",
-            description = "Creates a new assistant thread",
-            command = { args ->
-                val title = if (args.isNotEmpty()) args.joinToString(" ") else null
-                ThreadNew(assistantsApi, userProperties, threadRepository, responsePrinter, title)
-            })
-        registerCommand(
-            name = "thread-which",
-            description = "Displays the current assistant thread",
-            command = { WhichThread(userProperties, responsePrinter) })
-        registerCommand(
-            name = "thread-info",
-            description = "<thread-id> - Displays the assistant thread",
-            command = {
-                if (it.isEmpty()) {
-                    GetThread(assistantsApi, userProperties, responsePrinter, null)
-                } else {
-                    GetThread(assistantsApi, userProperties, responsePrinter, it.first())
-                }
-            }
-        )
-        registerCommand(
-            name = "thread-delete",
-            description = "<thread-id> - Delete the thread by the given id",
-            command = {
-                if (it.isEmpty() || it.joinToString("").trim().isEmpty()) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Invalid number of arguments for /thread-delete, expected a thread ID following the command"
-                    )
-                } else {
-                    DeleteThread(assistantsApi, threadRepository, userProperties, responsePrinter, it.first().trim())
-                }
-            }
-        )
-        registerCommand(
-            name = "thread-list",
-            description = "Lists all assistant threads",
-            command = { ListThreads(userProperties, threadRepository, responsePrinter) }
-        )
-        registerCommand(
-            name = "thread-switch",
-            description = "<thread-id> - Switches to the given thread",
-            command = {
-                if (it.size != 1) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Invalid number of arguments for /thread-switch, expected a thread ID following the command"
-                    )
-                } else {
-                    SwitchThread(userProperties, threadRepository, responsePrinter, it.first().trim())
-                }
-            }
-        )
-        registerCommand(
-            name = "thread-rename",
-            description = "<thread-id> <new-title> - Renames the given thread",
-            command = {
-                if (it.size != 2) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Invalid number of arguments for /thread-rename, expected a thread ID and new title following the command"
-                    )
-                } else {
-                    ThreadRename(threadRepository, it[0], it[1])
-                }
-            }
-        )
-        registerCommand(
-            name = "thread-recall",
-            description = "Recalls the current assistant thread messages (prints out message history)",
-            command = { ThreadRecall(assistantsApi, userProperties, responsePrinter) }
-        )
-        registerCommand(
-            name = "message-list",
-            description = "Lists all messages in the current assistant thread",
-            command = { ListMessages(assistantsApi, userProperties, responsePrinter) }
-        )
-        registerCommand(
-            name = "run-list",
-            description = "Lists all runs in the current assistant thread",
-            command = { ListRuns(assistantsApi, userProperties, responsePrinter) }
-        )
-        registerCommand(
-            name = "run-step-list",
-            description = "Lists all run steps in the current assistant thread",
-            command = { ListRunSteps(assistantsApi, userProperties, responsePrinter) })
-
-        registerCommand(
-            name = "run-recover",
-            description = "Recovers the last run in the current assistant thread",
-            command = { RecoverRun(assistantRunManager) }
-        )
-        registerCommand(
-            name = "http-log",
-            description = "Displays the last 10 HTTP requests",
-            command = { ShowHttpLog(responsePrinter) })
-        registerCommand(
-            name = "set-key",
-            description = "<api-key> - Set your openai api key",
-            command = {
-                if (it.size != 1) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Invalid number of arguments for /set-key, expected an API key following the command"
-                    )
-                } else {
-                    SetOpenAiApiKey(userProperties, it.first())
-                }
-            }
-        )
-        registerCommand(
-            name = "log-level",
-            description = "<level> Set the log level (ERROR, DEBUG, INFO, OFF)",
-            command = {
-                if (it.size != 1) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Invalid number of arguments for /log-level, expected a log level ERROR, DEBUG, INFO or OFF following the command, current log level: ${userProperties.getLogLevel()}"
-                    )
-                } else {
-                    try {
-                        SetLogLevel(userProperties, askLogger, LogLevel.valueOf(it.first().uppercase()))
-                    } catch (e: IllegalArgumentException) {
-                        UnknownCommand(responsePrinter, "Invalid log level: ${it.first()}")
-                    }
-                }
-            })
-        registerCommand(
-            name = "exec",
-            description = "<command> - Executes a shell command for convenience",
-            command = {
-                if (it.isEmpty()) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Invalid number of arguments for /exec, expected a shell command following the command"
-                    )
-                } else {
-                    ShellExec(responsePrinter, it.joinToString(" "))
-                }
-            }
-        )
-        registerCommand(
-            name = "assistant-reinstall",
-            description = "<assistant-id> Reinstall an assistant",
-            command = {
-                if (it.size != 1) {
-                    UnknownCommand(
-                        responsePrinter,
-                        "Invalid number of arguments for /assistant-reinstall, expected an assistant ID following the command"
-                    )
-                } else {
-                    ReinstallAssistant(assistantRegistry, assistantInstallRepository, responsePrinter, it.first())
-                }
-            }
-        )
-
-        registerCommand(
-            name = "voice-auto-send",
-            description = "Toggles auto-send mode for voice commands",
-            command = { VoiceAutoSendCommand(userProperties, responsePrinter) }
-        )
-        registerCommand(
-            name = "r",
-            description = "Start recording audio",
-            command = { RecordVoice(coroutineScope, audioRecorder, responsePrinter, textToSpeechPlayer) }
-        )
-        registerCommand(
-            name = "s",
-            description = "Skip the current text-to-speech segment",
-            command = { SkipTts(textToSpeechPlayer) }
-        )
-        registerCommand(
-            name = "p",
-            description = "Play the current text-to-speech segment",
-            command = { PlayTts(textToSpeechPlayer) }
-        )
-        registerCommand(
-            name = "talk",
-            description = "Stop the current text-to-speech segment",
-            command = { EnableTalkCommand(userProperties, responsePrinter, textToSpeechPlayer) }
-        )
+    inline fun <reified T : Command> registerCommand(name: String, description: String) {
+        commands[name] = CommandEntry(name, description) { get<T>() }
     }
 
-    fun registerCommand(name: String, description: String, command: (List<String>) -> Command) {
-        commands[name] = CommandEntry(name, description, command)
-    }
-
-    fun create(input: String): Command {
+    fun executeCommand(input: String) {
         val parts = input.drop(1).split(" ")
-        return commands[parts[0]]?.command?.invoke(parts.drop(1)) ?: UnknownCommand(
-            responsePrinter,
-            "Unknown command: ${parts[0]}"
-        )
+        val command = commands[parts[0]]?.command?.invoke()
+
+        if (command == null) {
+            responsePrinter.println("Command not found: ${parts[0]}")
+            return
+        }
+
+        if (command.requiresApiKey) {
+            if (userProperties.getOpenaiApiKey().isEmpty()) {
+                responsePrinter.println("You need to set an OpenAI API key first! with /set-key <api-key>")
+                return
+            }
+        }
+        runBlocking {
+            command.execute(parts.drop(1))
+        }
     }
 
-    fun getCommands(): List<CommandEntry> {
+    fun getCommandsSortedByName(): List<CommandEntry> {
         return commands.values.sortedBy { it.name }
     }
 }
