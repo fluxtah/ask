@@ -1,0 +1,25 @@
+/*
+ * Copyright (c) 2024 Ian Warwick
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ */
+
+package com.fluxtah.ask.api.commanding.commands
+
+import com.fluxtah.ask.api.printers.AskResponsePrinter
+import com.fluxtah.ask.api.commanding.CommandFactory
+
+class Help(
+    private val commandFactory: com.fluxtah.ask.api.commanding.CommandFactory,
+    private val printer: AskResponsePrinter
+) : Command() {
+    override val requiresApiKey: Boolean = false
+    override suspend fun execute(args: List<String>) {
+        printer.println(String.format("%-20s %-30s", "Command", "Description"))
+        printer.println("--------------------------------------------------------------------------------")
+        commandFactory.getCommandsSortedByName().forEach {
+            printer.println(String.format("%-20s %-30s", it.name, it.description))
+        }
+    }
+}
+

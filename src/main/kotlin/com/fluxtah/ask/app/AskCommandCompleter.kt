@@ -2,7 +2,7 @@ package com.fluxtah.ask.app
 
 import com.fluxtah.ask.api.assistants.AssistantRegistry
 import com.fluxtah.ask.api.repository.ThreadRepository
-import com.fluxtah.ask.app.commanding.CommandFactory
+import com.fluxtah.ask.api.commanding.CommandFactory
 import com.fluxtah.askpluginsdk.io.getCurrentWorkingDirectory
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.jline.reader.Candidate

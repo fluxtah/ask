@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 val ktor_version: String by project
 
 plugins {
@@ -39,6 +41,8 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:0.37.3")
     implementation("org.jetbrains.exposed:exposed-java-time:0.37.3")
 
+    implementation("io.insert-koin:koin-core:3.5.6")
+
     testImplementation(kotlin("test"))
 
     // MockK for mocking
@@ -51,10 +55,11 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 }
 
-tasks.test {
-    useJUnitPlatform()
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
 }
 
-kotlin {
-    jvmToolchain(17)
+tasks.test {
+    useJUnitPlatform()
 }

@@ -5,10 +5,11 @@
  */
 
 import com.fluxtah.ask.Version
+import com.fluxtah.ask.api.di.askApiModule
 import com.fluxtah.ask.app.ConsoleApplication
 import com.fluxtah.ask.app.di.appModule
-import com.fluxtah.ask.app.di.commandFactoryModule
-import com.fluxtah.ask.app.di.commandsModule
+import com.fluxtah.ask.api.di.commandFactoryModule
+import com.fluxtah.ask.api.di.commandsModule
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import java.io.File
@@ -41,7 +42,7 @@ fun main(args: Array<String>) {
     }
 
     startKoin {
-        modules(commandsModule, commandFactoryModule, appModule)
+        modules(commandsModule, commandFactoryModule, askApiModule, appModule)
     }
 
     val consoleApplication: ConsoleApplication = GlobalContext.get().get()

@@ -10,7 +10,7 @@ import com.fluxtah.ask.api.clients.openai.assistants.model.RunStatus
 import com.fluxtah.ask.api.markdown.AnsiMarkdownRenderer
 import com.fluxtah.ask.api.markdown.MarkdownParser
 import com.fluxtah.ask.api.printers.AskResponsePrinter
-import com.fluxtah.ask.app.commanding.CommandFactory
+import com.fluxtah.ask.api.commanding.CommandFactory
 import kotlinx.coroutines.runBlocking
 
 class ConsoleOutputRenderer(

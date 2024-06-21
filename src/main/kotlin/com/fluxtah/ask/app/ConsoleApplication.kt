@@ -8,6 +8,7 @@ package com.fluxtah.ask.app
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.fluxtah.ask.api.AssistantRunManager
+import com.fluxtah.ask.api.InputHandler
 import com.fluxtah.ask.api.RunManagerStatus
 import com.fluxtah.ask.api.ansi.green
 import com.fluxtah.ask.api.ansi.red
