@@ -14,7 +14,7 @@ import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import java.io.File
 
-fun main(args: Array<String>) {
+suspend fun main(args: Array<String>) {
     val testing = args.contains("--test-plugin") || args.contains("-t")
     val interactive = args.contains("--interactive") || args.contains("-i")
     val help = args.contains("--help") || args.contains("-h")

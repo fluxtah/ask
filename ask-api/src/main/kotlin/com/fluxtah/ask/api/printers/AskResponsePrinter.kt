@@ -7,7 +7,14 @@
 package com.fluxtah.ask.api.printers
 
 interface AskResponsePrinter {
-    fun println(message: String? = null)
-    fun print(message: String)
-    fun flush()
+    fun begin(): PrinterContext
+    fun printMessage(message: String) {
+        begin().println(message).end()
+    }
+}
+
+interface PrinterContext {
+    fun println(line: String? = null): PrinterContext
+    fun print(text: String): PrinterContext
+    fun end()
 }

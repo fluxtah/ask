@@ -22,15 +22,18 @@ class ListRunSteps(
     override suspend fun execute(args: List<String>) {
         val threadId = userProperties.getThreadId()
         if (threadId.isEmpty()) {
-            printer.println("You need to create a thread first. Use /thread-new")
+            printer.printMessage("You need to create a thread first. Use /thread-new")
             return
         }
         val runId = userProperties.getRunId()
         if (runId.isEmpty()) {
-            printer.println("No last run")
+            printer.printMessage("No last run")
             return
         }
 
-        printer.println(JSON.encodeToString<AssistantRunStepList>(assistantsApi.runs.listRunSteps(threadId, runId)))
+        printer
+            .begin()
+            .println(JSON.encodeToString<AssistantRunStepList>(assistantsApi.runs.listRunSteps(threadId, runId)))
+            .end()
     }
 }

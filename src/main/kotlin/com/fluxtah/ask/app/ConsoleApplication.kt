@@ -60,12 +60,12 @@ class ConsoleApplication(
         assistantRunManager.onStatusChanged = ::onAssistantStatusChanged
     }
 
-    fun runOneShotCommand(command: String) {
+    suspend fun runOneShotCommand(command: String) {
         inputHandler.handleInput(command)
         exitProcess(0)
     }
 
-    fun run() {
+    suspend fun run() {
         consoleOutputRenderer.renderWelcomeMessage()
         initLogLevelAndPrint()
 
@@ -94,18 +94,18 @@ class ConsoleApplication(
         }
     }
 
-    private fun handleRecordingComplete() {
+    private suspend fun handleRecordingComplete() {
         endAudioRecording()
         transcribeAudioRecording()
         if (userProperties.getAutoSendVoice()) {
             println()
-            responsePrinter.println("${green(promptText())} $transcribedText")
+            responsePrinter.printMessage("${green(promptText())} $transcribedText")
             inputHandler.handleInput(transcribedText)
             transcribedText = ""
         }
     }
 
-    fun debugPlugin(pluginFile: File) {
+    suspend fun debugPlugin(pluginFile: File) {
         assistantRegistry.register(AskPluginLoader(logger).loadPlugin(pluginFile))
 
         run()
@@ -140,7 +140,7 @@ class ConsoleApplication(
             }
 
             RunManagerStatus.BeforeBeginRun -> {
-                responsePrinter.println()
+                responsePrinter.begin().println().end()
                 tts.stop()
                 tts.clear()
             }
@@ -166,7 +166,7 @@ class ConsoleApplication(
 
     private fun clearLinesAndSleep(backTimes: Int = 2, waitTime: Long = 200) {
         for (i in 1..backTimes) {
-            responsePrinter.print("\u001b[1A\u001b[2K")
+            responsePrinter.printMessage("\u001b[1A\u001b[2K")
         }
         Thread.sleep(waitTime)
     }

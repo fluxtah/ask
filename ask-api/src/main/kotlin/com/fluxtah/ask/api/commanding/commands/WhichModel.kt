@@ -17,9 +17,9 @@ class WhichModel(
     override suspend fun execute(args: List<String>) {
         val modelId = userProperties.getModel()
         if (modelId.isEmpty()) {
-            printer.println("No model set, all targeted assistants will use their default model")
+            printer.printMessage("No model set, all targeted assistants will use their default model")
             return
         }
-        printer.println("Model set to $modelId, all targeted assistants will use this model until you /model-clear")
+        printer.printMessage("Model set to $modelId, all targeted assistants will use this model until you /model-clear")
     }
 }

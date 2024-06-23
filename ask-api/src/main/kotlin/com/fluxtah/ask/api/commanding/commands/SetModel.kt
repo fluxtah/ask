@@ -16,13 +16,13 @@ class SetModel(
     override val requiresApiKey: Boolean = false
     override suspend fun execute(args: List<String>) {
         if (args.size != 1) {
-            printer.println("Invalid number of arguments for /model, expected a model ID following the command")
+            printer.printMessage("Invalid number of arguments for /model, expected a model ID following the command")
             return
         }
 
         val modelId = args.first()
         userProperties.setModel(modelId)
         userProperties.save()
-        printer.println("Model set to $modelId, all targeted assistants will use this model until you /model-clear")
+        printer.printMessage("Model set to $modelId, all targeted assistants will use this model until you /model-clear")
     }
 }

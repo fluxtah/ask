@@ -19,7 +19,8 @@ class GetAssistant(
     override val requiresApiKey: Boolean = true
     override suspend fun execute(args: List<String>) {
         if (args.size != 1) {
-            responsePrinter.println("Invalid number of arguments for /assistant-info, expected a assistant ID following the command")
+            responsePrinter
+                .printMessage("Invalid number of arguments for /assistant-info, expected a assistant ID following the command")
             return
         }
 
@@ -27,7 +28,7 @@ class GetAssistant(
 
         val assistantDef = assistantRegistry.getAssistantById(assistantId)
         if (assistantDef == null) {
-            responsePrinter.println("Assistant not found")
+            responsePrinter.printMessage("Assistant not found")
             return
         }
 
@@ -35,6 +36,7 @@ class GetAssistant(
 
         val installed = assistantInstallRecord != null
 
-        responsePrinter.println("@${assistantDef.id} - ${assistantDef.name} ${assistantDef.version}, ${assistantDef.model}, installed: $installed")
+        responsePrinter
+            .printMessage("@${assistantDef.id} - ${assistantDef.name} ${assistantDef.version}, ${assistantDef.model}, installed: $installed")
     }
 }

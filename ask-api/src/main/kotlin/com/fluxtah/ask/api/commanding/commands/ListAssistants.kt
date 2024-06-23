@@ -20,30 +20,35 @@ class ListAssistants(
     override val requiresApiKey: Boolean = true
     override suspend fun execute(args: List<String>) {
         val installedAssistants = assistantInstallRepository.getAssistantInstallRecords()
-        printer.println()
-        printer.println(String.format("%-10s %-10s %-16s %-12s %-8s", "ID", "Version", "Name", "Installed", "Update"))
-        printer.println("-----------------------------------------------------------------")
-        assistantRegistry.getAssistants().forEach {
-            val installedAssistant = installedAssistants.find { record -> record.id == it.id }
-            val currentVersion = installedAssistant?.version ?: it.version
-            val upgradeAvailable =
-                if (installedAssistant != null &&
-                    VersionUtils.isVersionGreater(it.version, installedAssistant.version)
-                ) {
-                    cyan(it.version)
-                } else {
-                    "x"
+        printer
+            .begin()
+            .println()
+            .println(String.format("%-10s %-10s %-16s %-12s %-8s", "ID", "Version", "Name", "Installed", "Update"))
+            .println("-----------------------------------------------------------------")
+            .apply {
+                assistantRegistry.getAssistants().forEach {
+                    val installedAssistant = installedAssistants.find { record -> record.id == it.id }
+                    val currentVersion = installedAssistant?.version ?: it.version
+                    val upgradeAvailable =
+                        if (installedAssistant != null &&
+                            VersionUtils.isVersionGreater(it.version, installedAssistant.version)
+                        ) {
+                            cyan(it.version)
+                        } else {
+                            "x"
+                        }
+                    println(
+                        String.format(
+                            "%-10s %-10s %-16s %-12s %-8s",
+                            it.id,
+                            currentVersion,
+                            it.name,
+                            if (installedAssistant != null) "✔" else "x",
+                            upgradeAvailable
+                        )
+                    )
                 }
-            printer.println(
-                String.format(
-                    "%-10s %-10s %-16s %-12s %-8s",
-                    it.id,
-                    currentVersion,
-                    it.name,
-                    if (installedAssistant != null) "✔" else "x",
-                    upgradeAvailable
-                )
-            )
-        }
+            }
+            .end()
     }
 }

@@ -14,7 +14,7 @@ class DeleteThread(
     override val requiresApiKey: Boolean = true
     override suspend fun execute(args: List<String>) {
         if (args.isEmpty() || args.joinToString("").trim().isEmpty()) {
-            printer.println("Invalid number of arguments for /thread-delete, expected a thread ID following the command")
+            printer.printMessage("Invalid number of arguments for /thread-delete, expected a thread ID following the command")
             return
         }
 
@@ -26,6 +26,6 @@ class DeleteThread(
             userProperties.setThreadId("")
             userProperties.save()
         }
-        printer.println("Thread deleted")
+        printer.printMessage("Thread deleted")
     }
 }

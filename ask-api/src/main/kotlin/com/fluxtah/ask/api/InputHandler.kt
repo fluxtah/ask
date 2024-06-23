@@ -11,7 +11,7 @@ class InputHandler(
     private val logger: AskLogger,
     private val assistantRunManager: AssistantRunManager,
 ) {
-    fun handleInput(input: String) {
+    suspend fun handleInput(input: String) {
         if (input.isEmpty()) {
             return
         }
@@ -31,7 +31,7 @@ class InputHandler(
                 }
             }
         } catch (e: Exception) {
-            responsePrinter.println("Error: ${e.message}, run with /log-level ERROR for more info")
+            responsePrinter.begin().println("Error: ${e.message}, run with /log-level ERROR for more info").end()
             logger.log(LogLevel.ERROR, "Error: ${e.stackTraceToString()}")
         }
     }

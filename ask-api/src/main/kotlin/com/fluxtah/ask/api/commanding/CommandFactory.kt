@@ -25,24 +25,23 @@ class CommandFactory(
         commands[name] = CommandEntry(name, description) { get<T>() }
     }
 
-    fun executeCommand(input: String) {
+    suspend fun executeCommand(input: String) {
         val parts = input.drop(1).split(" ")
         val command = commands[parts[0]]?.command?.invoke()
 
         if (command == null) {
-            responsePrinter.println("Command not found: ${parts[0]}")
+            responsePrinter.begin().println("Command not found: ${parts[0]}").end()
             return
         }
 
         if (command.requiresApiKey) {
             if (userProperties.getOpenaiApiKey().isEmpty()) {
-                responsePrinter.println("You need to set an OpenAI API key first! with /set-key <api-key>")
+                responsePrinter
+                    .begin().println("You need to set an OpenAI API key first! with /set-key <api-key>").end()
                 return
             }
         }
-        runBlocking {
-            command.execute(parts.drop(1))
-        }
+        command.execute(parts.drop(1))
     }
 
     fun getCommandsSortedByName(): List<CommandEntry> {

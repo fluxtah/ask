@@ -18,7 +18,7 @@ class SwitchThread(
     override val requiresApiKey: Boolean = true
     override suspend fun execute(args: List<String>) {
         if (args.size != 1) {
-            printer.println("Invalid number of arguments for /thread-switch, expected a thread ID following the command")
+            printer.printMessage("Invalid number of arguments for /thread-switch, expected a thread ID following the command")
             return
         }
 
@@ -27,9 +27,9 @@ class SwitchThread(
         if (thread != null) {
             userProperties.setThreadId(threadId)
             userProperties.save()
-            printer.println("Switched to thread: $threadId")
+            printer.printMessage("Switched to thread: $threadId")
         } else {
-            printer.println("Thread with ID $threadId not found")
+            printer.printMessage("Thread with ID $threadId not found")
         }
     }
 }

@@ -24,7 +24,7 @@ class ThreadNew(
         val title = if (args.isNotEmpty()) args.joinToString(" ") else null
 
         val thread = assistantsApi.threads.createThread()
-        printer.println("Created thread: ${thread.id} at ${Date(thread.createdAt)}")
+        printer.printMessage("Created thread: ${thread.id} at ${Date(thread.createdAt)}")
         userProperties.setThreadId(thread.id)
         userProperties.save()
         threadRepository.createThread(thread.id, title ?: "")

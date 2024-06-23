@@ -22,29 +22,34 @@ class ThreadRecall(
     override suspend fun execute(args: List<String>) {
         val threadId = userProperties.getThreadId()
         if (threadId.isEmpty()) {
-            printer.println("You need to create a thread first. Use /thread-new")
+            printer.printMessage("You need to create a thread first. Use /thread-new")
             return
         }
         val messages = assistantsApi.messages.listMessages(threadId)
-        printer.println()
-        printer.println("-- Thread Recall $threadId --")
-        printer.println()
-        messages.data.reversed().forEach { message ->
-            if (message.role == "user") {
-                printer.print("${green("ask ➜")} ")
-                message.content.forEach { content ->
-                    printer.println(content.text.value)
+        printer
+            .begin()
+            .println()
+            .println("-- Thread Recall $threadId --")
+            .println()
+            .apply {
+                messages.data.reversed().forEach { message ->
+                    if (message.role == "user") {
+                        print("${green("ask ➜")} ")
+                        message.content.forEach { content ->
+                            println(content.text.value)
+                        }
+                    } else {
+                        println("\u001B[0m")
+                        message.content.forEach { content ->
+                            val markdownParser = MarkdownParser(content.text.value)
+                            val ansiMarkdown = AnsiMarkdownRenderer().render(markdownParser.parse())
+                            println(ansiMarkdown)
+                        }
+                        println()
+                    }
+                    println()
                 }
-            } else {
-                printer.println("\u001B[0m")
-                message.content.forEach { content ->
-                    val markdownParser = MarkdownParser(content.text.value)
-                    val ansiMarkdown = AnsiMarkdownRenderer().render(markdownParser.parse())
-                    printer.println(ansiMarkdown)
-                }
-                printer.println()
             }
-            printer.println()
-        }
+            .end()
     }
 }

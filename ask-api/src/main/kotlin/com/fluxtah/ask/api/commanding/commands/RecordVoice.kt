@@ -17,7 +17,7 @@ class RecordVoice(
             player.stop()
             audioRecorder.start()
         }
-        responsePrinter.print("\u001b[1A\u001b[2K")
+        responsePrinter.begin().print("\u001b[1A\u001b[2K").end()
         // Unfortunate hack to allow the audio recorder to start/stop prevents a race condition
         Thread.sleep(250)
     }

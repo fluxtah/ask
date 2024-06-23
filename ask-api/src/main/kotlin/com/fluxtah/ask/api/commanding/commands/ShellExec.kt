@@ -14,7 +14,7 @@ class ShellExec(private val responsePrinter: AskResponsePrinter) : Command() {
     override val requiresApiKey: Boolean = false
     override suspend fun execute(args: List<String>) {
         if (args.isEmpty()) {
-            responsePrinter.println("Invalid number of arguments for /exec, expected a shell command following the command")
+            responsePrinter.printMessage("Invalid number of arguments for /exec, expected a shell command following the command")
             return
         }
 
@@ -27,16 +27,16 @@ class ShellExec(private val responsePrinter: AskResponsePrinter) : Command() {
             val process = ProcessBuilder(*command.split(" ").toTypedArray()).start()
             BufferedReader(InputStreamReader(process.inputStream)).use { reader ->
                 val result = reader.readLines().joinToString("\n")
-                responsePrinter.println(result)
+                responsePrinter.printMessage(result)
             }
             BufferedReader(InputStreamReader(process.errorStream)).use { reader ->
                 val error = reader.readLines().joinToString("\n")
                 if (error.isNotEmpty()) {
-                    responsePrinter.println(error)
+                    responsePrinter.printMessage(error)
                 }
             }
         } catch (e: Exception) {
-            responsePrinter.println("Shell command error: ${e.message}")
+            responsePrinter.printMessage("Shell command error: ${e.message}")
         }
     }
 }

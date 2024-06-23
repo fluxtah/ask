@@ -13,7 +13,8 @@ data class SetLogLevel(
     override val requiresApiKey: Boolean = false
     override suspend fun execute(args: List<String>) {
         if (args.size != 1) {
-            responsePrinter.println("Invalid number of arguments for /log-level, expected a log level ERROR, DEBUG, INFO or OFF following the command, current log level: ${userProperties.getLogLevel()}")
+            responsePrinter
+                .printMessage("Invalid number of arguments for /log-level, expected a log level ERROR, DEBUG, INFO or OFF following the command, current log level: ${userProperties.getLogLevel()}")
             return
         }
 
@@ -23,7 +24,7 @@ data class SetLogLevel(
             askLogger.setLogLevel(logLevel)
             userProperties.save()
         } catch (e: IllegalArgumentException) {
-            responsePrinter.println("Invalid log level: ${args.first()}")
+            responsePrinter.printMessage("Invalid log level: ${args.first()}")
         }
     }
 }

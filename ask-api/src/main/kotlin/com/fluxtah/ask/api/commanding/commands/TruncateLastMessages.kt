@@ -19,16 +19,16 @@ class TruncateLastMessages(
         val number = args.firstOrNull()?.toIntOrNull()
         if (number == null) {
             val currentValue = userProperties.getTruncateLastMessages()
-            printer.println("Current truncate last messages value: $currentValue. Usage: /truncate-last-messages <number>")
+            printer.printMessage("Current truncate last messages value: $currentValue. Usage: /truncate-last-messages <number>")
             return
         }
 
         if (number < 0) {
-            printer.println("Invalid number. Please provide a number between 0 and a positive integer.")
+            printer.printMessage("Invalid number. Please provide a number between 0 and a positive integer.")
         } else {
             userProperties.setTruncateLastMessages(number)
             userProperties.save()
-            printer.println("Set the truncate last messages value to: $number")
+            printer.printMessage("Set the truncate last messages value to: $number")
         }
     }
 }

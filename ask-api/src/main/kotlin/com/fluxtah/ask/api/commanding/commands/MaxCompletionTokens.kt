@@ -11,7 +11,8 @@ class MaxCompletionTokens(
 
     override suspend fun execute(args: List<String>) {
         if (args.size != 1 || args.first().toIntOrNull() == null) {
-            responsePrinter.println("Current max completion tokens: ${userProperties.getMaxCompletionTokens()}, to set a new value use /max-completion-tokens <number>")
+            responsePrinter
+                .printMessage("Current max completion tokens: ${userProperties.getMaxCompletionTokens()}, to set a new value use /max-completion-tokens <number>")
         } else {
             val maxCompletionTokens = args.first().toInt()
             userProperties.setMaxCompletionTokens(maxCompletionTokens)

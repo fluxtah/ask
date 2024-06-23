@@ -12,7 +12,7 @@ class ReinstallAssistant(
     override val requiresApiKey: Boolean = true
     override suspend fun execute(args: List<String>) {
         if (args.size != 1) {
-            printer.println("Invalid number of arguments for /assistant-reinstall, expected an assistant ID following the command")
+            printer.printMessage("Invalid number of arguments for /assistant-reinstall, expected an assistant ID following the command")
             return
         }
 
@@ -21,7 +21,7 @@ class ReinstallAssistant(
         val def = assistantRegistry.getAssistantById(assistantId)
 
         if (def == null) {
-            printer.println("Assistant not found: $assistantId")
+            printer.printMessage("Assistant not found: $assistantId")
             return
         }
 
@@ -29,14 +29,14 @@ class ReinstallAssistant(
 
         if (assistantInstallRecord != null) {
             if (assistantInstallRepository.uninstall(assistantInstallRecord)) {
-                printer.println("Uninstalled assistant: @${def.id} ${assistantInstallRecord.version} ${assistantInstallRecord.installId}")
+                printer.printMessage("Uninstalled assistant: @${def.id} ${assistantInstallRecord.version} ${assistantInstallRecord.installId}")
             } else {
-                printer.println("Failed to uninstall assistant: @${def.id} ${assistantInstallRecord.version} ${assistantInstallRecord.installId}")
+                printer.printMessage("Failed to uninstall assistant: @${def.id} ${assistantInstallRecord.version} ${assistantInstallRecord.installId}")
                 return
             }
         }
 
         val newAssistantInstallRecord = assistantInstallRepository.install(def)
-        printer.println("Installed assistant: @${def.id} ${def.version} ${newAssistantInstallRecord.installId}")
+        printer.printMessage("Installed assistant: @${def.id} ${def.version} ${newAssistantInstallRecord.installId}")
     }
 }

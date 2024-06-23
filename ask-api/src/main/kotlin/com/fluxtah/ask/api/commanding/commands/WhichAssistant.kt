@@ -21,15 +21,15 @@ class WhichAssistant(
     override suspend fun execute(args: List<String>) {
         val assistantId = userProperties.getAssistantId()
         if (assistantId.isEmpty()) {
-            printer.println("You need to select an assistant first. Use /assistant-list to see available assistants")
+            printer.printMessage("You need to select an assistant first. Use /assistant-list to see available assistants")
             return
         }
 
         assistantRegistry.getAssistantById(assistantId)?.let {
             val installedAssistants = assistantInstallRepository.getAssistantInstallRecords()
             val installed = installedAssistants.find { record -> record.id == it.id } != null
-            printer.println("@${it.id} - ${it.name} ${it.version}, ${it.model}, installed: $installed")
-        } ?: printer.println("Assistant not found")
+            printer.printMessage("@${it.id} - ${it.name} ${it.version}, ${it.model}, installed: $installed")
+        } ?: printer.printMessage("Assistant not found")
     }
 }
 

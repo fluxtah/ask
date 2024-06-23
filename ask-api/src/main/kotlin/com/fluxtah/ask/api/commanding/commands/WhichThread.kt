@@ -15,6 +15,6 @@ class WhichThread(
 ) : Command() {
     override val requiresApiKey: Boolean = false
     override suspend fun execute(args: List<String>) {
-        printer.println("Current thread: ${userProperties.getThreadId().ifEmpty { "None" }}")
+        printer.printMessage("Current thread: ${userProperties.getThreadId().ifEmpty { "None" }}")
     }
 }

@@ -15,7 +15,7 @@ class EnableTalkCommand(
         val enable = !userProperties.getTalkEnabled()
         userProperties.setTalkEnabled(enable)
         textToSpeechPlayer.enabled = enable
-        responsePrinter.println("Talk mode is now ${if (enable) "enabled" else "disabled"}.")
+        responsePrinter.printMessage("Talk mode is now ${if (enable) "enabled" else "disabled"}.")
         if (!enable) {
             textToSpeechPlayer.stop()
         }

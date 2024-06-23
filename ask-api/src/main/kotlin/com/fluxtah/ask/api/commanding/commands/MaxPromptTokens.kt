@@ -11,7 +11,8 @@ class MaxPromptTokens(
 
     override suspend fun execute(args: List<String>) {
         if (args.size != 1 || args.first().toIntOrNull() == null) {
-            responsePrinter.println("Current max prompt tokens: ${userProperties.getMaxPromptTokens()}, to set a new value use /max-prompt-tokens <number>")
+            responsePrinter
+                .printMessage("Current max prompt tokens: ${userProperties.getMaxPromptTokens()}, to set a new value use /max-prompt-tokens <number>")
         } else {
             val maxPromptTokens = args.first().toInt()
             userProperties.setMaxPromptTokens(maxPromptTokens)

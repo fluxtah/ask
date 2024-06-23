@@ -18,7 +18,8 @@ class InstallAssistant(
     override val requiresApiKey: Boolean = true
     override suspend fun execute(args: List<String>) {
         if (args.size != 1) {
-            printer.println("Invalid number of arguments for /assistant-install, expected an assistant ID following the command")
+            printer
+                .printMessage("Invalid number of arguments for /assistant-install, expected an assistant ID following the command")
             return
         }
 
@@ -27,12 +28,13 @@ class InstallAssistant(
         val def = assistantRegistry.getAssistantById(assistantId)
 
         if (def == null) {
-            printer.println("Assistant not found: $assistantId")
+            printer.printMessage("Assistant not found: $assistantId")
             return
         }
 
         val assistantInstallRecord = assistantInstallRepository.install(def)
 
-        printer.println("Installed assistant: @${def.id} ${def.version} as ${assistantInstallRecord.installId}")
+        printer
+            .printMessage("Installed assistant: @${def.id} ${def.version} as ${assistantInstallRecord.installId}")
     }
 }

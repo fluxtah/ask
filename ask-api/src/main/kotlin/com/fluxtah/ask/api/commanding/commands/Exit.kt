@@ -12,7 +12,7 @@ import kotlin.system.exitProcess
 class Exit(private val printer: AskResponsePrinter) : Command() {
     override val requiresApiKey: Boolean = false
     override suspend fun execute(args: List<String>) {
-        printer.println("Exiting the application...")
+        printer.printMessage("Exiting the application...")
         exitProcess(0)
     }
 }

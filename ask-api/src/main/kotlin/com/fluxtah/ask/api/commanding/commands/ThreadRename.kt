@@ -16,7 +16,7 @@ class ThreadRename(
     override val requiresApiKey: Boolean = false
     override suspend fun execute(args: List<String>) {
         if (args.size != 2) {
-            responsePrinter.println("Invalid number of arguments for /thread-rename, expected a thread ID and new title following the command")
+            responsePrinter.printMessage("Invalid number of arguments for /thread-rename, expected a thread ID and new title following the command")
             return
         }
 

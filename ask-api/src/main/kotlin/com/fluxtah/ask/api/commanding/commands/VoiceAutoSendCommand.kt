@@ -18,7 +18,7 @@ class VoiceAutoSendCommand(
     override suspend fun execute(args: List<String>) {
         val enabled = userProperties.getAutoSendVoice()
         userProperties.setAutoSendVoice(!enabled)
-        responsePrinter.println("Voice auto-send mode is now ${if (!enabled) "enabled" else "disabled"}.")
+        responsePrinter.printMessage("Voice auto-send mode is now ${if (!enabled) "enabled" else "disabled"}.")
     }
 }
 

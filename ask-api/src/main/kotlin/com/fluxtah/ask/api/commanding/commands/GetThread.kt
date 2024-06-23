@@ -24,7 +24,7 @@ class GetThread(
         val actualThread = threadId ?: userProperties.getThreadId().ifEmpty { null }
 
         if (actualThread == null) {
-            printer.println("You need to create a thread first. Use /thread-new or pass a thread id as the first argument")
+            printer.printMessage("You need to create a thread first. Use /thread-new or pass a thread id as the first argument")
             return
         }
         println(JSON.encodeToString<AssistantThread>(assistantsApi.threads.getThread(actualThread)))

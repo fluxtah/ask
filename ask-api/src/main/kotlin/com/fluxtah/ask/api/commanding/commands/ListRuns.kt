@@ -19,24 +19,29 @@ class ListRuns(
     override suspend fun execute(args: List<String>) {
         val threadId = userProperties.getThreadId()
         if (threadId.isEmpty()) {
-            printer.println("You need to create a thread first. Use /thread-new")
+            printer.printMessage("You need to create a thread first. Use /thread-new")
             return
         }
-        printer.println()
-        printer.println(String.format("%-19s %-28s %-12s %-10s %-10s", "Created", "ID", "Status", "In", "Out"))
-        printer.println("------------------------------------------------------------------------------------")
-        assistantsApi.runs.listRuns(threadId).data.forEach {
-            printer.println(
-                String.format(
-                    "%-19s %-28s %-12s %-10s %-10s",
-                    it.createdAt.toShortDateTimeString(),
-                    it.id,
-                    it.status,
-                    it.usage?.promptTokens,
-                    it.usage?.completionTokens
-                )
-            )
-        }
+        printer
+            .begin()
+            .println()
+            .println(String.format("%-19s %-28s %-12s %-10s %-10s", "Created", "ID", "Status", "In", "Out"))
+            .println("------------------------------------------------------------------------------------")
+            .apply {
+                assistantsApi.runs.listRuns(threadId).data.forEach {
+                    println(
+                        String.format(
+                            "%-19s %-28s %-12s %-10s %-10s",
+                            it.createdAt.toShortDateTimeString(),
+                            it.id,
+                            it.status,
+                            it.usage?.promptTokens,
+                            it.usage?.completionTokens
+                        )
+                    )
+                }
+            }
+            .end()
     }
 }
 

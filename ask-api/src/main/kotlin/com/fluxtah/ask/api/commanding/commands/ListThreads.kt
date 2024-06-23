@@ -18,20 +18,25 @@ class ListThreads(
     override val requiresApiKey: Boolean = true
     override suspend fun execute(args: List<String>) {
         val threads = threadRepository.listThreads()
-        printer.println()
-        printer.println(String.format("%-36s %-30s", "Thread", "Title"))
-        printer.println("--------------------------------------------------------------------------------")
-        if (threads.isEmpty()) {
-            printer.println("No threads found, type /thread-new to create a new thread")
-        } else {
-            threads.forEach {
-                val title = it.title.ifEmpty { "<unnamed>" }
-                if (userProperties.getThreadId() == it.threadId) {
-                    printer.println(String.format("%-36s %-30s", it.threadId, "$title (Active)"))
+        printer
+            .begin()
+            .println()
+            .println(String.format("%-36s %-30s", "Thread", "Title"))
+            .println("--------------------------------------------------------------------------------")
+            .apply {
+                if (threads.isEmpty()) {
+                    println("No threads found, type /thread-new to create a new thread")
                 } else {
-                    printer.println(String.format("%-36s %-30s", it.threadId, title))
+                    threads.forEach {
+                        val title = it.title.ifEmpty { "<unnamed>" }
+                        if (userProperties.getThreadId() == it.threadId) {
+                            println(String.format("%-36s %-30s", it.threadId, "$title (Active)"))
+                        } else {
+                            println(String.format("%-36s %-30s", it.threadId, title))
+                        }
+                    }
                 }
             }
-        }
+            .end()
     }
 }

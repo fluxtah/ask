@@ -15,58 +15,65 @@ import kotlinx.coroutines.runBlocking
 
 class ConsoleOutputRenderer(
     private val responsePrinter: AskResponsePrinter,
-    private val commandFactory: CommandFactory,
     private val workingSpinner: WorkingSpinner,
 ) {
     fun renderWelcomeMessage() {
-        responsePrinter.println()
-        responsePrinter.println(
-            """
-             ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░
-            ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░
-            ░▒▓████████▓▒░░▒▓██████▓▒░░▒▓██████▓▒░
-            ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░
-            ░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░             
-        """.trimIndent()
-        )
-        responsePrinter.println("░▒▓█▓░ ASSISTANT KOMMANDER v${Version.APP_VERSION} ░▓█▓▒░")
-        responsePrinter.println()
-        responsePrinter.println("Assistants available:")
-        runBlocking {
-            commandFactory.executeCommand("/assistant-list")
-        }
-        responsePrinter.println()
-        responsePrinter.println("Type /help for a list of commands, to quit press Ctrl+C or type /exit")
+        responsePrinter
+            .begin()
+            .println()
+            .println(
+                """
+                 ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░
+                ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░
+                ░▒▓████████▓▒░░▒▓██████▓▒░░▒▓██████▓▒░
+                ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░
+                ░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░             
+            """.trimIndent()
+            )
+            .println("░▒▓█▓░ ASSISTANT KOMMANDER v${Version.APP_VERSION} ░▓█▓▒░")
+            .println()
+            .println("Type /help for a list of commands, to quit press Ctrl+C or type /exit")
+            .end()
     }
 
     fun renderAssistantResponse(response: String) {
         val markdownParser = MarkdownParser(response)
         val renderedMarkdown = AnsiMarkdownRenderer().render(markdownParser.parse())
-        responsePrinter.println()
-        responsePrinter.println(renderedMarkdown)
+        responsePrinter
+            .begin()
+            .println(renderedMarkdown)
+            .end()
     }
 
     fun renderAssistantToolCall(details: AssistantRunStepDetails.ToolCalls.ToolCallDetails.FunctionToolCallDetails) {
-        responsePrinter.print("\u001b[1A\u001b[2K")
-        responsePrinter.println(" ${green("==>")} ${blue(details.function.name)} (${details.function.arguments})")
-        responsePrinter.println()
-        responsePrinter.println()
+        responsePrinter
+            .begin()
+            .print("\u001b[1A\u001b[2K")
+            .println(" ${green("==>")} ${blue(details.function.name)} (${details.function.arguments})")
+            .println()
+            .println()
+            .end()
     }
 
     fun renderAssistantMessage(message: Message) {
-        responsePrinter.print("\u001b[1A\u001b[2K")
-        responsePrinter.println(message.content.joinToString(" ") { it.text.value })
-        responsePrinter.println()
-        responsePrinter.println()
+        responsePrinter
+            .begin()
+            .print("\u001b[1A\u001b[2K")
+            .println(message.content.joinToString(" ") { it.text.value })
+            .println()
+            .println()
+            .end()
     }
 
     fun renderAssistantError(error: RunManagerStatus.Error) {
-        responsePrinter.println()
-        responsePrinter.println(error.message)
+        responsePrinter
+            .begin()
+            .println()
+            .println(error.message)
+            .end()
     }
 
     fun renderAssistantRunStatusChanged(runStatus: RunStatus) {
-        responsePrinter.print("\u001b[1A\u001b[2K")
         val indicator = when (runStatus) {
             RunStatus.FAILED,
             RunStatus.CANCELLED,
@@ -76,7 +83,11 @@ class ConsoleOutputRenderer(
             else -> blue(workingSpinner.next())
         }
 
-        responsePrinter.println(" $indicator $runStatus")
+        responsePrinter
+            .begin()
+            .print("\u001b[1A\u001b[2K")
+            .println(" $indicator $runStatus")
+            .end()
     }
 
 }

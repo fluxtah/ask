@@ -16,7 +16,7 @@ class SetOpenAiApiKey(
     override val requiresApiKey: Boolean = false
     override suspend fun execute(args: List<String>) {
         if (args.size != 1) {
-            responsePrinter.println("Invalid number of arguments for /set-key, expected an API key following the command")
+            responsePrinter.printMessage("Invalid number of arguments for /set-key, expected an API key following the command")
             return
         }
         val apiKey = args[0]
